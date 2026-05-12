@@ -1,0 +1,33 @@
+---
+description: Use repo PRD as product source of truth; stack, privacy, tiers, UX.
+alwaysApply: true
+---
+
+# Project context (PRD-grounded)
+
+## Source of truth
+
+Treat [prd.md](prd.md) at the repo root as the single narrative source of truth for product intent: scope, UX, tiers, terminology, notification behavior.
+
+## When to read the PRD
+
+Before implementing **screens, flows, DB fields / data-shape changes, notifications, paywall gates, currency handling, or navigation structure**, read the relevant sections in `prd.md`—especially §2 (stack + constraints), §3–§4 (conceptual model + currency), §5 (navigation), §6 (screens), §7 (notifications), §8 (free vs pro and **exactly three** enforcement locations), §11 (terminology).
+
+If the user’s request contradicts `prd.md`, surface the mismatch and confirm whether `prd.md` should be updated.
+
+## Hard constraints (summary only)
+
+- **Product:** Impulse-buy delay app; push-first UX is core differentiators (§1).
+- **v1 privacy / architecture:** All data **local-only**—no backend, no user accounts (§2).
+- **Stack direction:** Expo, Expo Router, expo-sqlite, Drizzle ORM, expo-notifications, RevenueCat, lucide-react-native, Zustand, optional PostHog (§2). PRD details are guidance, not verbatim API prescriptions—prefer current docs—but do not swap to incompatible stacks casually unless direction changes.
+- **Monetization enforcement (only these three surfaces):** Home FAB gate, custom-delay lock, Past-tab history limit for non-pro (§8). Don’t invent extra paywalls elsewhere without explicit approval and a PRD update.
+
+## Naming
+
+The product and app name are **Wants**, matching `app.json` (`name` / `slug` / `scheme`). Use **Wants** in user-facing copy and in `prd.md`; keep existing code paths and bundle identifiers consistent with the repo unless intentionally renaming.
+
+## Don’t replicate the PRD in chat
+
+Open and read **`prd.md`** for specifics rather than dumping long excerpts.
+
+**Schema and folder layout:** decided at implementation time per PRD §1 / §3. Match §3 conceptual model **and** existing Drizzle/schema and `src/`—don’t invent fields or tiers beyond what §3–§11 and the codebase support.

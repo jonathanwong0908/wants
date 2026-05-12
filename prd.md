@@ -1,17 +1,17 @@
-# PRD — Pause (Impulse Buy Delay App)
+# PRD — Wants (Impulse Buy Delay App)
 
 **Version:** 1.2  
 **Stack:** React Native · Expo · Expo Router · expo-sqlite · Drizzle ORM · expo-notifications · RevenueCat · lucide-react-native  
 **Target platforms:** iOS first, Android parity  
-**Author reference:** Use this document as the single source of truth when building Pause. DB schema and folder structure are decided at implementation time.
+**Author reference:** Use this document as the single source of truth when building Wants. DB schema and folder structure are decided at implementation time.
 
 ---
 
 ## 1. Product summary
 
-Pause is an impulse-buy delay app. When a user wants to buy something, they log the item and a waiting period. After the delay expires, a push notification asks "Still want this?" The user taps Yes or No. Every "No" is counted as money saved. The core emotional hook is the accumulating savings total — showing users how much they've stopped themselves from spending.
+Wants is an impulse-buy delay app. When a user wants to buy something, they log the item and a waiting period. After the delay expires, a push notification asks "Still want this?" The user taps Yes or No. Every "No" is counted as money saved. The core emotional hook is the accumulating savings total — showing users how much they've stopped themselves from spending.
 
-**The critical UX difference from competitors:** Pause is push-first. Every existing competitor requires the user to open the app and check in. Pause sends the notification to them. The user does not need to remember anything.
+**The critical UX difference from competitors:** Wants is push-first. Every existing competitor requires the user to open the app and check in. Wants sends the notification to them. The user does not need to remember anything.
 
 ---
 
@@ -101,7 +101,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 ### S1 — Welcome
 
 - Full-screen, no navigation chrome
-- App name + tagline: "Pause before you buy."
+- App name + tagline: **Wants** — "Wait before you buy."
 - Subtext: "Log what you want. Wait. See if you still need it."
 - CTA: "Let's go →"
 - Small "Skip" link at bottom — skips onboarding entirely
@@ -117,7 +117,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 
 ### S3 — Notification permission
 
-- Explains why notifications are needed: "This is how Pause works — we ping you when your wait is up so you don't have to remember anything."
+- Explains why notifications are needed: "This is how Wants works — we ping you when your wait is up so you don't have to remember anything."
 - CTA: "Allow notifications" → triggers system permission prompt
 - On allow or deny: mark onboarding complete, navigate to Home
 - If denied: soft warning ("You can enable this in Settings later") but do not block
@@ -192,7 +192,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 
 ### S12 — Paywall *(modal)*
 
-- Headline: "Unlock full Pause"
+- Headline: "Unlock the full Wants experience"
 - 3 benefit bullets: unlimited items · custom delays · full history
 - Two pricing options: $3.99/month · $29.99/year (highlight annual, "save 37%")
 - Prices loaded dynamically from RevenueCat — never hardcoded
