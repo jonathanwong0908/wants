@@ -1,22 +1,30 @@
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import * as SplashScreen from "expo-splash-screen";
+import Storage from "expo-sqlite/kv-store";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { Text, View } from "react-native";
 
+import { AppReadyProvider } from "@/contexts/app-ready-context";
+import { ONBOARDING_COMPLETE_KEY } from "@/constants/storage-keys";
+
 import migrations from "../../drizzle/migrations.js";
 import { db } from "./client";
 
-// Keep the native splash visible until migrations finish (see SplashScreen.hideAsync below).
+// Keep the native splash visible until migrations finish and onboarding flag is read (see hideAsync below).
 SplashScreen.preventAutoHideAsync().catch((reason) => {
   console.warn(reason);
 });
 
-type DatabaseMigrationsGateProps = {
+type AppReadyGateProps = {
   children: ReactNode;
 };
 
-export function DatabaseMigrationsGate({ children }: DatabaseMigrationsGateProps) {
+function readOnboardingComplete(): boolean {
+  return Storage.getItemSync(ONBOARDING_COMPLETE_KEY) === "true";
+}
+
+export function AppReadyGate({ children }: AppReadyGateProps) {
   const { success, error } = useMigrations(db, migrations);
 
   useEffect(() => {
@@ -44,5 +52,9 @@ export function DatabaseMigrationsGate({ children }: DatabaseMigrationsGateProps
     return null;
   }
 
-  return <>{children}</>;
+  const onboardingComplete = readOnboardingComplete();
+
+  return (
+    <AppReadyProvider value={{ onboardingComplete }}>{children}</AppReadyProvider>
+  );
 }
