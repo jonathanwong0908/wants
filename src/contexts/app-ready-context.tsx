@@ -2,6 +2,8 @@ import { createContext, useContext, type ReactNode } from "react";
 
 export type AppReadyValue = {
   onboardingComplete: boolean;
+  /** Persists via expo-sqlite kv-store (`onboarding_complete`) and updates in-memory gate state. */
+  setOnboardingComplete: (complete: boolean) => void;
 };
 
 const AppReadyContext = createContext<AppReadyValue | null>(null);

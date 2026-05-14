@@ -2,7 +2,7 @@ import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import * as SplashScreen from "expo-splash-screen";
 import Storage from "expo-sqlite/kv-store";
 import type { ReactNode } from "react";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Text, View } from "react-native";
 
 import { AppReadyProvider } from "@/contexts/app-ready-context";
@@ -22,6 +22,25 @@ type AppReadyGateProps = {
 
 function readOnboardingComplete(): boolean {
   return Storage.getItemSync(ONBOARDING_COMPLETE_KEY) === "true";
+}
+
+function AppReadyWithOnboarding({ children }: { children: ReactNode }) {
+  const [onboardingComplete, setOnboardingState] = useState(readOnboardingComplete);
+
+  const setOnboardingComplete = useCallback((complete: boolean) => {
+    if (complete) {
+      Storage.setItemSync(ONBOARDING_COMPLETE_KEY, "true");
+    } else {
+      Storage.removeItemSync(ONBOARDING_COMPLETE_KEY);
+    }
+    setOnboardingState(complete);
+  }, []);
+
+  return (
+    <AppReadyProvider value={{ onboardingComplete, setOnboardingComplete }}>
+      {children}
+    </AppReadyProvider>
+  );
 }
 
 export function AppReadyGate({ children }: AppReadyGateProps) {
@@ -52,9 +71,5 @@ export function AppReadyGate({ children }: AppReadyGateProps) {
     return null;
   }
 
-  const onboardingComplete = readOnboardingComplete();
-
-  return (
-    <AppReadyProvider value={{ onboardingComplete }}>{children}</AppReadyProvider>
-  );
+  return <AppReadyWithOnboarding>{children}</AppReadyWithOnboarding>;
 }

@@ -1,12 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { Alert, View } from "react-native";
+import { router } from "expo-router";
+import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-/**
- * Onboarding social proof — leads toward PRD S2 (“How it works”).
- * Wire Continue to the S2 route when that screen is implemented.
- */
+/** Onboarding social proof (PRD S2) → How it works (S3). */
 export default function OnboardingSocialProofScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background px-6">
@@ -26,11 +24,7 @@ export default function OnboardingSocialProofScreen() {
         className="w-full"
         size="lg"
         onPress={() => {
-          Alert.alert(
-            "Next step",
-            "How it works will appear in the next onboarding update.",
-            [{ text: "OK" }]
-          );
+          router.push("/how-it-works");
         }}>
         <Text>Continue</Text>
       </Button>
