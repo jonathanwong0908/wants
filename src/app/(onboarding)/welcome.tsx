@@ -1,19 +1,32 @@
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { router } from "expo-router";
 import { View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function OnboardingWelcomeScreen() {
   return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-lg text-neutral-800">Onboarding (placeholder)</Text>
+    <SafeAreaView className="flex-1 bg-background px-6">
+      <View className="flex-1 justify-center">
+        <Text variant="h1" className="text-center">
+          Wants
+        </Text>
+        <Text variant="lead" className="mt-4 text-center text-foreground">
+          Wait before you buy.
+        </Text>
+        <Text variant="muted" className="mt-6 text-center leading-6">
+          Log what you want. Wait. See if you still need it.
+        </Text>
+      </View>
+
       <Button
-        variant="outline"
+        className="w-full"
+        size="lg"
         onPress={() => {
-          console.log("Button pressed");
-        }}
-      >
-        <Text>Button</Text>
+          router.push("/social-proof");
+        }}>
+        <Text>Get started</Text>
       </Button>
-    </View>
+    </SafeAreaView>
   );
 }
