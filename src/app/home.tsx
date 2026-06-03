@@ -9,8 +9,7 @@ import { useAppReady } from "@/contexts/app-ready-context";
 import { formatCountdownUntil, formatCurrency } from "@/lib/money-format";
 import { pushHomeAreaRoute } from "@/lib/push-home-routes";
 import { THEME } from "@/lib/theme";
-import { PlusSignIcon, Settings01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react-native";
+import { Plus, Settings } from "lucide-react-native";
 import { router } from "expo-router";
 import { Pressable, ScrollView, useColorScheme, View } from "react-native";
 import {
@@ -46,12 +45,7 @@ export default function HomeScreen() {
               hitSlop={12}
               onPress={() => pushHomeAreaRoute("/settings")}
             >
-              <HugeiconsIcon
-                icon={Settings01Icon}
-                size={22}
-                color={iconTint}
-                strokeWidth={1.5}
-              />
+              <Settings size={22} color={iconTint} strokeWidth={1.5} />
             </Pressable>
           </View>
 
@@ -156,8 +150,7 @@ export default function HomeScreen() {
             onPress={() => pushHomeAreaRoute("/add-want")}
             className="h-14 w-14 items-center justify-center rounded-full bg-primary shadow-md shadow-black/20 active:bg-primary/90"
           >
-            <HugeiconsIcon
-              icon={PlusSignIcon}
+            <Plus
               size={28}
               color={palette.primaryForeground}
               strokeWidth={1.75}

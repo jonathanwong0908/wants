@@ -1,5 +1,4 @@
-import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react-native";
+import { ArrowLeft } from "lucide-react-native";
 
 type NavigationBackIconProps = {
   color: string;
@@ -7,5 +6,5 @@ type NavigationBackIconProps = {
 };
 
 export function NavigationBackIcon({ color, size = 22 }: NavigationBackIconProps) {
-  return <HugeiconsIcon icon={ArrowLeft01Icon} size={size} color={color} strokeWidth={1.5} />;
+  return <ArrowLeft size={size} color={color} strokeWidth={1.5} />;
 }

@@ -1,5 +1,4 @@
-import { ChevronRight } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react-native";
+import { ChevronRight } from "lucide-react-native";
 import { Pressable, View } from "react-native";
 
 import { cn } from "@/lib/utils";
@@ -46,7 +45,7 @@ export function FieldContainerItem({
     >
       <View className="flex-1">{children}</View>
       {onPress && (
-        <HugeiconsIcon icon={ChevronRight} size={16} color="#9CA3AF" />
+        <ChevronRight size={16} color="#9CA3AF" />
       )}
     </Comp>
   );

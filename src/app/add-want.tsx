@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { ChevronDown, Tick02Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react-native";
+import { THEME } from "@/lib/theme";
+import { Check, ChevronDown } from "lucide-react-native";
 import { useRouter } from "expo-router";
-import { ScrollView, View } from "react-native";
+import { ScrollView, useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 function FieldPlaceholder({ label }: { label: string }) {
@@ -26,6 +26,7 @@ function FieldPlaceholder({ label }: { label: string }) {
 
 export default function AddWantModalScreen() {
   const router = useRouter();
+  const palette = THEME[useColorScheme() === "dark" ? "dark" : "light"];
 
   return (
     <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background">
@@ -36,14 +37,14 @@ export default function AddWantModalScreen() {
           className="rounded-full border border-border"
           onPress={() => router.back()}
         >
-          <HugeiconsIcon icon={ChevronDown} size={24} strokeWidth={1.5} />
+          <ChevronDown size={24} color={palette.foreground} strokeWidth={1.5} />
         </Button>
         <Button
           size="icon"
           className="rounded-full border border-border"
           onPress={() => router.back()}
         >
-          <HugeiconsIcon icon={Tick02Icon} size={24} color="#fff" />
+          <Check size={24} color="#fff" />
         </Button>
       </View>
 
