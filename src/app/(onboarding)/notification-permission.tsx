@@ -20,12 +20,12 @@ export default function NotificationPermissionScreen() {
       Alert.alert(
         "Notifications",
         "You can enable this in Settings later.",
-        [{ text: "OK", onPress: () => router.replace("/home") }]
+        [{ text: "OK", onPress: () => router.replace("/") }]
       );
       return;
     }
 
-    router.replace("/home");
+    router.replace("/");
   }
 
   return (
