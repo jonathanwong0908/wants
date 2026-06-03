@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { useItemForm } from "@/hooks/use-item-form";
 import { THEME } from "@/lib/theme";
-import { Check, ChevronDown } from "lucide-react-native";
 import { useRouter } from "expo-router";
+import { Check, ChevronDown } from "lucide-react-native";
 import { ScrollView, useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -27,6 +28,9 @@ function FieldPlaceholder({ label }: { label: string }) {
 export default function AddWantModalScreen() {
   const router = useRouter();
   const palette = THEME[useColorScheme() === "dark" ? "dark" : "light"];
+  // Form provider + field binding come in the next pass.
+  const methods = useItemForm();
+  void methods;
 
   return (
     <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background">
