@@ -22,11 +22,11 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
-      <View className="flex-row items-center px-6 pb-4 pt-2">
+      <View className="flex-row items-center px-4 pb-4 pt-2 gap-2 border-b border-border">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="mr-1 rounded-full active:bg-accent"
+          className="mr-1"
           onPress={() => router.back()}
           accessibilityLabel="Back"
         >

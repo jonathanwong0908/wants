@@ -9,8 +9,8 @@ import { useAppReady } from "@/contexts/app-ready-context";
 import { formatCountdownUntil, formatCurrency } from "@/lib/money-format";
 import { pushHomeAreaRoute } from "@/lib/push-home-routes";
 import { THEME } from "@/lib/theme";
-import { Plus, Settings } from "lucide-react-native";
 import { router } from "expo-router";
+import { Plus, Settings } from "lucide-react-native";
 import { Pressable, ScrollView, useColorScheme, View } from "react-native";
 import {
   SafeAreaView,
@@ -40,13 +40,14 @@ export default function HomeScreen() {
         >
           {/* Top bar */}
           <View className="mb-6 flex-row items-center justify-end pt-2">
-            <Pressable
+            <Button
+              variant="outline"
+              size="icon"
               accessibilityLabel="Settings"
-              hitSlop={12}
               onPress={() => pushHomeAreaRoute("/settings")}
             >
               <Settings size={22} color={iconTint} strokeWidth={1.5} />
-            </Pressable>
+            </Button>
           </View>
 
           {/* Savings hero (PRD: total saved + label + decision count) */}
