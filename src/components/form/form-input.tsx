@@ -32,6 +32,7 @@ export function FormInput({
   numberOnly,
   allowDecimal,
   autoComplete,
+  autoFocus,
   ...props
 }: Omit<ComponentPropsWithoutRef<typeof Input>, "onChange"> & {
   numberOnly?: boolean;
@@ -47,6 +48,12 @@ export function FormInput({
     formDescriptionNativeID,
     formMessageNativeID,
   } = useFormField();
+
+  React.useEffect(() => {
+    if (!autoFocus) return;
+    const timer = setTimeout(() => inputRef.current?.focus(), 150);
+    return () => clearTimeout(timer);
+  }, [autoFocus]);
 
   return (
     <FormItem className="gap-2">

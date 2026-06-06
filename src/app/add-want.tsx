@@ -4,19 +4,22 @@ import { FormInput } from "@/components/form/form-input";
 import { FormTextarea } from "@/components/form/form-textarea";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
+import { Text } from "@/components/ui/text";
+import { createItem } from "@/db/mutations/items";
 import { useItemForm } from "@/hooks/use-item-form";
 import {
   DELAY_OPTIONS,
   getCurrencyFractionDigits,
   NOTE_MAX_LENGTH,
   sanitizePriceInput,
+  type ItemFormValues,
 } from "@/lib/forms/item-form-schema";
 import { THEME } from "@/lib/theme";
 import { Separator } from "@rn-primitives/dropdown-menu";
 import { PortalHost, useModalPortalRoot } from "@rn-primitives/portal";
 import { useRouter } from "expo-router";
 import { ChevronDown } from "lucide-react-native";
-import { ScrollView, useColorScheme, View } from "react-native";
+import { Alert, ScrollView, useColorScheme, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -27,7 +30,19 @@ const ADD_WANT_PORTAL_HOST = "add-want-portal";
 export default function AddWantModalScreen() {
   const router = useRouter();
   const palette = THEME[useColorScheme() === "dark" ? "dark" : "light"];
-  const { currencyCode, ...methods } = useItemForm();
+  const methods = useItemForm();
+  const { currencyCode, handleSubmit, formState } = methods;
+  const { isValid, isSubmitting } = formState;
+
+  async function onSubmit(values: ItemFormValues) {
+    try {
+      await createItem(values, currencyCode);
+      router.back();
+    } catch (error) {
+      Alert.alert("Could not save", "Something went wrong. Please try again.");
+      console.error("createItem failed:", error);
+    }
+  }
   const allowDecimals = getCurrencyFractionDigits(currencyCode) > 0;
   const insets = useSafeAreaInsets();
   const { sideOffset, ref, onLayout, style } = useModalPortalRoot();
@@ -41,7 +56,7 @@ export default function AddWantModalScreen() {
   return (
     <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background">
       <View ref={ref} onLayout={onLayout} style={style} className="flex-1">
-        <View className="flex-row items-center justify-between px-4 py-3">
+        <View className="flex-row items-center justify-between px-5 py-5">
           <Button
             variant="outline"
             size="icon"
@@ -54,13 +69,17 @@ export default function AddWantModalScreen() {
               strokeWidth={1.5}
             />
           </Button>
-          {/* <Button size="icon" onPress={() => router.back()}>
-          <Check size={24} color="#fff" />
-        </Button> */}
+          <Button
+            disabled={!isValid || isSubmitting}
+            onPress={handleSubmit(onSubmit)}
+            className="rounded-full"
+          >
+            <Text className="text-base font-medium">Save</Text>
+          </Button>
         </View>
 
         <ScrollView
-          className="flex-1 px-6 pt-4"
+          className="flex-1 px-5 pt-4"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -72,8 +91,13 @@ export default function AddWantModalScreen() {
                 render={({ field }) => (
                   <FormInput
                     {...field}
+                    autoFocus
                     label="Name"
                     placeholder="Enter the name of the item"
+                    onBlur={() => {
+                      field.onBlur();
+                      field.onChange(field.value.trim());
+                    }}
                   />
                 )}
               />
@@ -122,6 +146,10 @@ export default function AddWantModalScreen() {
                     label="Note"
                     placeholder="Add an optional note"
                     maxLength={NOTE_MAX_LENGTH}
+                    onBlur={() => {
+                      field.onBlur();
+                      field.onChange((field.value ?? "").trim());
+                    }}
                   />
                 )}
               />

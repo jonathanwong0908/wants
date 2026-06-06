@@ -38,7 +38,7 @@ export function useItemForm(
   // TODO: read currencyCode and defaultDelayHours from settings store when available.
   const form = useForm<ItemFormInput, unknown, ItemFormValues>({
     resolver: zodResolver(schema),
-    mode: "onSubmit",
+    mode: "onChange",
     defaultValues: {
       name: "",
       price: "",

@@ -4,7 +4,7 @@ export const itemStatusValues = ["waiting", "skipped", "bought"] as const;
 export type ItemStatus = (typeof itemStatusValues)[number];
 
 export const items = sqliteTable("items", {
-  id: text("id").primaryKey(),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   price: real("price").notNull(),
   currency: text("currency").notNull(),
