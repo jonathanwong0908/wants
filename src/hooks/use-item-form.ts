@@ -16,9 +16,17 @@ export type UseItemFormOptions = {
   defaultValues?: Partial<ItemFormInput>;
 };
 
+export type UseItemFormReturn = UseFormReturn<
+  ItemFormInput,
+  unknown,
+  ItemFormValues
+> & {
+  currencyCode: string;
+};
+
 export function useItemForm(
   options: UseItemFormOptions = {}
-): UseFormReturn<ItemFormInput, unknown, ItemFormValues> {
+): UseItemFormReturn {
   const currencyCode = options.currencyCode ?? DEFAULT_CURRENCY_CODE;
   const defaultDelayHours = options.defaultDelayHours ?? DEFAULT_DELAY_HOURS;
 
@@ -28,7 +36,7 @@ export function useItemForm(
   );
 
   // TODO: read currencyCode and defaultDelayHours from settings store when available.
-  return useForm<ItemFormInput, unknown, ItemFormValues>({
+  const form = useForm<ItemFormInput, unknown, ItemFormValues>({
     resolver: zodResolver(schema),
     mode: "onSubmit",
     defaultValues: {
@@ -39,4 +47,6 @@ export function useItemForm(
       ...options.defaultValues,
     },
   });
+
+  return Object.assign(form, { currencyCode });
 }

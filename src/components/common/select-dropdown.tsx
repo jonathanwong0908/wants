@@ -16,9 +16,25 @@ type Props = {
   options: { label: string; value: string }[];
   value: string;
   onChange: (value: string) => void;
+  portalHost?: string;
+  sideOffset?: number;
+  insets?: {
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+  };
 };
 
-export function SelectDropdown({ label, options, value, onChange }: Props) {
+export function SelectDropdown({
+  label,
+  options,
+  value,
+  onChange,
+  portalHost,
+  sideOffset,
+  insets,
+}: Props) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -32,7 +48,13 @@ export function SelectDropdown({ label, options, value, onChange }: Props) {
           </View>
         </View>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="rounded-xl">
+      <DropdownMenuContent
+        align="end"
+        className="rounded-xl"
+        portalHost={portalHost}
+        sideOffset={sideOffset}
+        insets={insets}
+      >
         {options.map((option, index) => (
           <Fragment key={option.value}>
             <DropdownMenuItem onPress={() => onChange(option.value)}>

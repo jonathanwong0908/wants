@@ -20,7 +20,7 @@ export default function RootLayout() {
             options={{ presentation: "modal", headerShown: false }}
           />
         </Stack>
-        <PortalHost name="root" />
+        <PortalHost />
       </AppReadyGate>
     </SafeAreaProvider>
   );

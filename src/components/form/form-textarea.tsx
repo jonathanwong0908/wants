@@ -9,33 +9,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-function getNumberKeyboardType(
-  numberOnly: boolean | undefined,
-  allowDecimal: boolean | undefined
-) {
-  if (!numberOnly) {
-    return "default" as const;
-  }
-  if (allowDecimal === true) {
-    return "decimal-pad" as const;
-  }
-  if (allowDecimal === false) {
-    return "number-pad" as const;
-  }
-  return "numeric" as const;
-}
-
-export function FormInput({
+export function FormTextarea({
   label,
   description,
   onChange,
-  numberOnly,
-  allowDecimal,
-  autoComplete,
   ...props
 }: Omit<ComponentPropsWithoutRef<typeof Input>, "onChange"> & {
-  numberOnly?: boolean;
-  allowDecimal?: boolean;
   label?: string;
   description?: string;
   onChange?: (text: string) => void;
@@ -54,8 +33,9 @@ export function FormInput({
 
       <Input
         ref={inputRef}
-        keyboardType={getNumberKeyboardType(numberOnly, allowDecimal)}
-        autoComplete={numberOnly ? "off" : autoComplete}
+        multiline
+        numberOfLines={4}
+        textAlignVertical="top"
         aria-labelledby={formItemNativeID}
         aria-describedby={
           !error
@@ -64,6 +44,7 @@ export function FormInput({
         }
         aria-invalid={!!error}
         onChangeText={onChange}
+        className="min-h-24 h-auto items-start py-3"
         {...props}
       />
       {!!description && <FormDescription>{description}</FormDescription>}
