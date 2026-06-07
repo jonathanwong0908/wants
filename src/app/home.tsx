@@ -8,13 +8,11 @@ import {
 } from "@/components/wants/waiting-want-list";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import {
-  PLACEHOLDER_HERO_CURRENCY,
-  PLACEHOLDER_TOTAL_SAVED,
-} from "@/constants/placeholder-wants";
 import { useAppReady } from "@/contexts/app-ready-context";
 import { selectWaitingItems } from "@/db/queries/items";
 import { useNowTick } from "@/hooks/use-now-tick";
+import { useSavingsStats } from "@/hooks/use-savings-stats";
+import { getCurrencyCode } from "@/lib/currency";
 import { formatCurrency } from "@/lib/money-format";
 import { pushHomeAreaRoute } from "@/lib/push-home-routes";
 import { THEME } from "@/lib/theme";
@@ -37,6 +35,9 @@ export default function HomeScreen() {
   const nowMs = useNowTick();
 
   const { data: waitingItems } = useLiveQuery(selectWaitingItems());
+  const currencyCode = getCurrencyCode();
+  const { totalSaved, skippedCount, hasOtherCurrencySkipped } =
+    useSavingsStats(currencyCode);
 
   const fabBottom = Math.max(insets.bottom, 16) + 12;
   const scrollBottomPad = fabBottom + 56 + 12;
@@ -103,11 +104,26 @@ export default function HomeScreen() {
           variant="h2"
           className="mt-1 border-b-0 pb-0 text-4xl tabular-nums text-card-foreground"
         >
-          {formatCurrency(PLACEHOLDER_TOTAL_SAVED, PLACEHOLDER_HERO_CURRENCY)}
+          {formatCurrency(totalSaved, currencyCode)}
         </Text>
+        <Text variant="muted" className="mt-1 text-sm">
+          across {skippedCount}{" "}
+          {skippedCount === 1 ? "decision" : "decisions"}
+        </Text>
+        {hasOtherCurrencySkipped ? (
+          <Text variant="muted" className="mt-1 text-xs">
+            Some savings in other currencies aren&apos;t included.
+          </Text>
+        ) : null}
       </View>
     ),
-    [iconTint]
+    [
+      iconTint,
+      currencyCode,
+      totalSaved,
+      skippedCount,
+      hasOtherCurrencySkipped,
+    ]
   );
 
   const ListFooterComponent = useMemo(

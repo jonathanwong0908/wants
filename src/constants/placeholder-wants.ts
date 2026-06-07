@@ -10,11 +10,6 @@ export type PlaceholderWantRow = {
   decidedAtMs?: number;
 };
 
-/** Placeholder savings total matching current currency convention (USD). */
-export const PLACEHOLDER_TOTAL_SAVED = 1247;
-export const PLACEHOLDER_DECISION_COUNT = 14;
-export const PLACEHOLDER_HERO_CURRENCY = "USD";
-
 const now = Date.now();
 
 /** Waiting wants ordered by `notifyAt` ascending (PRD home upcoming). Includes one expired row. */
