@@ -4,27 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { selectItemById } from "@/db/queries/items";
 import { useNowTick } from "@/hooks/use-now-tick";
+import { parseItemId } from "@/lib/parse-item-id";
+import { pushEditWantRoute } from "@/lib/push-edit-want-route";
+import { THEME } from "@/lib/theme";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ScrollView, View } from "react-native";
+import { Pencil } from "lucide-react-native";
+import { ScrollView, useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-function parseItemId(raw: string | string[] | undefined): number | null {
-  const value = Array.isArray(raw) ? raw[0] : raw;
-  if (!value) {
-    return null;
-  }
-
-  const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return null;
-  }
-
-  return parsed;
-}
 
 export default function WantDetailScreen() {
   const router = useRouter();
+  const palette = THEME[useColorScheme() === "dark" ? "dark" : "light"];
   const { id } = useLocalSearchParams<{ id: string }>();
   const nowMs = useNowTick();
   const itemId = parseItemId(id);
@@ -36,12 +27,24 @@ export default function WantDetailScreen() {
 
   return (
     <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background">
-      <View className="flex-row items-center px-5 py-5">
+      <View className="flex-row items-center justify-between px-5 py-5">
         <ScreenBackButton
           variant="modal"
           className="pt-1"
           accessibilityLabel="Close want details"
         />
+        {item ? (
+          <Button
+            variant="outline"
+            size="icon"
+            accessibilityLabel="Edit want"
+            onPress={() => pushEditWantRoute(item.id)}
+          >
+            <Pencil size={22} color={palette.foreground} strokeWidth={1.5} />
+          </Button>
+        ) : (
+          <View className="h-10 w-10" />
+        )}
       </View>
 
       <ScrollView

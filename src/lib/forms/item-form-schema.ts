@@ -1,4 +1,7 @@
+import type { items } from "@/db/schema";
 import { z } from "zod";
+
+type Item = typeof items.$inferSelect;
 
 export const ITEM_NAME_MAX_LENGTH = 50;
 export const PRESET_DELAY_HOURS = [24, 72, 168] as const;
@@ -122,3 +125,14 @@ export function createItemFormSchema(currencyCode: string) {
 
 export type ItemFormInput = z.input<ReturnType<typeof createItemFormSchema>>;
 export type ItemFormValues = z.output<ReturnType<typeof createItemFormSchema>>;
+
+export function itemToFormDefaultValues(
+  item: Item
+): Partial<ItemFormInput> {
+  return {
+    name: item.name,
+    price: String(item.price),
+    delayHours: item.delayHours,
+    note: item.note ?? "",
+  };
+}

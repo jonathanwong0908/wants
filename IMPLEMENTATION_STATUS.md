@@ -97,8 +97,27 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 - Skip / buy decision buttons
 - "Check in early" flow for non-expired waiting items
-- Edit / delete
+- Delete
 - Deep link from push notification
+
+## Edit Want — partial
+
+**Files:** `src/app/edit-want/[id].tsx`, `src/components/wants/item-form-fields.tsx`, `src/db/mutations/items.ts` (`updateItem`), `src/lib/push-edit-want-route.ts`, `src/lib/forms/item-form-schema.ts`, `src/lib/want-format.ts`
+
+### Done
+
+- Edit icon (Pencil) on want detail header → `/edit-want/[id]` modal
+- Shared `ItemFormFields` extracted from add-want; add-want refactored to use it
+- Pre-filled form via `useItemForm` + `itemToFormDefaultValues(item)`; form remounts with `key={item.id}`
+- Waiting items: edit name, price, delay, note; `notifyAt` recalculated as `createdAt + delayHours` when delay changes
+- Skipped / bought items: edit name, price, note only (delay field hidden; `delayHours` / `notifyAt` unchanged in DB)
+- `getDelayOptionsForValue` for non-preset delay values (future custom delay)
+- `updateItem()` Drizzle mutation; `router.back()` on success; detail auto-refreshes via `useLiveQuery`
+
+### Not done (follow-ups)
+
+- Cancel + reschedule notification on edit when `notifyAt` or `delayHours` changes (blocked on notification scheduling — see Add Want follow-ups)
+- Paywall / custom delay pro gate on edit (same as add — not built yet)
 
 ## Decision / Skipped / Bought modals (PRD S8–S10)
 

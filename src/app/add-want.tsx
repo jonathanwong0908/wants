@@ -1,21 +1,11 @@
-import { FieldContainer, FieldContainerItem } from "@/components/common/field";
-import { SelectDropdown } from "@/components/common/select-dropdown";
-import { FormInput } from "@/components/form/form-input";
-import { FormTextarea } from "@/components/form/form-textarea";
+import { ItemFormFields } from "@/components/wants/item-form-fields";
 import { ScreenBackButton } from "@/components/layout/screen-back-button";
 import { Button } from "@/components/ui/button";
-import { Form, FormField } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Text } from "@/components/ui/text";
 import { createItem } from "@/db/mutations/items";
 import { useItemForm } from "@/hooks/use-item-form";
-import {
-  DELAY_OPTIONS,
-  getCurrencyFractionDigits,
-  NOTE_MAX_LENGTH,
-  sanitizePriceInput,
-  type ItemFormValues,
-} from "@/lib/forms/item-form-schema";
-import { Separator } from "@rn-primitives/dropdown-menu";
+import type { ItemFormValues } from "@/lib/forms/item-form-schema";
 import { PortalHost, useModalPortalRoot } from "@rn-primitives/portal";
 import { useRouter } from "expo-router";
 import { Alert, ScrollView, View } from "react-native";
@@ -41,7 +31,7 @@ export default function AddWantModalScreen() {
       console.error("createItem failed:", error);
     }
   }
-  const allowDecimals = getCurrencyFractionDigits(currencyCode) > 0;
+
   const insets = useSafeAreaInsets();
   const { sideOffset, ref, onLayout, style } = useModalPortalRoot();
   const dropdownInsets = {
@@ -71,77 +61,14 @@ export default function AddWantModalScreen() {
           showsVerticalScrollIndicator={false}
         >
           <Form {...methods}>
-            <View className="gap-4">
-              <FormField
-                control={methods.control}
-                name="name"
-                render={({ field }) => (
-                  <FormInput
-                    {...field}
-                    autoFocus
-                    label="Name"
-                    placeholder="Enter the name of the item"
-                    onBlur={() => {
-                      field.onBlur();
-                      field.onChange(field.value.trim());
-                    }}
-                  />
-                )}
-              />
-              <FieldContainer>
-                <FormField
-                  control={methods.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormInput
-                      {...field}
-                      label=""
-                      placeholder="Price"
-                      className="rounded-none border-0 bg-transparent"
-                      numberOnly
-                      allowDecimal={allowDecimals}
-                      onChange={(text) =>
-                        field.onChange(sanitizePriceInput(text, allowDecimals))
-                      }
-                    />
-                  )}
-                />
-                <Separator />
-                <FormField
-                  control={methods.control}
-                  name="delayHours"
-                  render={({ field }) => (
-                    <FieldContainerItem>
-                      <SelectDropdown
-                        label="Delay"
-                        options={DELAY_OPTIONS}
-                        value={String(field.value)}
-                        onChange={(value) => field.onChange(Number(value))}
-                        portalHost={ADD_WANT_PORTAL_HOST}
-                        sideOffset={sideOffset}
-                        insets={dropdownInsets}
-                      />
-                    </FieldContainerItem>
-                  )}
-                />
-              </FieldContainer>
-              <FormField
-                control={methods.control}
-                name="note"
-                render={({ field }) => (
-                  <FormTextarea
-                    {...field}
-                    label="Note"
-                    placeholder="Add an optional note"
-                    maxLength={NOTE_MAX_LENGTH}
-                    onBlur={() => {
-                      field.onBlur();
-                      field.onChange((field.value ?? "").trim());
-                    }}
-                  />
-                )}
-              />
-            </View>
+            <ItemFormFields
+              portalHost={ADD_WANT_PORTAL_HOST}
+              sideOffset={sideOffset}
+              dropdownInsets={dropdownInsets}
+              currencyCode={currencyCode}
+              autoFocusName
+              showDelayField
+            />
           </Form>
         </ScrollView>
         <PortalHost name={ADD_WANT_PORTAL_HOST} />
