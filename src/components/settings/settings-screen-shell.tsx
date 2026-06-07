@@ -1,10 +1,6 @@
-import { NavigationBackIcon } from "@/components/layout/navigation-back-icon";
-import { Button } from "@/components/ui/button";
+import { ScreenBackButton } from "@/components/layout/screen-back-button";
 import { Text } from "@/components/ui/text";
-import { THEME } from "@/lib/theme";
-import { useRouter } from "expo-router";
-import { ChevronDown } from "lucide-react-native";
-import { ScrollView, useColorScheme, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type HeaderProps = {
@@ -13,24 +9,13 @@ type HeaderProps = {
 };
 
 export function SettingsScreenHeader({ title, variant = "sub" }: HeaderProps) {
-  const router = useRouter();
-  const palette = THEME[useColorScheme() === "dark" ? "dark" : "light"];
-
   return (
     <View className="flex-row items-center gap-2 px-4 pt-4">
-      <Button
-        variant="outline"
-        size="icon"
+      <ScreenBackButton
+        variant={variant === "modal" ? "modal" : "stack"}
         className="mr-1"
-        onPress={() => router.back()}
         accessibilityLabel={variant === "modal" ? "Close settings" : "Back"}
-      >
-        {variant === "modal" ? (
-          <ChevronDown size={24} color={palette.foreground} strokeWidth={1.5} />
-        ) : (
-          <NavigationBackIcon color={palette.foreground} />
-        )}
-      </Button>
+      />
       <Text className="text-xl font-bold text-foreground">{title}</Text>
     </View>
   );

@@ -2,6 +2,7 @@ import { FieldContainer, FieldContainerItem } from "@/components/common/field";
 import { SelectDropdown } from "@/components/common/select-dropdown";
 import { FormInput } from "@/components/form/form-input";
 import { FormTextarea } from "@/components/form/form-textarea";
+import { ScreenBackButton } from "@/components/layout/screen-back-button";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { Text } from "@/components/ui/text";
@@ -14,12 +15,10 @@ import {
   sanitizePriceInput,
   type ItemFormValues,
 } from "@/lib/forms/item-form-schema";
-import { THEME } from "@/lib/theme";
 import { Separator } from "@rn-primitives/dropdown-menu";
 import { PortalHost, useModalPortalRoot } from "@rn-primitives/portal";
 import { useRouter } from "expo-router";
-import { ChevronDown } from "lucide-react-native";
-import { Alert, ScrollView, useColorScheme, View } from "react-native";
+import { Alert, ScrollView, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -29,7 +28,6 @@ const ADD_WANT_PORTAL_HOST = "add-want-portal";
 
 export default function AddWantModalScreen() {
   const router = useRouter();
-  const palette = THEME[useColorScheme() === "dark" ? "dark" : "light"];
   const methods = useItemForm();
   const { currencyCode, handleSubmit, formState } = methods;
   const { isValid, isSubmitting } = formState;
@@ -57,18 +55,7 @@ export default function AddWantModalScreen() {
     <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background">
       <View ref={ref} onLayout={onLayout} style={style} className="flex-1">
         <View className="flex-row items-center justify-between px-5 py-5">
-          <Button
-            variant="outline"
-            size="icon"
-            onPress={() => router.back()}
-            className="pt-1"
-          >
-            <ChevronDown
-              size={24}
-              color={palette.foreground}
-              strokeWidth={1.5}
-            />
-          </Button>
+          <ScreenBackButton variant="modal" className="pt-1" />
           <Button
             disabled={!isValid || isSubmitting}
             onPress={handleSubmit(onSubmit)}
@@ -110,6 +97,7 @@ export default function AddWantModalScreen() {
                       {...field}
                       label=""
                       placeholder="Price"
+                      className="rounded-none border-0 bg-transparent"
                       numberOnly
                       allowDecimal={allowDecimals}
                       onChange={(text) =>

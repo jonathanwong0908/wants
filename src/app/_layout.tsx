@@ -22,6 +22,10 @@ export default function RootLayout() {
             name="add-want"
             options={{ presentation: "modal", headerShown: false }}
           />
+          <Stack.Screen
+            name="want/[id]"
+            options={{ presentation: "modal", headerShown: false }}
+          />
         </Stack>
         <PortalHost />
       </AppReadyGate>

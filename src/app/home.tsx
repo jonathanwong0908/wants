@@ -15,6 +15,7 @@ import { useNowTick } from "@/hooks/use-now-tick";
 import { useSavingsStats } from "@/hooks/use-savings-stats";
 import { formatCurrency } from "@/lib/money-format";
 import { pushHomeAreaRoute } from "@/lib/push-home-routes";
+import { pushWantRoute } from "@/lib/push-want-route";
 import { THEME } from "@/lib/theme";
 import { LegendList } from "@legendapp/list/react-native";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -74,10 +75,19 @@ export default function HomeScreen() {
     pushHomeAreaRoute("/all-wants");
   }, []);
 
+  const handleItemPress = useCallback((item: { id: number }) => {
+    pushWantRoute(item.id);
+  }, []);
+
   const renderItem = useCallback(
     ({ item }: { item: WaitingListRow }) =>
-      renderWaitingListRow({ row: item, nowMs, onShowAll: handleShowAll }),
-    [nowMs, handleShowAll]
+      renderWaitingListRow({
+        row: item,
+        nowMs,
+        onShowAll: handleShowAll,
+        onItemPress: handleItemPress,
+      }),
+    [nowMs, handleShowAll, handleItemPress]
   );
 
   const ListHeaderComponent = useMemo(

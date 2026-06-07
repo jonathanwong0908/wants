@@ -12,7 +12,7 @@ const Input = React.forwardRef<TextInput, TextInputProps>(function Input(
     <TextInput
       ref={ref}
       className={cn(
-        "flex h-12 w-full min-w-0 flex-row items-center rounded-2xl border border-border bg-input px-4 py-1 text-base leading-5 text-foreground shadow-none",
+        "flex h-12 w-full min-w-0 flex-row items-center rounded-2xl border border-border bg-muted/40 px-4 py-1 text-base leading-5 text-foreground shadow-none",
         editable === false && cn("opacity-50"),
         className
       )}

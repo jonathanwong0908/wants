@@ -19,6 +19,10 @@ export function selectPastItems() {
     .orderBy(desc(items.decidedAt));
 }
 
+export function selectItemById(id: number) {
+  return db.select().from(items).where(eq(items.id, id)).limit(1);
+}
+
 export function selectSavingsStats(currencyCode: string) {
   return db
     .select({

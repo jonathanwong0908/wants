@@ -12,7 +12,7 @@ export function FieldContainer({ children, className }: Props) {
   return (
     <View
       className={cn(
-        "min-h-12 justify-center overflow-hidden rounded-2xl border border-border bg-input shadow-md shadow-black/5",
+        "min-h-12 justify-center overflow-hidden rounded-2xl border border-border bg-muted/40 shadow-md shadow-black/5",
         className
       )}
     >

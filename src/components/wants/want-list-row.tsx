@@ -9,12 +9,14 @@ type WantListRowProps = {
   item: Item;
   nowMs: number;
   isReady?: boolean;
+  onPress?: () => void;
 };
 
 export function WantListRow({
   item,
   nowMs,
   isReady = false,
+  onPress,
 }: WantListRowProps) {
   const subtext = isReady
     ? "Ready to decide"
@@ -28,6 +30,7 @@ export function WantListRow({
         item.currency
       )}`}
       className="rounded-2xl border border-border bg-muted/40 px-4 py-3.5 active:bg-accent/40"
+      onPress={onPress}
     >
       <View className="flex-row items-start justify-between gap-3">
         <View className="min-w-0 flex-1">

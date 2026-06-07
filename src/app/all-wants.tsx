@@ -1,22 +1,20 @@
-import { NavigationBackIcon } from "@/components/layout/navigation-back-icon";
-import { Button } from "@/components/ui/button";
+import { ScreenBackButton } from "@/components/layout/screen-back-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { PastWantListRow } from "@/components/wants/past-want-list-row";
 import { WAITING_LIST_ESTIMATED_ITEM_SIZE } from "@/components/wants/waiting-want-list";
 import { WantListRow } from "@/components/wants/want-list-row";
+import { useSettings } from "@/contexts/settings-context";
 import { selectPastItems, selectWaitingItems } from "@/db/queries/items";
 import type { items } from "@/db/schema";
 import { useNowTick } from "@/hooks/use-now-tick";
-import { useSettings } from "@/contexts/settings-context";
 import { useSavingsStats } from "@/hooks/use-savings-stats";
 import { formatCurrency } from "@/lib/money-format";
-import { THEME } from "@/lib/theme";
+import { pushWantRoute } from "@/lib/push-want-route";
 import { LegendList } from "@legendapp/list/react-native";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { useColorScheme, View } from "react-native";
+import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type Item = typeof items.$inferSelect;
@@ -47,7 +45,6 @@ function PastSummary() {
 }
 
 export default function AllWantsScreen() {
-  const palette = THEME[useColorScheme() === "dark" ? "dark" : "light"];
   const [activeTab, setActiveTab] = useState("upcoming");
   const nowMs = useNowTick();
 
@@ -57,6 +54,10 @@ export default function AllWantsScreen() {
   const upcomingData = waitingItems ?? [];
   const pastData = pastItems ?? [];
 
+  const handleItemPress = useCallback((item: Item) => {
+    pushWantRoute(item.id);
+  }, []);
+
   const renderUpcomingItem = useCallback(
     ({ item }: { item: Item }) => (
       <View className="mb-2">
@@ -64,19 +65,20 @@ export default function AllWantsScreen() {
           item={item}
           nowMs={nowMs}
           isReady={item.notifyAt.getTime() <= nowMs}
+          onPress={() => handleItemPress(item)}
         />
       </View>
     ),
-    [nowMs]
+    [nowMs, handleItemPress]
   );
 
   const renderPastItem = useCallback(
     ({ item }: { item: Item }) => (
       <View className="mb-2">
-        <PastWantListRow item={item} />
+        <PastWantListRow item={item} onPress={() => handleItemPress(item)} />
       </View>
     ),
-    []
+    [handleItemPress]
   );
 
   const upcomingKeyExtractor = useCallback((item: Item) => String(item.id), []);
@@ -101,15 +103,7 @@ export default function AllWantsScreen() {
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
       <View className="flex-row items-center gap-2 px-4 pb-4 pt-2">
-        <Button
-          variant="outline"
-          size="icon"
-          className="mr-1 rounded-full"
-          onPress={() => router.back()}
-          accessibilityLabel="Back"
-        >
-          <NavigationBackIcon color={palette.foreground} />
-        </Button>
+        <ScreenBackButton variant="stack" className="mr-1 rounded-full" />
         <Text className="text-xl font-bold text-foreground">All Wants</Text>
       </View>
 

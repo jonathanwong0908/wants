@@ -70,12 +70,14 @@ type RenderWaitingListRowProps = {
   row: WaitingListRow;
   nowMs: number;
   onShowAll?: () => void;
+  onItemPress?: (item: Item) => void;
 };
 
 export function renderWaitingListRow({
   row,
   nowMs,
   onShowAll,
+  onItemPress,
 }: RenderWaitingListRowProps) {
   switch (row.type) {
     case "section-header":
@@ -100,7 +102,14 @@ export function renderWaitingListRow({
     case "item":
       return (
         <View className="mt-2">
-          <WantListRow item={row.item} nowMs={nowMs} isReady={row.isReady} />
+          <WantListRow
+            item={row.item}
+            nowMs={nowMs}
+            isReady={row.isReady}
+            onPress={
+              onItemPress ? () => onItemPress(row.item) : undefined
+            }
+          />
         </View>
       );
   }

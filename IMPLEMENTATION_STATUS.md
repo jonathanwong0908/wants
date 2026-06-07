@@ -10,7 +10,7 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - `src/db/schema.ts` — `items` table definition
 - `src/db/migrations.tsx` — runtime migrations + onboarding kv-store gate
 - `src/db/mutations/` — write operations (DB inserts/updates/deletes)
-- `src/db/queries/` — read operations (`items.ts`: waiting items query)
+- `src/db/queries/` — read operations (`items.ts`: waiting, past, by-id, savings stats)
 
 ## Add Want (PRD S6) — partial
 
@@ -48,6 +48,7 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - Ready to decide section: expired waiting items in separate section (hidden when empty)
 - Reusable list row + section builder (`WantListRow`, `waiting-want-list.tsx`) with `@legendapp/list`
 - `useNowTick`: AppState foreground + 60s interval for section moves and countdown copy
+- Tap row → Want detail modal (`/want/[id]`)
 
 ### PRD divergences (intentional)
 
@@ -56,33 +57,55 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done
 
-- Real savings total and decision count (hero still placeholder)
 - Notification permission banner
 - Free-tier FAB paywall gate (lock icon when waiting ≥ 1, non-pro)
-- Tap row → Decision screen
+- Decision buttons on detail screen (skip / buy)
 
-## All Wants (PRD S11) — UI shell only
+## All Wants (PRD S11) — partial
 
-**Files:** `src/app/all-wants.tsx`, `src/constants/placeholder-wants.ts`
+**Files:** `src/app/all-wants.tsx`, `src/components/wants/*`
 
 ### Done
 
-- Upcoming / Past tab layout with placeholder rows
+- Upcoming / Past tab layout
+- Read from DB via `useLiveQuery` (upcoming: `status = waiting`; past: `skipped` / `bought`)
+- Past tab summary row (skipped / bought / total saved)
+- Tap row → Want detail modal (`/want/[id]`) — both Upcoming and Past tabs
+
+### PRD divergences (intentional)
+
+- Past tab rows are tappable (PRD S11 only specifies Upcoming → Decision)
 
 ### Not done
 
-- Read from DB (upcoming: `status = waiting`; past: `skipped` / `bought`)
-- Past tab summary row (skipped / bought / total saved)
 - Free-tier Past tab 30-day history limit + unlock prompt
-- Tap row → Decision screen
+- Decision buttons on detail screen (skip / buy)
+
+## Want Detail (PRD S8 scaffold) — read-only
+
+**Files:** `src/app/want/[id].tsx`, `src/components/wants/want-detail-content.tsx`, `src/lib/push-want-route.ts`, `src/lib/want-format.ts`, `src/lib/date-format.ts`, `src/db/queries/items.ts`
+
+### Done
+
+- Modal route `/want/[id]` registered in root stack
+- Read single item via `useLiveQuery` + `selectItemById(id)`
+- Read-only display: name, price, status (countdown / ready / saved / bought), wait period, added date, decides-on (waiting), decided date (past), note
+- Invalid or missing id → "Want not found" empty state
+- Navigation from Home and All Wants list rows via `pushWantRoute(id)`
+
+### Not done (follow-ups — decision UI lives here later)
+
+- Skip / buy decision buttons
+- "Check in early" flow for non-expired waiting items
+- Edit / delete
+- Deep link from push notification
 
 ## Decision / Skipped / Bought modals (PRD S8–S10)
 
 ### Not started
 
-- Decision screen modal
-- Skip → update status, cancel notification, savings screen
-- Buy → update status, cancel notification, bought screen
+- Skip → update status, cancel notification, savings screen (S9)
+- Buy → update status, cancel notification, bought screen (S10)
 - Deep link from push notification
 
 ## Settings (PRD S12)
@@ -128,7 +151,7 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 - Schedule per-item notification at `notifyAt`
 - Cancel on decision
-- Deep link payload to Decision screen
+- Deep link payload to Want detail screen (`/want/[id]`)
 - Foreground check for expired waiting items
 
 ## Monetization (PRD §8)
