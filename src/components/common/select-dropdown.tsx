@@ -42,7 +42,7 @@ export function SelectDropdown({
       <DropdownMenuTrigger>
         {label ? (
           <View className="w-full flex-row items-center justify-between">
-            <Text className="text-muted-foreground/50">{label}</Text>
+            <Text className="">{label}</Text>
             <View className="flex-row items-center gap-2">
               <Text>{selectedLabel}</Text>
               <ChevronsUpDown size={16} color="#9CA3AF" />
