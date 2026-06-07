@@ -3,7 +3,7 @@ import { ScreenBackButton } from "@/components/layout/screen-back-button";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Text } from "@/components/ui/text";
-import { updateItem } from "@/db/mutations/items";
+import { deleteItem, updateItem } from "@/db/mutations/items";
 import { selectItemById } from "@/db/queries/items";
 import type { items } from "@/db/schema";
 import { useItemForm } from "@/hooks/use-item-form";
@@ -16,6 +16,8 @@ import { getDelayOptionsForValue } from "@/lib/want-format";
 import { PortalHost, useModalPortalRoot } from "@rn-primitives/portal";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { Trash } from "lucide-react-native";
+import { useState } from "react";
 import { Alert, ScrollView, View } from "react-native";
 import {
   SafeAreaView,
@@ -32,6 +34,7 @@ type EditWantFormProps = {
 
 function EditWantForm({ item }: EditWantFormProps) {
   const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
   const methods = useItemForm({
     currencyCode: item.currency,
     defaultValues: itemToFormDefaultValues(item),
@@ -65,17 +68,55 @@ function EditWantForm({ item }: EditWantFormProps) {
     }
   }
 
+  function handleDeletePress() {
+    Alert.alert("Delete want?", "This can't be undone.", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => void performDelete(),
+      },
+    ]);
+  }
+
+  async function performDelete() {
+    setIsDeleting(true);
+    try {
+      await deleteItem(item.id, { notifId: item.notifId });
+      router.dismiss(2);
+    } catch (error) {
+      Alert.alert(
+        "Could not delete",
+        "Something went wrong. Please try again."
+      );
+      console.error("deleteItem failed:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
   return (
     <View ref={ref} onLayout={onLayout} style={style} className="flex-1">
       <View className="flex-row items-center justify-between px-5 py-5">
         <ScreenBackButton variant="modal" className="pt-1" />
-        <Button
-          disabled={!isValid || isSubmitting || !isDirty}
-          onPress={handleSubmit(onSubmit)}
-          className="rounded-full"
-        >
-          <Text className="text-base font-medium">Save</Text>
-        </Button>
+        <View className="flex-row items-center gap-2">
+          <Button
+            variant="destructive"
+            size="icon"
+            accessibilityLabel="Delete want"
+            disabled={isDeleting || isSubmitting}
+            onPress={handleDeletePress}
+          >
+            <Trash size={22} color="#fff" strokeWidth={1.5} />
+          </Button>
+          <Button
+            disabled={!isValid || isSubmitting || !isDirty || isDeleting}
+            onPress={handleSubmit(onSubmit)}
+            className="rounded-full"
+          >
+            <Text className="text-base font-medium">Save</Text>
+          </Button>
+        </View>
       </View>
 
       <ScrollView

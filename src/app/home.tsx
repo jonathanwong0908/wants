@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
 import {
   buildWaitingSectionRows,
   partitionWaitingItems,
@@ -6,8 +8,6 @@ import {
   waitingListKeyExtractor,
   type WaitingListRow,
 } from "@/components/wants/waiting-want-list";
-import { Button } from "@/components/ui/button";
-import { Text } from "@/components/ui/text";
 import { useAppReady } from "@/contexts/app-ready-context";
 import { useSettings } from "@/contexts/settings-context";
 import { selectWaitingItems } from "@/db/queries/items";
@@ -53,7 +53,7 @@ export default function HomeScreen() {
       ...buildWaitingSectionRows({
         title: "Upcoming",
         items: upcoming,
-        emptyMessage: "Nothing waiting. Add something you're eyeing.",
+        emptyMessage: "Nothing waiting",
         showAllLink: true,
       }),
     ];
@@ -117,8 +117,7 @@ export default function HomeScreen() {
           {formatCurrency(totalSaved, currencyCode)}
         </Text>
         <Text variant="muted" className="mt-1 text-sm">
-          across {skippedCount}{" "}
-          {skippedCount === 1 ? "decision" : "decisions"}
+          across {skippedCount} {skippedCount === 1 ? "decision" : "decisions"}
         </Text>
         {hasOtherCurrencySkipped ? (
           <Text variant="muted" className="mt-1 text-xs">
@@ -127,13 +126,7 @@ export default function HomeScreen() {
         ) : null}
       </View>
     ),
-    [
-      iconTint,
-      currencyCode,
-      totalSaved,
-      skippedCount,
-      hasOtherCurrencySkipped,
-    ]
+    [iconTint, currencyCode, totalSaved, skippedCount, hasOtherCurrencySkipped]
   );
 
   const ListFooterComponent = useMemo(

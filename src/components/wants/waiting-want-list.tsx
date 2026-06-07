@@ -95,9 +95,11 @@ export function renderWaitingListRow({
       );
     case "empty":
       return (
-        <Text variant="muted" className="mt-3 text-sm">
-          {row.message}
-        </Text>
+        <View className="h-32 items-center justify-center px-8">
+          <Text variant="muted" className="text-sm text-center">
+            {row.message}
+          </Text>
+        </View>
       );
     case "item":
       return (
@@ -106,9 +108,7 @@ export function renderWaitingListRow({
             item={row.item}
             nowMs={nowMs}
             isReady={row.isReady}
-            onPress={
-              onItemPress ? () => onItemPress(row.item) : undefined
-            }
+            onPress={onItemPress ? () => onItemPress(row.item) : undefined}
           />
         </View>
       );
