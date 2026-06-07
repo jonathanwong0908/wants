@@ -1,55 +1,110 @@
 import { NavigationBackIcon } from "@/components/layout/navigation-back-icon";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
-import {
-  PLACEHOLDER_PAST_WANTS,
-  PLACEHOLDER_UPCOMING_WANTS,
-  type PlaceholderWantRow,
-} from "@/constants/placeholder-wants";
+import { PastWantListRow } from "@/components/wants/past-want-list-row";
+import { WAITING_LIST_ESTIMATED_ITEM_SIZE } from "@/components/wants/waiting-want-list";
+import { WantListRow } from "@/components/wants/want-list-row";
+import { selectPastItems, selectWaitingItems } from "@/db/queries/items";
+import type { items } from "@/db/schema";
+import { useNowTick } from "@/hooks/use-now-tick";
+import { useSavingsStats } from "@/hooks/use-savings-stats";
+import { getCurrencyCode } from "@/lib/currency";
 import { formatCurrency } from "@/lib/money-format";
 import { THEME } from "@/lib/theme";
+import { LegendList } from "@legendapp/list/react-native";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
-import { ScrollView, useColorScheme, View } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-function RowHint({ row }: { row: PlaceholderWantRow }) {
-  const statusLabel =
-    row.status === "waiting"
-      ? "Waiting"
-      : row.status === "skipped"
-      ? "Saved"
-      : "Bought";
+type Item = typeof items.$inferSelect;
 
+const PAST_LIST_ESTIMATED_ITEM_SIZE = 84;
+
+function ListEmpty({ message }: { message: string }) {
   return (
-    <View className="rounded-lg border border-border bg-muted/40 px-4 py-3">
-      <View className="flex-row items-center justify-between gap-3">
-        <Text
-          className="flex-1 text-base font-medium text-foreground"
-          numberOfLines={1}
-        >
-          {row.name}
-        </Text>
-        <Text variant="muted" className="text-xs uppercase">
-          {statusLabel}
-        </Text>
-      </View>
-      <Text variant="muted" className="mt-1 text-sm tabular-nums">
-        {formatCurrency(row.price, row.currency)}
+    <View className="h-40 justify-center items-center">
+      <Text variant="muted" className="mt-4 text-sm">
+        {message}
       </Text>
     </View>
   );
 }
 
+function PastSummary() {
+  const currencyCode = getCurrencyCode();
+  const { totalSaved, skippedCount, boughtCount } =
+    useSavingsStats(currencyCode);
+
+  return (
+    <Text variant="muted" className="mb-4 text-sm">
+      {skippedCount} skipped · {boughtCount} bought ·{" "}
+      {formatCurrency(totalSaved, currencyCode)} saved
+    </Text>
+  );
+}
+
 export default function AllWantsScreen() {
   const palette = THEME[useColorScheme() === "dark" ? "dark" : "light"];
+  const [activeTab, setActiveTab] = useState("upcoming");
+  const nowMs = useNowTick();
+
+  const { data: waitingItems } = useLiveQuery(selectWaitingItems());
+  const { data: pastItems } = useLiveQuery(selectPastItems());
+
+  const upcomingData = waitingItems ?? [];
+  const pastData = pastItems ?? [];
+
+  const renderUpcomingItem = useCallback(
+    ({ item }: { item: Item }) => (
+      <View className="mb-2">
+        <WantListRow
+          item={item}
+          nowMs={nowMs}
+          isReady={item.notifyAt.getTime() <= nowMs}
+        />
+      </View>
+    ),
+    [nowMs]
+  );
+
+  const renderPastItem = useCallback(
+    ({ item }: { item: Item }) => (
+      <View className="mb-2">
+        <PastWantListRow item={item} />
+      </View>
+    ),
+    []
+  );
+
+  const upcomingKeyExtractor = useCallback((item: Item) => String(item.id), []);
+
+  const pastKeyExtractor = useCallback((item: Item) => String(item.id), []);
+
+  const UpcomingEmpty = useMemo(
+    () => <ListEmpty message="Nothing waiting. Add something you're eyeing." />,
+    []
+  );
+
+  const PastEmpty = useMemo(
+    () => <ListEmpty message="No decisions yet." />,
+    []
+  );
+
+  const PastListHeader = useMemo(
+    () => (pastData.length > 0 ? <PastSummary /> : null),
+    [pastData.length]
+  );
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
-      <View className="flex-row items-center px-6 pb-4 pt-2">
+      <View className="flex-row items-center gap-2 px-4 pb-4 pt-2">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="mr-1 rounded-full active:bg-accent"
+          className="mr-1 rounded-full"
           onPress={() => router.back()}
           accessibilityLabel="Back"
         >
@@ -58,37 +113,51 @@ export default function AllWantsScreen() {
         <Text className="text-xl font-bold text-foreground">All Wants</Text>
       </View>
 
-      <ScrollView
-        className="flex-1 px-6"
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="flex-1 px-4"
       >
-        <Text
-          variant="muted"
-          className="mb-2 text-xs font-semibold uppercase tracking-wide"
-        >
-          Upcoming
-        </Text>
-        <View className="gap-2">
-          {PLACEHOLDER_UPCOMING_WANTS.map((row) => (
-            <RowHint key={row.id} row={row} />
-          ))}
-        </View>
+        <TabsList className="mb-2 w-full">
+          <TabsTrigger value="upcoming" className="w-1/2">
+            <Text>Upcoming</Text>
+          </TabsTrigger>
+          <TabsTrigger value="past" className="w-1/2">
+            <Text>Past</Text>
+          </TabsTrigger>
+        </TabsList>
 
-        <Text
-          variant="muted"
-          className="mb-2 mt-8 text-xs font-semibold uppercase tracking-wide"
-        >
-          Past
-        </Text>
-        <View className="gap-2">
-          {PLACEHOLDER_PAST_WANTS.map((row) => (
-            <RowHint key={row.id} row={row} />
-          ))}
-        </View>
+        <TabsContent value="upcoming" className="flex-1">
+          <LegendList
+            className="flex-1"
+            data={upcomingData}
+            renderItem={renderUpcomingItem}
+            keyExtractor={upcomingKeyExtractor}
+            estimatedItemSize={WAITING_LIST_ESTIMATED_ITEM_SIZE}
+            recycleItems
+            ListEmptyComponent={UpcomingEmpty}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          />
+        </TabsContent>
 
-        <View className="h-10" />
-      </ScrollView>
+        <TabsContent value="past" className="flex-1">
+          <LegendList
+            className="flex-1"
+            data={pastData}
+            renderItem={renderPastItem}
+            keyExtractor={pastKeyExtractor}
+            estimatedItemSize={PAST_LIST_ESTIMATED_ITEM_SIZE}
+            recycleItems
+            ListHeaderComponent={PastListHeader}
+            ListEmptyComponent={PastEmpty}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          />
+        </TabsContent>
+      </Tabs>
     </SafeAreaView>
   );
 }
