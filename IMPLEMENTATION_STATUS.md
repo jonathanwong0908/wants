@@ -59,7 +59,6 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 - Notification permission banner
 - Free-tier FAB paywall gate (lock icon when waiting ≥ 1, non-pro)
-- Decision buttons on detail screen (skip / buy)
 
 ## All Wants (PRD S11) — partial
 
@@ -79,11 +78,10 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 ### Not done
 
 - Free-tier Past tab 30-day history limit + unlock prompt
-- Decision buttons on detail screen (skip / buy)
 
-## Want Detail (PRD S8 scaffold) — read-only
+## Want Detail (PRD S8 scaffold) — partial
 
-**Files:** `src/app/want/[id].tsx`, `src/components/wants/want-detail-content.tsx`, `src/lib/push-want-route.ts`, `src/lib/want-format.ts`, `src/lib/date-format.ts`, `src/db/queries/items.ts`
+**Files:** `src/app/want/[id].tsx`, `src/components/wants/want-detail-content.tsx`, `src/components/wants/want-decision-actions.tsx`, `src/lib/push-want-route.ts`, `src/lib/want-format.ts`, `src/lib/date-format.ts`, `src/db/queries/items.ts`, `src/db/mutations/items.ts` (`skipItem`, `buyItem`)
 
 ### Done
 
@@ -92,17 +90,25 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - Read-only display: name, price, status (countdown / ready / saved / bought), wait period, added date, decides-on (waiting), decided date (past), note
 - Invalid or missing id → "Want not found" empty state
 - Navigation from Home and All Wants list rows via `pushWantRoute(id)`
+- Decision buttons for waiting items: "Moved on" (skip) and "Buy it" (buy)
+- Skip: `skipItem()` sets `status = skipped`, `decidedAt = now`, cancels `notifId` if set; `router.back()` closes modal (no success alert); Home / All Wants savings + lists refresh via `useLiveQuery`
+- Buy: `Alert.alert` confirmation → `buyItem()` sets `status = bought`, `decidedAt = now`, cancels `notifId` if set; `router.back()` closes modal (no S10 screen); cancel dismisses alert only
 
-### Not done (follow-ups — decision UI lives here later)
+### PRD divergences (intentional)
 
-- Skip / buy decision buttons
-- "Check in early" flow for non-expired waiting items
-- Delete
+- Skip does not navigate to S9 "You saved it!" celebration modal
+- Buy does not navigate to S10 "Bought / Logged!" celebration modal
+- Early skip and early buy allowed — both buttons enabled before timer expires (no "Check in early" gate yet)
+
+### Not done (follow-ups)
+
+- "Check in early" progressive reveal UI for non-expired waiting items
+- Delete from want detail (delete lives on edit screen only — see Edit Want)
 - Deep link from push notification
 
 ## Edit Want — partial
 
-**Files:** `src/app/edit-want/[id].tsx`, `src/components/wants/item-form-fields.tsx`, `src/db/mutations/items.ts` (`updateItem`), `src/lib/push-edit-want-route.ts`, `src/lib/forms/item-form-schema.ts`, `src/lib/want-format.ts`
+**Files:** `src/app/edit-want/[id].tsx`, `src/components/wants/item-form-fields.tsx`, `src/db/mutations/items.ts` (`updateItem`, `deleteItem`), `src/lib/push-edit-want-route.ts`, `src/lib/forms/item-form-schema.ts`, `src/lib/want-format.ts`
 
 ### Done
 
@@ -113,18 +119,25 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - Skipped / bought items: edit name, price, note only (delay field hidden; `delayHours` / `notifyAt` unchanged in DB)
 - `getDelayOptionsForValue` for non-preset delay values (future custom delay)
 - `updateItem()` Drizzle mutation; `router.back()` on success; detail auto-refreshes via `useLiveQuery`
+- Delete: destructive trash icon in edit header; `Alert.alert` confirmation; hard delete via `deleteItem()`; `router.dismiss(2)` returns to Home / All Wants
+- `deleteItem()` cancels scheduled notification via `cancelScheduledNotificationAsync(notifId)` when `notifId` is set (no-op today — scheduling not wired yet)
 
 ### Not done (follow-ups)
 
 - Cancel + reschedule notification on edit when `notifyAt` or `delayHours` changes (blocked on notification scheduling — see Add Want follow-ups)
 - Paywall / custom delay pro gate on edit (same as add — not built yet)
 
-## Decision / Skipped / Bought modals (PRD S8–S10)
+## Decision / Skipped / Bought modals (PRD S8–S10) — partial
 
-### Not started
+### Done
 
-- Skip → update status, cancel notification, savings screen (S9)
-- Buy → update status, cancel notification, bought screen (S10)
+- Skip from want detail: `skipItem()` mutation, notification cancel stub, dismiss modal (no S9 screen)
+- Buy from want detail: `buyItem()` mutation, `Alert.alert` confirmation, notification cancel stub, dismiss modal (no S10 screen)
+
+### Not done
+
+- S9 "You saved it!" celebration modal
+- S10 "Bought / Logged!" celebration modal
 - Deep link from push notification
 
 ## Settings (PRD S12)

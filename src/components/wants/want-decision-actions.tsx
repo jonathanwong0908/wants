@@ -3,19 +3,29 @@ import { Text } from "@/components/ui/text";
 import { View } from "react-native";
 
 type WantDecisionActionsProps = {
-  isReady: boolean;
+  onBuyPress: () => void;
+  onMovedOn: () => void;
+  isSkipping?: boolean;
+  isBuying?: boolean;
 };
 
-export function WantDecisionActions({ isReady }: WantDecisionActionsProps) {
+export function WantDecisionActions({
+  onBuyPress,
+  onMovedOn,
+  isSkipping = false,
+  isBuying = false,
+}: WantDecisionActionsProps) {
+  const isBusy = isSkipping || isBuying;
+
   return (
     <View className="flex-row gap-3">
       <Button
         variant="destructive"
         size="lg"
         className="flex-1 rounded-2xl"
-        disabled={!isReady}
+        disabled={isBusy}
         accessibilityLabel="Yeah, I'll buy it"
-        onPress={() => {}}
+        onPress={onBuyPress}
       >
         <Text className="text-base font-medium">Buy it</Text>
       </Button>
@@ -23,8 +33,9 @@ export function WantDecisionActions({ isReady }: WantDecisionActionsProps) {
         variant="default"
         size="lg"
         className="flex-1 rounded-2xl"
+        disabled={isBusy}
         accessibilityLabel="Nope, I moved on"
-        onPress={() => {}}
+        onPress={onMovedOn}
       >
         <Text className="text-base font-medium">Moved on</Text>
       </Button>

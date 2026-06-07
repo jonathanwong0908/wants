@@ -1,4 +1,5 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import * as Notifications from "expo-notifications";
 
 import { db } from "@/db/client";
 import { items, type ItemStatus } from "@/db/schema";
@@ -63,4 +64,55 @@ export async function updateItem(
   }
 
   await db.update(items).set(updates).where(eq(items.id, id));
+}
+
+type DeleteItemContext = {
+  notifId: string | null;
+};
+
+export async function deleteItem(
+  id: number,
+  context: DeleteItemContext
+): Promise<void> {
+  if (context.notifId) {
+    await Notifications.cancelScheduledNotificationAsync(context.notifId);
+  }
+
+  await db.delete(items).where(eq(items.id, id));
+}
+
+type SkipItemContext = {
+  notifId: string | null;
+};
+
+export async function skipItem(
+  id: number,
+  context: SkipItemContext
+): Promise<void> {
+  if (context.notifId) {
+    await Notifications.cancelScheduledNotificationAsync(context.notifId);
+  }
+
+  await db
+    .update(items)
+    .set({ status: "skipped", decidedAt: new Date() })
+    .where(and(eq(items.id, id), eq(items.status, "waiting")));
+}
+
+type BuyItemContext = {
+  notifId: string | null;
+};
+
+export async function buyItem(
+  id: number,
+  context: BuyItemContext
+): Promise<void> {
+  if (context.notifId) {
+    await Notifications.cancelScheduledNotificationAsync(context.notifId);
+  }
+
+  await db
+    .update(items)
+    .set({ status: "bought", decidedAt: new Date() })
+    .where(and(eq(items.id, id), eq(items.status, "waiting")));
 }

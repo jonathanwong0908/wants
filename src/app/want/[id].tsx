@@ -3,15 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { WantDecisionActions } from "@/components/wants/want-decision-actions";
 import { WantDetailContent } from "@/components/wants/want-detail-content";
+import { buyItem, skipItem } from "@/db/mutations/items";
 import { selectItemById } from "@/db/queries/items";
 import { useNowTick } from "@/hooks/use-now-tick";
+import { formatCurrency } from "@/lib/money-format";
 import { parseItemId } from "@/lib/parse-item-id";
 import { pushEditWantRoute } from "@/lib/push-edit-want-route";
 import { THEME } from "@/lib/theme";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Pencil } from "lucide-react-native";
-import { ScrollView, useColorScheme, View } from "react-native";
+import { useState } from "react";
+import { Alert, ScrollView, useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function WantDetailScreen() {
@@ -26,7 +29,54 @@ export default function WantDetailScreen() {
   );
   const item = itemId != null ? data?.[0] : undefined;
   const isWaiting = item?.status === "waiting";
-  const isReady = isWaiting && item != null && item.notifyAt.getTime() <= nowMs;
+  const [isSkipping, setIsSkipping] = useState(false);
+  const [isBuying, setIsBuying] = useState(false);
+
+  function handleBuyPress() {
+    if (!item) return;
+    Alert.alert(
+      "Buy this?",
+      `Log ${item.name} (${formatCurrency(item.price, item.currency)}) as a purchase.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Buy it", onPress: () => void performBuy() },
+      ]
+    );
+  }
+
+  async function performBuy() {
+    if (!item) return;
+    setIsBuying(true);
+    try {
+      await buyItem(item.id, { notifId: item.notifId });
+      router.back();
+    } catch (error) {
+      Alert.alert(
+        "Could not save decision",
+        "Something went wrong. Please try again."
+      );
+      console.error("buyItem failed:", error);
+    } finally {
+      setIsBuying(false);
+    }
+  }
+
+  async function handleMovedOn() {
+    if (!item) return;
+    setIsSkipping(true);
+    try {
+      await skipItem(item.id, { notifId: item.notifId });
+      router.back();
+    } catch (error) {
+      Alert.alert(
+        "Could not save decision",
+        "Something went wrong. Please try again."
+      );
+      console.error("skipItem failed:", error);
+    } finally {
+      setIsSkipping(false);
+    }
+  }
 
   return (
     <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background">
@@ -78,7 +128,12 @@ export default function WantDetailScreen() {
 
       {isWaiting ? (
         <View className="border-t border-border px-5 pt-4">
-          <WantDecisionActions isReady={isReady} />
+          <WantDecisionActions
+            onBuyPress={handleBuyPress}
+            onMovedOn={() => void handleMovedOn()}
+            isSkipping={isSkipping}
+            isBuying={isBuying}
+          />
         </View>
       ) : null}
     </SafeAreaView>

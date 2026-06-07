@@ -4,12 +4,9 @@ import { Text } from "@/components/ui/text";
 import { PastWantListRow } from "@/components/wants/past-want-list-row";
 import { WAITING_LIST_ESTIMATED_ITEM_SIZE } from "@/components/wants/waiting-want-list";
 import { WantListRow } from "@/components/wants/want-list-row";
-import { useSettings } from "@/contexts/settings-context";
 import { selectPastItems, selectWaitingItems } from "@/db/queries/items";
 import type { items } from "@/db/schema";
 import { useNowTick } from "@/hooks/use-now-tick";
-import { useSavingsStats } from "@/hooks/use-savings-stats";
-import { formatCurrency } from "@/lib/money-format";
 import { pushWantRoute } from "@/lib/push-want-route";
 import { LegendList } from "@legendapp/list/react-native";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -23,24 +20,11 @@ const PAST_LIST_ESTIMATED_ITEM_SIZE = 84;
 
 function ListEmpty({ message }: { message: string }) {
   return (
-    <View className="h-40 justify-center items-center">
-      <Text variant="muted" className="mt-4 text-sm">
+    <View className="h-40 justify-center items-center px-8">
+      <Text variant="muted" className="mt-4 text-sm text-center">
         {message}
       </Text>
     </View>
-  );
-}
-
-function PastSummary() {
-  const { currencyCode } = useSettings();
-  const { totalSaved, skippedCount, boughtCount } =
-    useSavingsStats(currencyCode);
-
-  return (
-    <Text variant="muted" className="mb-4 text-sm">
-      {skippedCount} skipped · {boughtCount} bought ·{" "}
-      {formatCurrency(totalSaved, currencyCode)} saved
-    </Text>
   );
 }
 
@@ -86,18 +70,13 @@ export default function AllWantsScreen() {
   const pastKeyExtractor = useCallback((item: Item) => String(item.id), []);
 
   const UpcomingEmpty = useMemo(
-    () => <ListEmpty message="Nothing waiting. Add something you're eyeing." />,
+    () => <ListEmpty message="Nothing waiting." />,
     []
   );
 
   const PastEmpty = useMemo(
     () => <ListEmpty message="No decisions yet." />,
     []
-  );
-
-  const PastListHeader = useMemo(
-    () => (pastData.length > 0 ? <PastSummary /> : null),
-    [pastData.length]
   );
 
   return (
@@ -144,7 +123,6 @@ export default function AllWantsScreen() {
             keyExtractor={pastKeyExtractor}
             estimatedItemSize={PAST_LIST_ESTIMATED_ITEM_SIZE}
             recycleItems
-            ListHeaderComponent={PastListHeader}
             ListEmptyComponent={PastEmpty}
             contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
             keyboardShouldPersistTaps="handled"
