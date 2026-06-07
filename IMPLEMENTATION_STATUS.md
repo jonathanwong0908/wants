@@ -24,13 +24,12 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - Save button disabled while submitting (`formState.isSubmitting`)
 - DB insert on submit via `createItem()` in `src/db/mutations/items.ts`
 - Modal dismiss on successful save (`router.back()`)
-- Computes `notifyAt` as `now + delayHours` (no `notify_hour` adjustment yet)
+- Computes `notifyAt` as `now + delayHours`
 - Stores `notifId: null` (notification scheduling deferred)
 
 ### Not done (follow-ups)
 
 - Schedule expo-notifications at `notifyAt` and persist `notifId`
-- `notify_hour` adjustment from settings (PRD §7)
 - Read `currencyCode` / `defaultDelayHours` from settings store (currently hardcoded defaults in `useItemForm`)
 - Free-tier paywall gate on Add screen (waiting items ≥ 1, non-pro)
 - Custom delay option (pro only)
@@ -89,15 +88,16 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ## Settings (PRD S12)
 
-**Files:** `src/app/settings.tsx`
+**Files:** `src/app/settings/*`, `src/components/settings/settings-screen-shell.tsx`
 
 ### Done
 
-- Screen shell (navigation only)
+- Modal nested stack: hub + notifications, account, data, about placeholder sub-screens
+- Hub UI: inline default delay + currency pickers (`FieldContainer` + `SelectDropdown`), navigation rows to sub-screens
 
 ### Not done
 
-- Default delay, currency, notify hour pickers
+- Persist default delay and currency to settings store
 - Notification status + link to system settings
 - RevenueCat upgrade / restore
 - Clear all data
@@ -127,7 +127,6 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 - Schedule per-item notification at `notifyAt`
 - Cancel on decision
-- `notify_hour` clock adjustment
 - Deep link payload to Decision screen
 - Foreground check for expired waiting items
 

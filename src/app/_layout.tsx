@@ -13,7 +13,10 @@ export default function RootLayout() {
           <Stack.Screen name="index" />
           <Stack.Screen name="home" />
           <Stack.Screen name="(onboarding)" />
-          <Stack.Screen name="settings" />
+          <Stack.Screen
+            name="settings"
+            options={{ presentation: "modal", headerShown: false }}
+          />
           <Stack.Screen name="all-wants" />
           <Stack.Screen
             name="add-want"

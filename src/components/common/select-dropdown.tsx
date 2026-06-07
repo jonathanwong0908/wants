@@ -12,7 +12,7 @@ import {
 import { Text } from "@/components/ui/text";
 
 type Props = {
-  label: string;
+  label?: string;
   options: { label: string; value: string }[];
   value: string;
   onChange: (value: string) => void;
@@ -35,18 +35,25 @@ export function SelectDropdown({
   sideOffset,
   insets,
 }: Props) {
+  const selectedLabel = options.find((option) => option.value === value)?.label;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <View className="w-full flex-row items-center justify-between">
-          <Text className="text-muted-foreground/50">{label}</Text>
+        {label ? (
+          <View className="w-full flex-row items-center justify-between">
+            <Text className="text-muted-foreground/50">{label}</Text>
+            <View className="flex-row items-center gap-2">
+              <Text>{selectedLabel}</Text>
+              <ChevronsUpDown size={16} color="#9CA3AF" />
+            </View>
+          </View>
+        ) : (
           <View className="flex-row items-center gap-2">
-            <Text>
-              {options.find((option) => option.value === value)?.label}
-            </Text>
+            <Text>{selectedLabel}</Text>
             <ChevronsUpDown size={16} color="#9CA3AF" />
           </View>
-        </View>
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"

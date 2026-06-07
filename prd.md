@@ -67,7 +67,6 @@ Key-value store for user preferences.
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
 | `default_delay_hours` | Pre-filled delay on Add screen                                                                                                                       | `72`          |
 | `currency`            | User's currency, auto-detected from device locale on first run                                                                                       | device locale |
-| `notify_hour`         | Preferred hour of day for notifications (0–23). If set, all notifications fire at this hour on the expiry day rather than exactly at the delay time. | `20` (8pm)    |
 | `onboarding_complete` | Whether onboarding has been completed                                                                                                                | `false`       |
 | `is_pro`              | Whether user has active RevenueCat entitlement                                                                                                       | `false`       |
 
@@ -193,7 +192,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 
 ### S12 — Settings *(modal or pushed screen)*
 
-- **Defaults:** default delay picker, currency picker, preferred notification hour
+- **Defaults:** default delay picker, currency picker
 - **Notifications:** status indicator + link to system settings if permission denied
 - **Account:** "Upgrade to Pro" (if not pro) / subscription status (if pro) / restore purchases
 - **Data:** "Clear all data" (confirmation dialog, destructive)
@@ -213,8 +212,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 
 ## 7. Notification behaviour
 
-- One notification scheduled per item at `notifyAt`
-- If `notify_hour` is set in settings, the notification is moved to that clock hour on the expiry day (e.g. delay expires Wednesday afternoon → notification fires Wednesday at 8pm)
+- One notification scheduled per item at `notifyAt` (exact delay expiry — e.g. item logged at 6pm with a 3-day delay fires at 6pm three days later)
 - Notification is cancelled immediately when user makes a decision (skip or buy)
 - On app foreground: check for waiting items where `notifyAt < now` — show "Ready to decide" badge. Handles missed/dismissed notifications and permission-denied scenarios.
 - If notification permission is denied and waiting items exist: show non-blocking banner on Home.
