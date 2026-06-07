@@ -2,15 +2,12 @@ import { FieldContainer, FieldContainerItem } from "@/components/common/field";
 import { SelectDropdown } from "@/components/common/select-dropdown";
 import { SettingsScreenHeader } from "@/components/settings/settings-screen-shell";
 import { Text } from "@/components/ui/text";
-import { CURRENCY_OPTIONS, getCurrencyCode } from "@/lib/currency";
-import {
-  DEFAULT_DELAY_HOURS,
-  DELAY_OPTIONS,
-} from "@/lib/forms/item-form-schema";
+import { useSettings } from "@/contexts/settings-context";
+import { CURRENCY_OPTIONS } from "@/lib/currency";
+import { DELAY_OPTIONS } from "@/lib/forms/item-form-schema";
 import { pushSettingsRoute } from "@/lib/push-settings-routes";
 import { Separator } from "@rn-primitives/dropdown-menu";
 import { PortalHost, useModalPortalRoot } from "@rn-primitives/portal";
-import { useState } from "react";
 import { ScrollView, View } from "react-native";
 import {
   SafeAreaView,
@@ -29,10 +26,8 @@ export default function SettingsIndexScreen() {
     right: 16,
   };
 
-  const [defaultDelayHours, setDefaultDelayHours] = useState(
-    String(DEFAULT_DELAY_HOURS)
-  );
-  const [currencyCode, setCurrencyCode] = useState(getCurrencyCode());
+  const { currencyCode, defaultDelayHours, setCurrencyCode, setDefaultDelayHours } =
+    useSettings();
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
@@ -49,8 +44,8 @@ export default function SettingsIndexScreen() {
                 <Text className="text-muted-foreground/50">Default delay</Text>
                 <SelectDropdown
                   options={DELAY_OPTIONS}
-                  value={defaultDelayHours}
-                  onChange={setDefaultDelayHours}
+                  value={String(defaultDelayHours)}
+                  onChange={(value) => setDefaultDelayHours(Number(value))}
                   portalHost={SETTINGS_PORTAL_HOST}
                   sideOffset={sideOffset}
                   insets={dropdownInsets}

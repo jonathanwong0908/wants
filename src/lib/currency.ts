@@ -24,6 +24,7 @@ export const CURRENCY_OPTIONS = Object.entries(CURRENCY_SYMBOLS).map(
   })
 );
 
+/** Non-reactive kv-store read. Prefer `useSettings()` in React components. */
 export function getCurrencyCode(): string {
   return Storage.getItemSync(CURRENCY_KEY) ?? DEFAULT_CURRENCY_CODE;
 }

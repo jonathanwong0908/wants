@@ -8,8 +8,8 @@ import { WantListRow } from "@/components/wants/want-list-row";
 import { selectPastItems, selectWaitingItems } from "@/db/queries/items";
 import type { items } from "@/db/schema";
 import { useNowTick } from "@/hooks/use-now-tick";
+import { useSettings } from "@/contexts/settings-context";
 import { useSavingsStats } from "@/hooks/use-savings-stats";
-import { getCurrencyCode } from "@/lib/currency";
 import { formatCurrency } from "@/lib/money-format";
 import { THEME } from "@/lib/theme";
 import { LegendList } from "@legendapp/list/react-native";
@@ -34,7 +34,7 @@ function ListEmpty({ message }: { message: string }) {
 }
 
 function PastSummary() {
-  const currencyCode = getCurrencyCode();
+  const { currencyCode } = useSettings();
   const { totalSaved, skippedCount, boughtCount } =
     useSavingsStats(currencyCode);
 

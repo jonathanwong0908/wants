@@ -30,7 +30,6 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 ### Not done (follow-ups)
 
 - Schedule expo-notifications at `notifyAt` and persist `notifId`
-- Read `currencyCode` / `defaultDelayHours` from settings store (currently hardcoded defaults in `useItemForm`)
 - Free-tier paywall gate on Add screen (waiting items ≥ 1, non-pro)
 - Custom delay option (pro only)
 - Show validation errors inline (`FormMessage` not wired on form fields yet)
@@ -94,10 +93,12 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 - Modal nested stack: hub + notifications, account, data, about placeholder sub-screens
 - Hub UI: inline default delay + currency pickers (`FieldContainer` + `SelectDropdown`), navigation rows to sub-screens
+- Persist default delay and currency via `expo-sqlite/kv-store` (`default_delay_hours`, `currency` keys)
+- `SettingsProvider` + `useSettings()` hook for reactive reads/writes
+- First-run currency seed from device locale on onboarding completion (`expo-localization`)
+- `useItemForm`, Home, and All Wants wired to settings
 
 ### Not done
-
-- Persist default delay and currency to settings store
 - Notification status + link to system settings
 - RevenueCat upgrade / restore
 - Clear all data

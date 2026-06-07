@@ -2,10 +2,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { useForm, type UseFormReturn } from "react-hook-form";
 
+import { useSettings } from "@/contexts/settings-context";
 import {
   createItemFormSchema,
-  DEFAULT_CURRENCY_CODE,
-  DEFAULT_DELAY_HOURS,
   type ItemFormInput,
   type ItemFormValues,
 } from "@/lib/forms/item-form-schema";
@@ -27,15 +26,16 @@ export type UseItemFormReturn = UseFormReturn<
 export function useItemForm(
   options: UseItemFormOptions = {}
 ): UseItemFormReturn {
-  const currencyCode = options.currencyCode ?? DEFAULT_CURRENCY_CODE;
-  const defaultDelayHours = options.defaultDelayHours ?? DEFAULT_DELAY_HOURS;
+  const settings = useSettings();
+  const currencyCode = options.currencyCode ?? settings.currencyCode;
+  const defaultDelayHours =
+    options.defaultDelayHours ?? settings.defaultDelayHours;
 
   const schema = useMemo(
     () => createItemFormSchema(currencyCode),
     [currencyCode]
   );
 
-  // TODO: read currencyCode and defaultDelayHours from settings store when available.
   const form = useForm<ItemFormInput, unknown, ItemFormValues>({
     resolver: zodResolver(schema),
     mode: "onChange",

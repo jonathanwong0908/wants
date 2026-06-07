@@ -9,10 +9,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useAppReady } from "@/contexts/app-ready-context";
+import { useSettings } from "@/contexts/settings-context";
 import { selectWaitingItems } from "@/db/queries/items";
 import { useNowTick } from "@/hooks/use-now-tick";
 import { useSavingsStats } from "@/hooks/use-savings-stats";
-import { getCurrencyCode } from "@/lib/currency";
 import { formatCurrency } from "@/lib/money-format";
 import { pushHomeAreaRoute } from "@/lib/push-home-routes";
 import { THEME } from "@/lib/theme";
@@ -35,7 +35,7 @@ export default function HomeScreen() {
   const nowMs = useNowTick();
 
   const { data: waitingItems } = useLiveQuery(selectWaitingItems());
-  const currencyCode = getCurrencyCode();
+  const { currencyCode } = useSettings();
   const { totalSaved, skippedCount, hasOtherCurrencySkipped } =
     useSavingsStats(currencyCode);
 
