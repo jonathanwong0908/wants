@@ -3,7 +3,7 @@ import { openDatabaseSync } from "expo-sqlite";
 
 import * as schema from "./schema";
 
-const expoDb = openDatabaseSync("wants.db");
+const expoDb = openDatabaseSync("wants.db", { enableChangeListener: true });
 
 export const db = drizzle(expoDb, { schema });
 

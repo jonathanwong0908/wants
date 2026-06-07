@@ -1,17 +1,29 @@
+import {
+  buildWaitingSectionRows,
+  partitionWaitingItems,
+  renderWaitingListRow,
+  WAITING_LIST_ESTIMATED_ITEM_SIZE,
+  waitingListKeyExtractor,
+  type WaitingListRow,
+} from "@/components/wants/waiting-want-list";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import {
   PLACEHOLDER_HERO_CURRENCY,
   PLACEHOLDER_TOTAL_SAVED,
-  PLACEHOLDER_UPCOMING_WANTS,
 } from "@/constants/placeholder-wants";
 import { useAppReady } from "@/contexts/app-ready-context";
-import { formatCountdownUntil, formatCurrency } from "@/lib/money-format";
+import { selectWaitingItems } from "@/db/queries/items";
+import { useNowTick } from "@/hooks/use-now-tick";
+import { formatCurrency } from "@/lib/money-format";
 import { pushHomeAreaRoute } from "@/lib/push-home-routes";
 import { THEME } from "@/lib/theme";
+import { LegendList } from "@legendapp/list/react-native";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
 import { Plus, Settings } from "lucide-react-native";
-import { Pressable, ScrollView, useColorScheme, View } from "react-native";
+import { useCallback, useMemo } from "react";
+import { Pressable, useColorScheme, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -22,125 +34,121 @@ export default function HomeScreen() {
   const palette = THEME[useColorScheme() === "dark" ? "dark" : "light"];
   const iconTint = palette.foreground;
   const insets = useSafeAreaInsets();
+  const nowMs = useNowTick();
+
+  const { data: waitingItems } = useLiveQuery(selectWaitingItems());
 
   const fabBottom = Math.max(insets.bottom, 16) + 12;
   const scrollBottomPad = fabBottom + 56 + 12;
 
+  const listData = useMemo(() => {
+    const { upcoming, ready } = partitionWaitingItems(
+      waitingItems ?? [],
+      nowMs
+    );
+
+    const rows: WaitingListRow[] = [
+      ...buildWaitingSectionRows({
+        title: "Upcoming",
+        items: upcoming,
+        emptyMessage: "Nothing waiting. Add something you're eyeing.",
+        showAllLink: true,
+      }),
+    ];
+
+    if (ready.length > 0) {
+      rows.push(
+        ...buildWaitingSectionRows({
+          title: "Ready to decide",
+          items: ready,
+          isReady: true,
+        })
+      );
+    }
+
+    return rows;
+  }, [waitingItems, nowMs]);
+
+  const handleShowAll = useCallback(() => {
+    pushHomeAreaRoute("/all-wants");
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item }: { item: WaitingListRow }) =>
+      renderWaitingListRow({ row: item, nowMs, onShowAll: handleShowAll }),
+    [nowMs, handleShowAll]
+  );
+
+  const ListHeaderComponent = useMemo(
+    () => (
+      <View>
+        <View className="mb-6 flex-row items-center justify-end pt-2">
+          <Button
+            variant="outline"
+            size="icon"
+            accessibilityLabel="Settings"
+            onPress={() => pushHomeAreaRoute("/settings")}
+          >
+            <Settings size={22} color={iconTint} strokeWidth={1.5} />
+          </Button>
+        </View>
+
+        <Text
+          variant="muted"
+          className="text-xs font-bold uppercase tracking-wide"
+        >
+          Saved so far
+        </Text>
+        <Text
+          variant="h2"
+          className="mt-1 border-b-0 pb-0 text-4xl tabular-nums text-card-foreground"
+        >
+          {formatCurrency(PLACEHOLDER_TOTAL_SAVED, PLACEHOLDER_HERO_CURRENCY)}
+        </Text>
+      </View>
+    ),
+    [iconTint]
+  );
+
+  const ListFooterComponent = useMemo(
+    () =>
+      __DEV__ ? (
+        <View>
+          <Button
+            variant="outline"
+            className="mt-8 w-full"
+            onPress={() => {
+              setOnboardingComplete(false);
+              router.replace("/");
+            }}
+          >
+            <Text>Reset onboarding (dev)</Text>
+          </Button>
+        </View>
+      ) : null,
+    [setOnboardingComplete]
+  );
+
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
       <View className="flex-1">
-        <ScrollView
+        <LegendList
           className="flex-1 px-4"
+          data={listData}
+          renderItem={renderItem}
+          keyExtractor={waitingListKeyExtractor}
+          estimatedItemSize={WAITING_LIST_ESTIMATED_ITEM_SIZE}
+          recycleItems
+          ListHeaderComponent={ListHeaderComponent}
+          ListFooterComponent={ListFooterComponent}
           contentContainerStyle={{
             flexGrow: 1,
             paddingBottom: scrollBottomPad,
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
-        >
-          {/* Top bar */}
-          <View className="mb-6 flex-row items-center justify-end pt-2">
-            <Button
-              variant="outline"
-              size="icon"
-              accessibilityLabel="Settings"
-              onPress={() => pushHomeAreaRoute("/settings")}
-            >
-              <Settings size={22} color={iconTint} strokeWidth={1.5} />
-            </Button>
-          </View>
+        />
 
-          {/* Savings hero (PRD: total saved + label + decision count) */}
-          <Text
-            variant="muted"
-            className="text-xs font-bold uppercase tracking-wide"
-          >
-            Saved so far
-          </Text>
-          <Text
-            variant="h2"
-            className="mt-1 border-b-0 pb-0 text-4xl tabular-nums text-card-foreground"
-          >
-            {formatCurrency(PLACEHOLDER_TOTAL_SAVED, PLACEHOLDER_HERO_CURRENCY)}
-          </Text>
-
-          {/* Upcoming */}
-          <View className="mt-8 flex-row items-baseline justify-between">
-            <Text className="text-lg font-semibold text-foreground">
-              Upcoming
-            </Text>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-auto px-2 py-1"
-              onPress={() => pushHomeAreaRoute("/all-wants")}
-            >
-              <Text className="text-sm font-medium text-primary">Show all</Text>
-            </Button>
-          </View>
-
-          <View className="mt-3 gap-3">
-            {PLACEHOLDER_UPCOMING_WANTS.map((want) => {
-              const isExpired =
-                want.status === "waiting" && Date.now() >= want.notifyAtMs;
-              const countdown = formatCountdownUntil(want.notifyAtMs);
-
-              return (
-                <Pressable
-                  key={want.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${want.name}, ${formatCurrency(
-                    want.price,
-                    want.currency
-                  )}`}
-                  className="rounded-xl border border-border bg-muted/40 p-4 active:bg-accent/40"
-                >
-                  <View className="flex-row items-start justify-between gap-3">
-                    <View className="min-w-0 flex-1">
-                      <Text
-                        className="truncate text-base font-semibold text-foreground"
-                        numberOfLines={1}
-                      >
-                        {want.name}
-                      </Text>
-                      <Text className="mt-1 text-muted-foreground">
-                        {formatCurrency(want.price, want.currency)}
-                      </Text>
-                    </View>
-                    <View className="items-end gap-2">
-                      {isExpired ? (
-                        <View className="rounded-full bg-secondary px-2.5 py-1">
-                          <Text className="text-xs font-medium text-secondary-foreground">
-                            Ready to decide
-                          </Text>
-                        </View>
-                      ) : (
-                        <Text variant="muted" className="text-xs font-medium">
-                          {countdown}
-                        </Text>
-                      )}
-                    </View>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-
-          {__DEV__ ? (
-            <Button
-              variant="outline"
-              className="mt-8 w-full"
-              onPress={() => {
-                setOnboardingComplete(false);
-                router.replace("/");
-              }}
-            >
-              <Text>Reset onboarding (dev)</Text>
-            </Button>
-          ) : null}
-        </ScrollView>
-
-        {/* FAB → Add Want (modal) */}
         <View
           pointerEvents="box-none"
           className="absolute"

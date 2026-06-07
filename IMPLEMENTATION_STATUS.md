@@ -10,7 +10,7 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - `src/db/schema.ts` — `items` table definition
 - `src/db/migrations.tsx` — runtime migrations + onboarding kv-store gate
 - `src/db/mutations/` — write operations (DB inserts/updates/deletes)
-- `src/db/queries/` — read operations (not created yet; add when screens read from DB)
+- `src/db/queries/` — read operations (`items.ts`: waiting items query)
 
 ## Add Want (PRD S6) — partial
 
@@ -36,23 +36,32 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - Custom delay option (pro only)
 - Show validation errors inline (`FormMessage` not wired on form fields yet)
 
-## Home (PRD S5) — UI shell only
+## Home (PRD S5) — partial
 
-**Files:** `src/app/home.tsx`, `src/constants/placeholder-wants.ts`
+**Files:** `src/app/home.tsx`, `src/components/wants/*`, `src/db/queries/items.ts`, `src/hooks/use-now-tick.ts`, `src/constants/placeholder-wants.ts`
 
 ### Done
 
-- Layout: settings button, savings hero, upcoming list, FAB
+- Layout: settings button, savings hero, upcoming + ready-to-decide lists, FAB
 - Navigation to settings, all-wants, add-want modals
+- Read waiting items from DB via `useLiveQuery` + `selectWaitingItems()`
+- SQLite change listeners enabled on `openDatabaseSync`
+- Upcoming section: all not-yet-expired waiting items, countdown from `notifyAt`, empty state
+- Ready to decide section: expired waiting items in separate section (hidden when empty)
+- Reusable list row + section builder (`WantListRow`, `waiting-want-list.tsx`) with `@legendapp/list`
+- `useNowTick`: AppState foreground + 60s interval for section moves and countdown copy
+
+### PRD divergences (intentional)
+
+- Home shows **all** waiting items, not PRD's cap of 3 on Home
+- Expired waiting items are in a separate **Ready to decide** section, not mixed into Upcoming with a badge
 
 ### Not done
 
-- Read waiting items from DB (`src/db/queries/items.ts`)
-- Real savings total and decision count
-- Countdown timers from `notifyAt`
-- "Ready to decide" badge for expired items
+- Real savings total and decision count (hero still placeholder)
 - Notification permission banner
 - Free-tier FAB paywall gate (lock icon when waiting ≥ 1, non-pro)
+- Tap row → Decision screen
 
 ## All Wants (PRD S11) — UI shell only
 
