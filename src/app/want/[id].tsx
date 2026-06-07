@@ -1,7 +1,8 @@
-import { WantDetailContent } from "@/components/wants/want-detail-content";
 import { ScreenBackButton } from "@/components/layout/screen-back-button";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { WantDecisionActions } from "@/components/wants/want-decision-actions";
+import { WantDetailContent } from "@/components/wants/want-detail-content";
 import { selectItemById } from "@/db/queries/items";
 import { useNowTick } from "@/hooks/use-now-tick";
 import { parseItemId } from "@/lib/parse-item-id";
@@ -24,6 +25,8 @@ export default function WantDetailScreen() {
     itemId != null ? selectItemById(itemId) : selectItemById(-1)
   );
   const item = itemId != null ? data?.[0] : undefined;
+  const isWaiting = item?.status === "waiting";
+  const isReady = isWaiting && item != null && item.notifyAt.getTime() <= nowMs;
 
   return (
     <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background">
@@ -72,6 +75,12 @@ export default function WantDetailScreen() {
           </View>
         )}
       </ScrollView>
+
+      {isWaiting ? (
+        <View className="border-t border-border px-5 pt-4">
+          <WantDecisionActions isReady={isReady} />
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 }
