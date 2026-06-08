@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { NotificationBootstrap } from "@/components/notification-bootstrap";
+import { ThemeRoot } from "@/components/theme-root";
 import { AppReadyGate } from "@/db/migrations";
 import "@/lib/notifications";
 import { PortalHost } from "@rn-primitives/portal";
@@ -12,12 +13,17 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <AppReadyGate>
         <NotificationBootstrap />
-        <Stack screenOptions={{ headerShown: false }}>
+        <ThemeRoot>
+          <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="home" />
           <Stack.Screen name="(onboarding)" />
           <Stack.Screen
             name="settings"
+            options={{ presentation: "modal", headerShown: false }}
+          />
+          <Stack.Screen
+            name="paywall"
             options={{ presentation: "modal", headerShown: false }}
           />
           <Stack.Screen name="all-wants" />
@@ -35,6 +41,7 @@ export default function RootLayout() {
             options={{ presentation: "modal", headerShown: false }}
           />
         </Stack>
+        </ThemeRoot>
         <PortalHost />
       </AppReadyGate>
     </SafeAreaProvider>

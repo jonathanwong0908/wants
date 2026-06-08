@@ -4,10 +4,9 @@ import type { items } from "@/db/schema";
 import Storage from "expo-sqlite/kv-store";
 import { X } from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
-import { Pressable, useColorScheme, View } from "react-native";
-
+import { Pressable, View } from "react-native";
+import { useThemePalette } from "@/hooks/use-theme-palette";
 import { pushHomeAreaRoute } from "@/lib/push-home-routes";
-import { THEME } from "@/lib/theme";
 
 type Item = typeof items.$inferSelect;
 
@@ -50,8 +49,8 @@ export function NotificationPermissionBanner({
   granted,
   waitingItems,
 }: NotificationPermissionBannerProps) {
-  const iconTint =
-    THEME[useColorScheme() === "dark" ? "dark" : "light"].mutedForeground;
+  const palette = useThemePalette();
+  const iconTint = palette.mutedForeground;
   const [dismissedAtMs, setDismissedAtMs] = useState<number | null>(() =>
     readDismissedAtMs()
   );

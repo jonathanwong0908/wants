@@ -4,6 +4,7 @@ const { hairlineWidth } = require("nativewind/theme");
 module.exports = {
   // NOTE: Update this to include the paths to all files that contain Nativewind classes.
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  darkMode: "class",
   presets: [require("nativewind/preset")],
   theme: {
     extend: {

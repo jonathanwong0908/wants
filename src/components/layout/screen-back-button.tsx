@@ -1,10 +1,9 @@
 import { NavigationBackIcon } from "@/components/layout/navigation-back-icon";
 import { Button } from "@/components/ui/button";
-import { THEME } from "@/lib/theme";
+import { useThemePalette } from "@/hooks/use-theme-palette";
 import { cn } from "@/lib/utils";
 import { useRouter } from "expo-router";
 import { ChevronDown } from "lucide-react-native";
-import { useColorScheme } from "react-native";
 
 type ScreenBackButtonProps = {
   variant?: "modal" | "stack";
@@ -20,7 +19,7 @@ export function ScreenBackButton({
   className,
 }: ScreenBackButtonProps) {
   const router = useRouter();
-  const palette = THEME[useColorScheme() === "dark" ? "dark" : "light"];
+  const palette = useThemePalette();
   const isModal = variant === "modal";
 
   return (

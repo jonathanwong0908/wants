@@ -6,20 +6,20 @@ import { WantDetailContent } from "@/components/wants/want-detail-content";
 import { buyItem, skipItem } from "@/db/mutations/items";
 import { selectItemById } from "@/db/queries/items";
 import { useNowTick } from "@/hooks/use-now-tick";
+import { useThemePalette } from "@/hooks/use-theme-palette";
 import { formatCurrency } from "@/lib/money-format";
 import { parseItemId } from "@/lib/parse-item-id";
 import { pushEditWantRoute } from "@/lib/push-edit-want-route";
-import { THEME } from "@/lib/theme";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Pencil } from "lucide-react-native";
 import { useState } from "react";
-import { Alert, ScrollView, useColorScheme, View } from "react-native";
+import { Alert, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function WantDetailScreen() {
   const router = useRouter();
-  const palette = THEME[useColorScheme() === "dark" ? "dark" : "light"];
+  const palette = useThemePalette();
   const { id } = useLocalSearchParams<{ id: string }>();
   const nowMs = useNowTick();
   const itemId = parseItemId(id);

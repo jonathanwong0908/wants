@@ -1,3 +1,4 @@
+import { useThemePalette } from "@/hooks/use-theme-palette";
 import { View } from "react-native";
 import Animated, {
   SharedValue,
@@ -5,20 +6,20 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-/** Light-theme tokens aligned with `src/global.css` (primary / muted indicator). */
-const DOT_ACTIVE = "hsl(0, 0%, 9%)";
-const DOT_INACTIVE = "hsl(0, 0%, 75%)";
-
 function Dot({
   index,
   activeIndex,
+  activeColor,
+  inactiveColor,
 }: {
   index: number;
   activeIndex: SharedValue<number>;
+  activeColor: string;
+  inactiveColor: string;
 }) {
   const animatedStyle = useAnimatedStyle(() => {
     const backgroundColor = withTiming(
-      activeIndex.get() === index ? DOT_ACTIVE : DOT_INACTIVE,
+      activeIndex.get() === index ? activeColor : inactiveColor,
       { duration: 200 }
     );
     return { backgroundColor };
@@ -35,10 +36,18 @@ export function OnboardingDots({
   count: number;
   activeIndex: SharedValue<number>;
 }) {
+  const palette = useThemePalette();
+
   return (
     <View className="flex-row items-center justify-center gap-2 py-2">
       {Array.from({ length: count }, (_, index) => (
-        <Dot key={index} index={index} activeIndex={activeIndex} />
+        <Dot
+          key={index}
+          index={index}
+          activeIndex={activeIndex}
+          activeColor={palette.primary}
+          inactiveColor={palette.border}
+        />
       ))}
     </View>
   );

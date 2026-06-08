@@ -5,6 +5,7 @@ import { router } from "expo-router";
  */
 export type SettingsHref =
   | "/settings/notifications"
+  | "/settings/theme"
   | "/settings/account"
   | "/settings/data"
   | "/settings/about";

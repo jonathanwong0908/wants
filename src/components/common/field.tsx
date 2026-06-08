@@ -25,12 +25,14 @@ type FieldContainerItemProps = {
   children: React.ReactNode;
   className?: string;
   onPress?: () => void;
+  showChevron?: boolean;
 };
 
 export function FieldContainerItem({
   children,
   className,
   onPress,
+  showChevron = true,
 }: FieldContainerItemProps) {
   const Comp = onPress ? Pressable : View;
 
@@ -44,7 +46,7 @@ export function FieldContainerItem({
       onPress={onPress}
     >
       <View className="flex-1">{children}</View>
-      {onPress && (
+      {onPress && showChevron && (
         <ChevronRight size={16} color="#9CA3AF" />
       )}
     </Comp>

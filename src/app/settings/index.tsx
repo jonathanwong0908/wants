@@ -3,10 +3,12 @@ import { SelectDropdown } from "@/components/common/select-dropdown";
 import { SettingsScreenHeader } from "@/components/settings/settings-screen-shell";
 import { Text } from "@/components/ui/text";
 import { useSettings } from "@/contexts/settings-context";
+import { useTheme } from "@/contexts/theme-context";
 import { useNotificationPermission } from "@/hooks/use-notification-permission";
 import { CURRENCY_OPTIONS } from "@/lib/currency";
 import { DELAY_OPTIONS } from "@/lib/forms/item-form-schema";
 import { pushSettingsRoute } from "@/lib/push-settings-routes";
+import { getThemeDisplayName } from "@/lib/themes/registry";
 import { Separator } from "@rn-primitives/dropdown-menu";
 import { PortalHost, useModalPortalRoot } from "@rn-primitives/portal";
 import { Linking, ScrollView, View } from "react-native";
@@ -49,6 +51,7 @@ export default function SettingsIndexScreen() {
     setCurrencyCode,
     setDefaultDelayHours,
   } = useSettings();
+  const { themeId } = useTheme();
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
@@ -93,6 +96,17 @@ export default function SettingsIndexScreen() {
                 <Text>Notifications</Text>
                 <Text className="text-base text-foreground">
                   {formatPermissionStatus(status)}
+                </Text>
+              </View>
+            </FieldContainerItem>
+            <Separator />
+            <FieldContainerItem
+              onPress={() => pushSettingsRoute("/settings/theme")}
+            >
+              <View className="flex-row items-center justify-between gap-2">
+                <Text>Theme</Text>
+                <Text className="text-base text-foreground">
+                  {getThemeDisplayName(themeId)}
                 </Text>
               </View>
             </FieldContainerItem>

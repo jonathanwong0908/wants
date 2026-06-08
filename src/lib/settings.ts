@@ -11,6 +11,12 @@ import {
   DEFAULT_DELAY_HOURS,
   PRESET_DELAY_HOURS,
 } from "@/lib/forms/item-form-schema";
+import {
+  readThemeId,
+  seedInitialThemeIfNeeded,
+  writeThemeId,
+} from "@/lib/themes/storage";
+import type { ThemeId } from "@/lib/themes/types";
 
 const SUPPORTED_CURRENCY_CODES = new Set(
   CURRENCY_OPTIONS.map((option) => option.value)
@@ -83,7 +89,11 @@ export function seedInitialSettingsIfNeeded(): void {
   if (!hasStoredDefaultDelayHours()) {
     writeDefaultDelayHours(DEFAULT_DELAY_HOURS);
   }
+
+  seedInitialThemeIfNeeded();
 }
+
+export { readThemeId, writeThemeId, type ThemeId };
 
 export function readSettingsFromStorage(): {
   currencyCode: string;

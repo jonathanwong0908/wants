@@ -192,6 +192,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 
 - **Defaults:** default delay picker, currency picker
 - **Notifications:** status indicator + link to system settings if permission denied
+- **Theme:** Light and Dark (default palette); premium color palettes for Pro — sub-page with selectable themes
 - **Account:** "Upgrade to Pro" (if not pro) / subscription status (if pro) / restore purchases
 - **Data:** "Clear all data" (confirmation dialog, destructive)
 - **About:** version number, privacy policy link, terms link
@@ -199,7 +200,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 ### S13 — Paywall *(modal)*
 
 - Headline: "Unlock the full Wants experience"
-- 3 benefit bullets: unlimited items · custom delays · full history
+- 4 benefit bullets: unlimited items · custom delays · full history · premium color themes
 - Two pricing options: $3.99/month · $29.99/year (highlight annual, "save 37%")
 - Prices loaded dynamically from RevenueCat — never hardcoded
 - CTA: "Start free 7-day trial"
@@ -220,18 +221,20 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 ## 8. Free vs pro
 
 
-| Feature              | Free                | Pro       |
-| -------------------- | ------------------- | --------- |
-| Active waiting items | Max 1               | Unlimited |
-| Delay options        | 24h, 3 days, 1 week | + Custom  |
-| Past items history   | Last 30 days        | All time  |
+| Feature              | Free                          | Pro                     |
+| -------------------- | ----------------------------- | ----------------------- |
+| Active waiting items | Max 1                         | Unlimited               |
+| Delay options        | 24h, 3 days, 1 week           | + Custom                |
+| Past items history   | Last 30 days                  | All time                |
+| Color themes         | Light, Dark (default palette) | + Premium color palettes |
 
 
-Enforcement points (exactly 3, nowhere else):
+Enforcement points (exactly 4, nowhere else):
 
 1. FAB on Home — locked if waiting items ≥ 1
 2. Custom delay option in delay picker
 3. Past tab on All Items screen — capped at 30 days
+4. Theme settings — selecting a premium color palette when not pro opens the paywall
 
 `is_pro` is read from the settings table, synced from RevenueCat on app foreground. RevenueCat entitlement name: `pro`.
 

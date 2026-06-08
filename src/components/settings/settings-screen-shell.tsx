@@ -36,7 +36,7 @@ export function SettingsScreenShell({
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
       <SettingsScreenHeader title={title} variant={variant} />
       <ScrollView
-        className="flex-1 px-6"
+        className="flex-1 px-4"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >

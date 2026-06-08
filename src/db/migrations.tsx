@@ -7,6 +7,7 @@ import { Text, View } from "react-native";
 
 import { AppReadyProvider } from "@/contexts/app-ready-context";
 import { SettingsProvider } from "@/contexts/settings-context";
+import { ThemeProvider } from "@/contexts/theme-context";
 import { ONBOARDING_COMPLETE_KEY } from "@/constants/storage-keys";
 
 import migrations from "../../drizzle/migrations.js";
@@ -39,7 +40,9 @@ function AppReadyWithOnboarding({ children }: { children: ReactNode }) {
 
   return (
     <AppReadyProvider value={{ onboardingComplete, setOnboardingComplete }}>
-      <SettingsProvider>{children}</SettingsProvider>
+      <SettingsProvider>
+        <ThemeProvider>{children}</ThemeProvider>
+      </SettingsProvider>
     </AppReadyProvider>
   );
 }
