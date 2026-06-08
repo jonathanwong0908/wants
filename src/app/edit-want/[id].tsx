@@ -3,10 +3,12 @@ import { ScreenBackButton } from "@/components/layout/screen-back-button";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Text } from "@/components/ui/text";
+import { useSettings } from "@/contexts/settings-context";
 import { deleteItem, updateItem } from "@/db/mutations/items";
 import { selectItemById } from "@/db/queries/items";
 import type { items } from "@/db/schema";
 import { useItemForm } from "@/hooks/use-item-form";
+import { getDeleteWantAlertContent } from "@/lib/delete-want-alert";
 import {
   itemToFormDefaultValues,
   type ItemFormValues,
@@ -34,6 +36,7 @@ type EditWantFormProps = {
 
 function EditWantForm({ item }: EditWantFormProps) {
   const router = useRouter();
+  const { currencyCode: settingsCurrencyCode } = useSettings();
   const [isDeleting, setIsDeleting] = useState(false);
   const methods = useItemForm({
     currencyCode: item.currency,
@@ -71,7 +74,12 @@ function EditWantForm({ item }: EditWantFormProps) {
   }
 
   function handleDeletePress() {
-    Alert.alert("Delete want?", "This can't be undone.", [
+    const { title, message } = getDeleteWantAlertContent(
+      item,
+      settingsCurrencyCode
+    );
+
+    Alert.alert(title, message, [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",

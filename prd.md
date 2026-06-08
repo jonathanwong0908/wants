@@ -1,6 +1,6 @@
 # PRD — Wants (Impulse Buy Delay App)
 
-**Version:** 1.3  
+**Version:** 1.4  
 **Stack:** React Native · Expo · Expo Router · expo-sqlite · Drizzle ORM · expo-notifications · RevenueCat · lucide-react-native  
 **Target platforms:** iOS first, Android parity  
 **Author reference:** Use this document as the single source of truth when building Wants. DB schema and folder structure are decided at implementation time.
@@ -91,7 +91,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 - **Onboarding stack** (Welcome → Social proof → How it works → Notification permission): shown on first run, gated by `onboarding_complete` setting
 - **Home** is the root screen after onboarding
 - All other screens are pushed onto the stack or presented as modals from Home
-- **Modals:** Add item, Decision screen, Skipped, Bought, All items, Paywall, Settings
+- **Modals:** Add item, Decision screen, All items, Paywall, Settings
 
 ---
 
@@ -155,31 +155,19 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 
 - Fires at `notifyAt`
 - Title: "Still want this?"
-- Body: "You added [name] ([price]) [X] ago. Still feeling it?"
+- Body: "You added [name] ([price]). Still feeling it?"
 - Tapping deep-links to the Decision screen for that item
 
 ### S8 — Decision screen *(modal)*
 
-- Reached by: tapping a notification, tapping an expired item card, or tapping any waiting item card (for early check-in)
-- **If timer still running:** show item details + countdown + "Check in early" option which reveals the decision buttons
-- **If expired:** show decision UI immediately
-- Decision UI: item name, price, "You added this X ago", two buttons:
+- Reached by: tapping a notification, or tapping any waiting or expired item card
+- Show item details (name, price, wait period, dates, note) and countdown or "Ready to decide" status
+- Decision buttons are **always shown** for waiting items — including before the timer expires (early check-in allowed)
+- Two buttons:
   - "Nope, I moved on" (primary) → skip
   - "Yeah, I'll buy it" (secondary) → buy
-- Skipping: update status to `skipped`, cancel notification, navigate to S9
-- Buying: update status to `bought`, cancel notification, navigate to S10
-
-### S9 — Skipped / "You saved it!" *(modal)*
-
-- "You saved [price]!"
-- Running total: "That's [total] saved overall 🎉"
-- CTA: "Back to home"
-
-### S10 — Bought / "Logged!" *(modal)*
-
-- "Bought it. No judgment — at least you waited."
-- How long they waited: "You thought about it for X days."
-- CTA: "Back to home"
+- Skipping: update status to `skipped`, cancel notification, dismiss modal (return to previous screen)
+- Buying: update status to `bought`, cancel notification, dismiss modal (return to previous screen). Buy may use a confirmation step at implementation time.
 
 ### S11 — All items
 
@@ -247,6 +235,7 @@ Enforcement points (exactly 3, nowhere else):
 - **Item price is 0:** Allowed — some free items are still worth tracking.
 - **Very long item names:** Cap input at 50 characters. Display with ellipsis in cards.
 - **Mixed currencies in history:** Savings total only sums items in current currency. Show footnote if excluded items exist.
+- **User deletes a skipped item:** Hard-delete from Edit Want. Savings total (same currency) and skipped count decrease; item removed from Past tab. Irreversible — no status reversal to waiting or bought.
 - **No items ever logged:** Show empty state on Home.
 
 ---

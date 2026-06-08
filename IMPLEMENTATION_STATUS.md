@@ -1,6 +1,6 @@
 # Wants — Implementation Status
 
-Last updated: 2026-06-08
+Last updated: 2026-06-09
 
 Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md) for product intent.
 
@@ -91,23 +91,16 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - Navigation from Home and All Wants list rows via `pushWantRoute(id)`
 - Decision buttons for waiting items: "Moved on" (skip) and "Buy it" (buy)
 - Skip: `skipItem()` sets `status = skipped`, `decidedAt = now`, cancels scheduled notification; `router.back()` closes modal (no success alert); Home / All Wants savings + lists refresh via `useLiveQuery`
-- Buy: `Alert.alert` confirmation → `buyItem()` sets `status = bought`, `decidedAt = now`, cancels scheduled notification; `router.back()` closes modal (no S10 screen); cancel dismisses alert only
+- Buy: `Alert.alert` confirmation → `buyItem()` sets `status = bought`, `decidedAt = now`, cancels scheduled notification; `router.back()` closes modal; cancel dismisses alert only
 - Deep link from push notification tap → `/want/[id]` via `use-notification-observer`
-
-### PRD divergences (intentional)
-
-- Skip does not navigate to S9 "You saved it!" celebration modal
-- Buy does not navigate to S10 "Bought / Logged!" celebration modal
-- Early skip and early buy allowed — both buttons enabled before timer expires (no "Check in early" gate yet)
 
 ### Not done (follow-ups)
 
-- "Check in early" progressive reveal UI for non-expired waiting items
 - Delete from want detail (delete lives on edit screen only — see Edit Want)
 
 ## Edit Want — partial
 
-**Files:** `src/app/edit-want/[id].tsx`, `src/components/wants/item-form-fields.tsx`, `src/db/mutations/items.ts` (`updateItem`, `deleteItem`), `src/lib/push-edit-want-route.ts`, `src/lib/forms/item-form-schema.ts`, `src/lib/want-format.ts`
+**Files:** `src/app/edit-want/[id].tsx`, `src/components/wants/item-form-fields.tsx`, `src/db/mutations/items.ts` (`updateItem`, `deleteItem`), `src/lib/delete-want-alert.ts`, `src/lib/push-edit-want-route.ts`, `src/lib/forms/item-form-schema.ts`, `src/lib/want-format.ts`
 
 ### Done
 
@@ -119,6 +112,7 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - `getDelayOptionsForValue` for non-preset delay values (future custom delay)
 - `updateItem()` Drizzle mutation; `router.back()` on success; detail auto-refreshes via `useLiveQuery`
 - Delete: destructive trash icon in edit header; `Alert.alert` confirmation; hard delete via `deleteItem()`; `router.dismiss(2)` returns to Home / All Wants
+- Skipped-item delete: savings-aware confirmation — same currency warns price will be removed from Home saved total; other currency explains saved total unchanged (`src/lib/delete-want-alert.ts`)
 - `deleteItem()` cancels scheduled notification when `notifId` is set
 - Cancel + reschedule notification on edit when name, price, or delay changes (waiting items)
 
@@ -126,18 +120,11 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 - Paywall / custom delay pro gate on edit (same as add — not built yet)
 
-## Decision / Skipped / Bought modals (PRD S8–S10) — partial
+## Decision flow (PRD S8) — done
 
-### Done
-
-- Skip from want detail: `skipItem()` mutation, notification cancel, dismiss modal (no S9 screen)
-- Buy from want detail: `buyItem()` mutation, `Alert.alert` confirmation, notification cancel, dismiss modal (no S10 screen)
+- Skip / buy from want detail with notification cancel; dismiss modal (no post-decision celebration screens per PRD v1.4)
+- Early check-in: decision buttons always available before timer expires
 - Deep link from push notification → want detail modal
-
-### Not done
-
-- S9 "You saved it!" celebration modal
-- S10 "Bought / Logged!" celebration modal
 
 ## Settings (PRD S12)
 
@@ -152,12 +139,13 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - First-run currency seed from device locale on onboarding completion (`expo-localization`)
 - `useItemForm`, Home, and All Wants wired to settings
 - Notifications sub-screen: permission status + Open system settings when not granted
+- Clear all data: wipes items table, cancels scheduled notifications; preserves kv-store prefs
+- About screen: app version via expo-constants
 
 ### Not done
 
 - RevenueCat upgrade / restore
-- Clear all data
-- About links
+- About privacy policy and terms links (blocked on URLs)
 
 ## Paywall (PRD S13)
 
