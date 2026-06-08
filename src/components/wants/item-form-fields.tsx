@@ -4,8 +4,8 @@ import { FormInput } from "@/components/form/form-input";
 import { FormTextarea } from "@/components/form/form-textarea";
 import { FormField } from "@/components/ui/form";
 import {
-  DELAY_OPTIONS,
   getCurrencyFractionDigits,
+  getDelayOptionsForForm,
   NOTE_MAX_LENGTH,
   sanitizePriceInput,
   type ItemFormInput,
@@ -39,7 +39,7 @@ export function ItemFormFields({
   currencyCode,
   autoFocusName = false,
   showDelayField = true,
-  delayOptions = DELAY_OPTIONS,
+  delayOptions = getDelayOptionsForForm(),
 }: ItemFormFieldsProps) {
   const { control } = useFormContext<ItemFormInput, unknown, ItemFormValues>();
   const allowDecimals = getCurrencyFractionDigits(currencyCode) > 0;

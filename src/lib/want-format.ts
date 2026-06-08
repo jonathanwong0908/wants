@@ -1,12 +1,18 @@
 import {
-  DELAY_OPTIONS,
-  PRESET_DELAY_HOURS,
+  DEV_ONE_MINUTE_DELAY_HOURS,
+  getDelayOptionsForForm,
 } from "@/lib/forms/item-form-schema";
 
 export function formatDelayHours(hours: number): string {
-  const preset = DELAY_OPTIONS.find((option) => Number(option.value) === hours);
+  if (hours === DEV_ONE_MINUTE_DELAY_HOURS) {
+    return "1 minute";
+  }
+
+  const preset = getDelayOptionsForForm().find(
+    (option) => Number(option.value) === hours
+  );
   if (preset) {
-    return preset.label;
+    return preset.label.replace(" (dev)", "");
   }
 
   if (hours < 24) {
@@ -26,15 +32,16 @@ export function formatDelayHours(hours: number): string {
 }
 
 export function getDelayOptionsForValue(delayHours: number) {
-  const isPreset = (PRESET_DELAY_HOURS as readonly number[]).includes(
-    delayHours
+  const formOptions = getDelayOptionsForForm();
+  const isPreset = formOptions.some(
+    (option) => Number(option.value) === delayHours
   );
   if (isPreset) {
-    return DELAY_OPTIONS;
+    return formOptions;
   }
 
   return [
-    ...DELAY_OPTIONS,
+    ...formOptions,
     { value: String(delayHours), label: formatDelayHours(delayHours) },
   ];
 }

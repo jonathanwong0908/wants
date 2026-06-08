@@ -1,35 +1,58 @@
 import { and, eq } from "drizzle-orm";
-import * as Notifications from "expo-notifications";
 
 import { db } from "@/db/client";
 import { items, type ItemStatus } from "@/db/schema";
-import type { ItemFormValues } from "@/lib/forms/item-form-schema";
+import {
+  computeNotifyAt,
+  type ItemFormValues,
+} from "@/lib/forms/item-form-schema";
+import {
+  cancelWantNotification,
+  rescheduleWantNotification,
+  scheduleWantNotification,
+} from "@/lib/notifications";
 
 export async function createItem(
   values: ItemFormValues,
   currencyCode: string
-): Promise<void> {
+): Promise<number> {
   const now = new Date();
-  const notifyAt = new Date(now.getTime() + values.delayHours * 60 * 60 * 1000);
+  const notifyAt = computeNotifyAt(now, values.delayHours);
 
-  await db.insert(items).values({
-    name: values.name.trim(),
-    price: values.price,
-    currency: currencyCode,
-    delayHours: values.delayHours,
-    notifyAt,
-    notifId: null,
-    status: "waiting",
-    createdAt: now,
-    decidedAt: null,
-    note: values.note.trim() || null,
-  });
+  const [inserted] = await db
+    .insert(items)
+    .values({
+      name: values.name.trim(),
+      price: values.price,
+      currency: currencyCode,
+      delayHours: values.delayHours,
+      notifyAt,
+      notifId: null,
+      status: "waiting",
+      createdAt: now,
+      decidedAt: null,
+      note: values.note.trim() || null,
+    })
+    .returning();
+
+  const notifId = await scheduleWantNotification(inserted);
+
+  if (notifId) {
+    await db
+      .update(items)
+      .set({ notifId })
+      .where(eq(items.id, inserted.id));
+  }
+
+  return inserted.id;
 }
 
 type UpdateItemContext = {
   currencyCode: string;
   status: ItemStatus;
   createdAt: Date;
+  previousName: string;
+  previousPrice: number;
   previousDelayHours: number;
   previousNotifId: string | null;
 };
@@ -49,21 +72,42 @@ export async function updateItem(
   if (context.status === "waiting") {
     updates.delayHours = values.delayHours;
 
-    if (values.delayHours !== context.previousDelayHours) {
-      updates.notifyAt = new Date(
-        context.createdAt.getTime() + values.delayHours * 60 * 60 * 1000
-      );
+    const delayChanged = values.delayHours !== context.previousDelayHours;
+    const nameChanged = values.name.trim() !== context.previousName;
+    const priceChanged = values.price !== context.previousPrice;
 
-      // When notifications are implemented:
-      // if (updates.notifyAt or delayHours changed) {
-      //   await cancelNotification(context.previousNotifId);
-      //   const newNotifId = await scheduleNotification(updates.notifyAt, ...);
-      //   updates.notifId = newNotifId;
-      // }
+    if (delayChanged) {
+      updates.notifyAt = computeNotifyAt(context.createdAt, values.delayHours);
+    }
+
+    if (delayChanged || nameChanged || priceChanged) {
+      const nextNotifyAt =
+        updates.notifyAt ?? computeNotifyAt(context.createdAt, values.delayHours);
+
+      const notifId = await rescheduleWantNotification(context.previousNotifId, {
+        id,
+        name: values.name.trim(),
+        price: values.price,
+        currency: context.currencyCode,
+        delayHours: values.delayHours,
+        notifyAt: nextNotifyAt,
+      });
+
+      updates.notifId = notifId;
+      if (!delayChanged) {
+        updates.notifyAt = nextNotifyAt;
+      }
     }
   }
 
   await db.update(items).set(updates).where(eq(items.id, id));
+}
+
+export async function setItemNotifId(
+  id: number,
+  notifId: string | null
+): Promise<void> {
+  await db.update(items).set({ notifId }).where(eq(items.id, id));
 }
 
 type DeleteItemContext = {
@@ -74,10 +118,7 @@ export async function deleteItem(
   id: number,
   context: DeleteItemContext
 ): Promise<void> {
-  if (context.notifId) {
-    await Notifications.cancelScheduledNotificationAsync(context.notifId);
-  }
-
+  await cancelWantNotification(context.notifId);
   await db.delete(items).where(eq(items.id, id));
 }
 
@@ -89,9 +130,7 @@ export async function skipItem(
   id: number,
   context: SkipItemContext
 ): Promise<void> {
-  if (context.notifId) {
-    await Notifications.cancelScheduledNotificationAsync(context.notifId);
-  }
+  await cancelWantNotification(context.notifId);
 
   await db
     .update(items)
@@ -107,9 +146,7 @@ export async function buyItem(
   id: number,
   context: BuyItemContext
 ): Promise<void> {
-  if (context.notifId) {
-    await Notifications.cancelScheduledNotificationAsync(context.notifId);
-  }
+  await cancelWantNotification(context.notifId);
 
   await db
     .update(items)

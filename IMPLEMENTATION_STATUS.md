@@ -1,6 +1,6 @@
 # Wants — Implementation Status
 
-Last updated: 2026-06-07
+Last updated: 2026-06-08
 
 Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md) for product intent.
 
@@ -25,11 +25,10 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - DB insert on submit via `createItem()` in `src/db/mutations/items.ts`
 - Modal dismiss on successful save (`router.back()`)
 - Computes `notifyAt` as `now + delayHours`
-- Stores `notifId: null` (notification scheduling deferred)
+- Schedule local notification at `notifyAt` via `src/lib/notifications.ts`; persist `notifId`
 
 ### Not done (follow-ups)
 
-- Schedule expo-notifications at `notifyAt` and persist `notifId`
 - Free-tier paywall gate on Add screen (waiting items ≥ 1, non-pro)
 - Custom delay option (pro only)
 - Show validation errors inline (`FormMessage` not wired on form fields yet)
@@ -49,6 +48,7 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - Reusable list row + section builder (`WantListRow`, `waiting-want-list.tsx`) with `@legendapp/list`
 - `useNowTick`: AppState foreground + 60s interval for section moves and countdown copy
 - Tap row → Want detail modal (`/want/[id]`)
+- Notification permission banner when denied + waiting items exist (`notification-permission-banner.tsx`); dismiss persists in kv-store until a new waiting item is added
 
 ### PRD divergences (intentional)
 
@@ -57,7 +57,6 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done
 
-- Notification permission banner
 - Free-tier FAB paywall gate (lock icon when waiting ≥ 1, non-pro)
 
 ## All Wants (PRD S11) — partial
@@ -91,8 +90,9 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - Invalid or missing id → "Want not found" empty state
 - Navigation from Home and All Wants list rows via `pushWantRoute(id)`
 - Decision buttons for waiting items: "Moved on" (skip) and "Buy it" (buy)
-- Skip: `skipItem()` sets `status = skipped`, `decidedAt = now`, cancels `notifId` if set; `router.back()` closes modal (no success alert); Home / All Wants savings + lists refresh via `useLiveQuery`
-- Buy: `Alert.alert` confirmation → `buyItem()` sets `status = bought`, `decidedAt = now`, cancels `notifId` if set; `router.back()` closes modal (no S10 screen); cancel dismisses alert only
+- Skip: `skipItem()` sets `status = skipped`, `decidedAt = now`, cancels scheduled notification; `router.back()` closes modal (no success alert); Home / All Wants savings + lists refresh via `useLiveQuery`
+- Buy: `Alert.alert` confirmation → `buyItem()` sets `status = bought`, `decidedAt = now`, cancels scheduled notification; `router.back()` closes modal (no S10 screen); cancel dismisses alert only
+- Deep link from push notification tap → `/want/[id]` via `use-notification-observer`
 
 ### PRD divergences (intentional)
 
@@ -104,7 +104,6 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 - "Check in early" progressive reveal UI for non-expired waiting items
 - Delete from want detail (delete lives on edit screen only — see Edit Want)
-- Deep link from push notification
 
 ## Edit Want — partial
 
@@ -120,25 +119,25 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - `getDelayOptionsForValue` for non-preset delay values (future custom delay)
 - `updateItem()` Drizzle mutation; `router.back()` on success; detail auto-refreshes via `useLiveQuery`
 - Delete: destructive trash icon in edit header; `Alert.alert` confirmation; hard delete via `deleteItem()`; `router.dismiss(2)` returns to Home / All Wants
-- `deleteItem()` cancels scheduled notification via `cancelScheduledNotificationAsync(notifId)` when `notifId` is set (no-op today — scheduling not wired yet)
+- `deleteItem()` cancels scheduled notification when `notifId` is set
+- Cancel + reschedule notification on edit when name, price, or delay changes (waiting items)
 
 ### Not done (follow-ups)
 
-- Cancel + reschedule notification on edit when `notifyAt` or `delayHours` changes (blocked on notification scheduling — see Add Want follow-ups)
 - Paywall / custom delay pro gate on edit (same as add — not built yet)
 
 ## Decision / Skipped / Bought modals (PRD S8–S10) — partial
 
 ### Done
 
-- Skip from want detail: `skipItem()` mutation, notification cancel stub, dismiss modal (no S9 screen)
-- Buy from want detail: `buyItem()` mutation, `Alert.alert` confirmation, notification cancel stub, dismiss modal (no S10 screen)
+- Skip from want detail: `skipItem()` mutation, notification cancel, dismiss modal (no S9 screen)
+- Buy from want detail: `buyItem()` mutation, `Alert.alert` confirmation, notification cancel, dismiss modal (no S10 screen)
+- Deep link from push notification → want detail modal
 
 ### Not done
 
 - S9 "You saved it!" celebration modal
 - S10 "Bought / Logged!" celebration modal
-- Deep link from push notification
 
 ## Settings (PRD S12)
 
@@ -152,9 +151,10 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - `SettingsProvider` + `useSettings()` hook for reactive reads/writes
 - First-run currency seed from device locale on onboarding completion (`expo-localization`)
 - `useItemForm`, Home, and All Wants wired to settings
+- Notifications sub-screen: permission status + Open system settings when not granted
 
 ### Not done
-- Notification status + link to system settings
+
 - RevenueCat upgrade / restore
 - Clear all data
 - About links
@@ -175,16 +175,26 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ## Notifications (PRD §7)
 
+**Files:** `src/lib/notifications.ts`, `src/hooks/use-notification-observer.ts`, `src/hooks/use-notification-reconciliation.ts`, `src/hooks/use-notification-permission.ts`, `src/components/notification-bootstrap.tsx`, `src/components/wants/notification-permission-banner.tsx`
+
 ### Done
 
 - Permission request during onboarding
+- `setNotificationHandler` for foreground display
+- Android notification channel (`wants-decisions`)
+- Schedule per-item local notification at `notifyAt` (DATE trigger); PRD S7 title/body copy
+- Persist `notifId` on create; backfill on foreground via `selectWaitingItemsNeedingSchedule`
+- Cancel on skip / buy / delete
+- Reschedule on edit when name, price, or delay changes
+- Deep link on notification tap → `/want/[id]` (cold start + warm via `getLastNotificationResponse` + response listener)
+- Permission re-check on foreground (`use-notification-permission`)
+- Home permission banner when denied + waiting items exist
+- Settings notifications screen: status + link to system settings
+- Expired-waiting UI fallback via existing `useNowTick` + Ready to decide section
 
-### Not done
+### Not done (follow-ups)
 
-- Schedule per-item notification at `notifyAt`
-- Cancel on decision
-- Deep link payload to Want detail screen (`/want/[id]`)
-- Foreground check for expired waiting items
+- iOS 64 scheduled-notification prioritization for Pro unlimited waiting items (when paywall ships)
 
 ## Monetization (PRD §8)
 

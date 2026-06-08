@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { NotificationPermissionBanner } from "@/components/wants/notification-permission-banner";
 import {
   buildWaitingSectionRows,
   partitionWaitingItems,
@@ -11,6 +12,7 @@ import {
 import { useAppReady } from "@/contexts/app-ready-context";
 import { useSettings } from "@/contexts/settings-context";
 import { selectWaitingItems } from "@/db/queries/items";
+import { useNotificationPermission } from "@/hooks/use-notification-permission";
 import { useNowTick } from "@/hooks/use-now-tick";
 import { useSavingsStats } from "@/hooks/use-savings-stats";
 import { formatCurrency } from "@/lib/money-format";
@@ -34,6 +36,7 @@ export default function HomeScreen() {
   const iconTint = palette.foreground;
   const insets = useSafeAreaInsets();
   const nowMs = useNowTick();
+  const { granted: notificationsGranted } = useNotificationPermission();
 
   const { data: waitingItems } = useLiveQuery(selectWaitingItems());
   const { currencyCode } = useSettings();
@@ -104,6 +107,11 @@ export default function HomeScreen() {
           </Button>
         </View>
 
+        <NotificationPermissionBanner
+          granted={notificationsGranted}
+          waitingItems={waitingItems ?? []}
+        />
+
         <Text
           variant="muted"
           className="text-xs font-bold uppercase tracking-wide"
@@ -126,7 +134,15 @@ export default function HomeScreen() {
         ) : null}
       </View>
     ),
-    [iconTint, currencyCode, totalSaved, skippedCount, hasOtherCurrencySkipped]
+    [
+      iconTint,
+      currencyCode,
+      totalSaved,
+      skippedCount,
+      hasOtherCurrencySkipped,
+      notificationsGranted,
+      waitingItems,
+    ]
   );
 
   const ListFooterComponent = useMemo(

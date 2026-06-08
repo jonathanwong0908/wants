@@ -3,18 +3,34 @@ import { SelectDropdown } from "@/components/common/select-dropdown";
 import { SettingsScreenHeader } from "@/components/settings/settings-screen-shell";
 import { Text } from "@/components/ui/text";
 import { useSettings } from "@/contexts/settings-context";
+import { useNotificationPermission } from "@/hooks/use-notification-permission";
 import { CURRENCY_OPTIONS } from "@/lib/currency";
 import { DELAY_OPTIONS } from "@/lib/forms/item-form-schema";
 import { pushSettingsRoute } from "@/lib/push-settings-routes";
 import { Separator } from "@rn-primitives/dropdown-menu";
 import { PortalHost, useModalPortalRoot } from "@rn-primitives/portal";
-import { ScrollView, View } from "react-native";
+import { Linking, ScrollView, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
 const SETTINGS_PORTAL_HOST = "settings-portal";
+
+function formatPermissionStatus(
+  status: ReturnType<typeof useNotificationPermission>["status"]
+): string {
+  switch (status) {
+    case "granted":
+      return "Granted";
+    case "denied":
+      return "Denied";
+    case "undetermined":
+      return "Not determined";
+    default:
+      return "Unknown";
+  }
+}
 
 export default function SettingsIndexScreen() {
   const insets = useSafeAreaInsets();
@@ -25,9 +41,14 @@ export default function SettingsIndexScreen() {
     left: 16,
     right: 16,
   };
+  const { status } = useNotificationPermission();
 
-  const { currencyCode, defaultDelayHours, setCurrencyCode, setDefaultDelayHours } =
-    useSettings();
+  const {
+    currencyCode,
+    defaultDelayHours,
+    setCurrencyCode,
+    setDefaultDelayHours,
+  } = useSettings();
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
@@ -41,7 +62,7 @@ export default function SettingsIndexScreen() {
           <FieldContainer>
             <FieldContainerItem>
               <View className="flex-row items-center justify-between gap-2">
-                <Text className="text-muted-foreground/50">Default delay</Text>
+                <Text>Default delay</Text>
                 <SelectDropdown
                   options={DELAY_OPTIONS}
                   value={String(defaultDelayHours)}
@@ -55,7 +76,7 @@ export default function SettingsIndexScreen() {
             <Separator />
             <FieldContainerItem>
               <View className="flex-row items-center justify-between gap-2">
-                <Text className="text-muted-foreground/50">Currency</Text>
+                <Text>Currency</Text>
                 <SelectDropdown
                   options={CURRENCY_OPTIONS}
                   value={currencyCode}
@@ -67,10 +88,13 @@ export default function SettingsIndexScreen() {
               </View>
             </FieldContainerItem>
             <Separator />
-            <FieldContainerItem
-              onPress={() => pushSettingsRoute("/settings/notifications")}
-            >
-              <Text className="text-base text-foreground">Notifications</Text>
+            <FieldContainerItem onPress={() => void Linking.openSettings()}>
+              <View className="flex-row items-center justify-between gap-2">
+                <Text>Notifications</Text>
+                <Text className="text-base text-foreground">
+                  {formatPermissionStatus(status)}
+                </Text>
+              </View>
             </FieldContainerItem>
             <Separator />
             <FieldContainerItem

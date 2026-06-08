@@ -5,8 +5,22 @@ type Item = typeof items.$inferSelect;
 
 export const ITEM_NAME_MAX_LENGTH = 50;
 export const PRESET_DELAY_HOURS = [24, 72, 168] as const;
+/** Dev-only sentinel in `delay_hours`: schedules notification in 1 minute. */
+export const DEV_ONE_MINUTE_DELAY_HOURS = 0;
 export const DEFAULT_DELAY_HOURS = 72;
 export const DEFAULT_CURRENCY_CODE = "USD";
+
+export function getDelayDurationMs(delayHours: number): number {
+  if (delayHours === DEV_ONE_MINUTE_DELAY_HOURS) {
+    return 60 * 1000;
+  }
+
+  return delayHours * 60 * 60 * 1000;
+}
+
+export function computeNotifyAt(base: Date, delayHours: number): Date {
+  return new Date(base.getTime() + getDelayDurationMs(delayHours));
+}
 
 function formatPresetDelayLabel(
   hours: (typeof PRESET_DELAY_HOURS)[number]
@@ -25,6 +39,20 @@ export const DELAY_OPTIONS = PRESET_DELAY_HOURS.map((hours) => ({
   value: String(hours),
   label: formatPresetDelayLabel(hours),
 }));
+
+export function getDelayOptionsForForm() {
+  if (!__DEV__) {
+    return DELAY_OPTIONS;
+  }
+
+  return [
+    {
+      value: String(DEV_ONE_MINUTE_DELAY_HOURS),
+      label: "1 minute (dev)",
+    },
+    ...DELAY_OPTIONS,
+  ];
+}
 
 export const NOTE_MAX_LENGTH = 500;
 
@@ -111,7 +139,11 @@ export function createItemFormSchema(currencyCode: string) {
     delayHours: z
       .number()
       .int("Delay must be a whole number of hours")
-      .positive("Delay must be at least 1 hour"),
+      .refine(
+        (hours) =>
+          hours === DEV_ONE_MINUTE_DELAY_HOURS ? __DEV__ : hours >= 1,
+        { message: "Delay must be at least 1 hour" }
+      ),
     note: z
       .string()
       .trim()

@@ -58,6 +58,8 @@ function EditWantForm({ item }: EditWantFormProps) {
         currencyCode: item.currency,
         status: item.status,
         createdAt: item.createdAt,
+        previousName: item.name,
+        previousPrice: item.price,
         previousDelayHours: item.delayHours,
         previousNotifId: item.notifId,
       });
