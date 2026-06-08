@@ -79,7 +79,7 @@ Key-value store for user preferences.
 - The user sets their currency once in Settings. New items inherit this currency.
 - Currency is **auto-detected from device locale** on first run using `expo-localization`. The user can change it in Settings at any time.
 - All prices are stored as plain numbers. Formatting happens at display time only, using `Intl.NumberFormat`.
-- The savings total only sums items matching the **current currency setting**. Items in other currencies are excluded, with a footnote if any exist.
+- The savings total only sums items matching the **current currency setting**. Items in other currencies are excluded; tap the Home savings hero for a per-currency breakdown on the Total saved screen.
 - Zero-decimal currencies (JPY, KRW, VND, etc.) must use integer-only price input and no decimal formatting.
 
 ---
@@ -133,7 +133,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 ### S5 — Home
 
 - **Top bar:** app name left, settings icon (lucide) right → opens Settings
-- **Savings hero:** large formatted total saved. Label: "saved so far". Subtext shows item count: "across X decisions".
+- **Savings hero:** large formatted total saved. Label: "saved so far" (or "saved so far in {settings currency}" when skipped items exist in other currencies). Subtext shows item count: "across X decisions". Tappable → Total saved screen; chevron beside the amount indicates navigation.
 - **Upcoming section:**
   - Header: "Upcoming" + "Show all →" link on the right → navigates to All Items screen
   - Shows the next **3 waiting items** only, ordered by `notifyAt` ascending
@@ -142,6 +142,16 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 - **Floating action button** (bottom-right): "+" icon → opens Add item modal
 - **Notification permission banner** (shown if permission denied and waiting items exist): "Notifications are off — check back here manually." Dismissible.
 - **Free tier gate:** if waiting items ≥ 1 and not pro, FAB shows lock icon and opens paywall
+
+### S5b — Total saved
+
+- Reached by tapping the savings hero on Home
+- Stack screen (back button returns to Home)
+- Summary: "across X decisions" (all skipped items, any currency)
+- Per-currency rows: currency code, formatted total saved, decision count per currency. Settings currency row labeled "Your currency" when multiple currencies exist.
+- Explainer: savings aren't combined across currencies; Home shows Settings currency only
+- Empty state if no skipped items: "Nothing saved yet — skip a want to start."
+- No combined cross-currency total and no FX conversion
 
 ### S6 — Add item *(modal)*
 
@@ -234,7 +244,7 @@ Enforcement points (exactly 3, nowhere else):
 - **User changes phone date/time:** On app open, re-check all waiting items. Any with `notifyAt < now` show "Ready to decide" immediately.
 - **Item price is 0:** Allowed — some free items are still worth tracking.
 - **Very long item names:** Cap input at 50 characters. Display with ellipsis in cards.
-- **Mixed currencies in history:** Savings total only sums items in current currency. Show footnote if excluded items exist.
+- **Mixed currencies in history:** Savings total on Home only sums items in Settings currency. Total saved screen lists per-currency breakdown; no footnote on Home.
 - **User deletes a skipped item:** Hard-delete from Edit Want. Savings total (same currency) and skipped count decrease; item removed from Past tab. Irreversible — no status reversal to waiting or bought.
 - **No items ever logged:** Show empty state on Home.
 
@@ -261,6 +271,7 @@ Enforcement points (exactly 3, nowhere else):
 | Skipped         | User decided not to buy — counts toward savings      |
 | Bought          | User decided to buy — logged, not counted as savings |
 | Savings total   | Sum of all skipped item prices in current currency   |
+| Total saved screen | Per-currency breakdown of skipped savings; opened from Home hero |
 | Notify at       | Timestamp when the push notification fires           |
 | Decision screen | Where the user chooses skip or buy                   |
 | Pro             | Paid subscription tier                               |

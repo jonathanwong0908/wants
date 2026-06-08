@@ -21,6 +21,7 @@ export default function RootLayout() {
             options={{ presentation: "modal", headerShown: false }}
           />
           <Stack.Screen name="all-wants" />
+          <Stack.Screen name="total-saved" />
           <Stack.Screen
             name="add-want"
             options={{ presentation: "modal", headerShown: false }}

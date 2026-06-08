@@ -47,3 +47,15 @@ export function selectSavingsStats(currencyCode: string) {
     })
     .from(items);
 }
+
+export function selectSavingsByCurrency() {
+  return db
+    .select({
+      currency: items.currency,
+      totalSaved: sql<number>`coalesce(sum(${items.price}), 0)`,
+      skippedCount: sql<number>`count(*)`,
+    })
+    .from(items)
+    .where(eq(items.status, "skipped"))
+    .groupBy(items.currency);
+}

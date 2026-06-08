@@ -6,7 +6,7 @@ import { router } from "expo-router";
  *
  * Prefer removing this shim once `@expo/router` includes `/settings`, `/all-wants`, and `/add-want` in `ExpoRouter.__routes`.
  */
-export type HomeAreaHref = "/settings" | "/all-wants" | "/add-want";
+export type HomeAreaHref = "/settings" | "/all-wants" | "/add-want" | "/total-saved";
 
 export function pushHomeAreaRoute(href: HomeAreaHref): void {
   router.push(href as never);

@@ -22,7 +22,7 @@ import { THEME } from "@/lib/theme";
 import { LegendList } from "@legendapp/list/react-native";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
-import { Plus, Settings } from "lucide-react-native";
+import { ChevronRight, Plus, Settings } from "lucide-react-native";
 import { useCallback, useMemo } from "react";
 import { Pressable, useColorScheme, View } from "react-native";
 import {
@@ -93,8 +93,20 @@ export default function HomeScreen() {
     [nowMs, handleShowAll, handleItemPress]
   );
 
-  const ListHeaderComponent = useMemo(
-    () => (
+  const handleOpenTotalSaved = useCallback(() => {
+    pushHomeAreaRoute("/total-saved");
+  }, []);
+
+  const ListHeaderComponent = useMemo(() => {
+    const savingsLabel = hasOtherCurrencySkipped
+      ? `Saved so far in ${currencyCode}`
+      : "Saved so far";
+    const formattedTotal = formatCurrency(totalSaved, currencyCode);
+    const decisionsLabel = `across ${skippedCount} ${
+      skippedCount === 1 ? "decision" : "decisions"
+    }`;
+
+    return (
       <View>
         <View className="mb-6 flex-row items-center justify-end pt-2">
           <Button
@@ -112,38 +124,49 @@ export default function HomeScreen() {
           waitingItems={waitingItems ?? []}
         />
 
-        <Text
-          variant="muted"
-          className="text-xs font-bold uppercase tracking-wide"
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Total saved, ${formattedTotal}, ${decisionsLabel}`}
+          onPress={handleOpenTotalSaved}
+          className="-mx-1 rounded-xl px-1"
+          style={({ pressed }) => (pressed ? { opacity: 0.8 } : undefined)}
         >
-          Saved so far
-        </Text>
-        <Text
-          variant="h2"
-          className="mt-1 border-b-0 pb-0 text-4xl tabular-nums text-card-foreground"
-        >
-          {formatCurrency(totalSaved, currencyCode)}
-        </Text>
-        <Text variant="muted" className="mt-1 text-sm">
-          across {skippedCount} {skippedCount === 1 ? "decision" : "decisions"}
-        </Text>
-        {hasOtherCurrencySkipped ? (
-          <Text variant="muted" className="mt-1 text-xs">
-            Some savings in other currencies aren&apos;t included.
+          <Text
+            variant="muted"
+            className="text-xs font-bold uppercase tracking-wide"
+          >
+            {savingsLabel}
           </Text>
-        ) : null}
+          <View className="mt-1 flex-row items-center gap-1">
+            <Text
+              variant="h2"
+              className="border-b-0 pb-0 text-4xl tabular-nums text-card-foreground"
+            >
+              {formattedTotal}
+            </Text>
+            <ChevronRight
+              size={28}
+              color={palette.mutedForeground}
+              strokeWidth={1.5}
+            />
+          </View>
+          <Text variant="muted" className="mt-1 text-sm">
+            {decisionsLabel}
+          </Text>
+        </Pressable>
       </View>
-    ),
-    [
-      iconTint,
-      currencyCode,
-      totalSaved,
-      skippedCount,
-      hasOtherCurrencySkipped,
-      notificationsGranted,
-      waitingItems,
-    ]
-  );
+    );
+  }, [
+    iconTint,
+    palette.mutedForeground,
+    currencyCode,
+    totalSaved,
+    skippedCount,
+    hasOtherCurrencySkipped,
+    notificationsGranted,
+    waitingItems,
+    handleOpenTotalSaved,
+  ]);
 
   const ListFooterComponent = useMemo(
     () =>
