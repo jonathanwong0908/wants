@@ -130,11 +130,12 @@ export default function HowItWorksScreen() {
         />
       </View>
 
-      <OnboardingDots count={STEPS.length} activeIndex={activeIndex} />
-
-      <Button className="w-full" size="lg" onPress={goNextOrFinish}>
-        <Text>{uiIndex < lastIndex ? "Next" : "Continue"}</Text>
-      </Button>
+      <View className="px-4 gap-4">
+        <OnboardingDots count={STEPS.length} activeIndex={activeIndex} />
+        <Button className="w-full" size="lg" onPress={goNextOrFinish}>
+          <Text>{uiIndex < lastIndex ? "Next" : "Continue"}</Text>
+        </Button>
+      </View>
     </SafeAreaView>
   );
 }

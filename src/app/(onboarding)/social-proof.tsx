@@ -7,17 +7,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 /** Onboarding social proof (PRD S2) → How it works (S3). */
 export default function OnboardingSocialProofScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-background px-6">
-      <View className="flex-1 justify-center">
-        <Text className="text-center text-2xl font-semibold leading-8 text-foreground">
-          Around 65% of impulse spenders regret a spur-of-the-moment purchase.
-        </Text>
-        <Text variant="muted" className="mt-8 text-center leading-6">
-          Wants gives you a pause — log what you want, wait, then decide with a clear head.
-        </Text>
-        <Text variant="muted" className="mt-10 text-center text-xs">
-          Up next: how Wants works
-        </Text>
+    <SafeAreaView className="flex-1 bg-background px-4 gap-6">
+      <View className="flex-1">
+        <View className="justify-end flex-1 gap-2">
+          <Text className="text-3xl font-bold tracking-tighter leading-8">
+            Around 65% of impulse spenders regret a spur-of-the-moment purchase.
+          </Text>
+          <Text variant="muted" className="text-lg leading-6">
+            Wants gives you a pause — log what you want, wait, then decide with
+            a clear head.
+          </Text>
+        </View>
       </View>
 
       <Button
@@ -25,7 +25,8 @@ export default function OnboardingSocialProofScreen() {
         size="lg"
         onPress={() => {
           router.push("/how-it-works");
-        }}>
+        }}
+      >
         <Text>Continue</Text>
       </Button>
     </SafeAreaView>
