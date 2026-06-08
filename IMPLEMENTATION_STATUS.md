@@ -151,6 +151,8 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not started
 
+Setup and implementation steps: [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) (Phases 0–7).
+
 ## Onboarding (PRD S4)
 
 **Files:** `src/app/(onboarding)/*`, `src/db/migrations.tsx`
@@ -187,6 +189,8 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 ## Monetization (PRD §8)
 
 ### Not started
+
+Setup and implementation steps: [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) (Phases 0–7).
 
 - RevenueCat integration
 - Three enforcement surfaces: Home FAB, custom delay, Past tab history limit
