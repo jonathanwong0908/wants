@@ -170,6 +170,7 @@ export default function HomeScreen() {
         <LegendList
           className="flex-1 px-4"
           data={listData}
+          extraData={{ totalSaved, skippedCount, hasOtherCurrencySkipped }}
           renderItem={renderItem}
           keyExtractor={waitingListKeyExtractor}
           estimatedItemSize={WAITING_LIST_ESTIMATED_ITEM_SIZE}

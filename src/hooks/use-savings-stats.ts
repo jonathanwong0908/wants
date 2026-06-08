@@ -2,7 +2,9 @@ import { selectSavingsStats } from "@/db/queries/items";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 
 export function useSavingsStats(currencyCode: string) {
-  const { data } = useLiveQuery(selectSavingsStats(currencyCode));
+  const { data } = useLiveQuery(selectSavingsStats(currencyCode), [
+    currencyCode,
+  ]);
   const row = data?.[0];
 
   return {

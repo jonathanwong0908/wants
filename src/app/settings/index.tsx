@@ -106,7 +106,7 @@ export default function SettingsIndexScreen() {
             <FieldContainerItem
               onPress={() => pushSettingsRoute("/settings/data")}
             >
-              <Text className="text-base text-foreground">Clear all data</Text>
+              <Text className="text-base text-foreground">Data</Text>
             </FieldContainerItem>
             <Separator />
             <FieldContainerItem

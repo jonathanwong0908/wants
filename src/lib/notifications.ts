@@ -3,7 +3,6 @@ import { Platform } from "react-native";
 
 import type { items } from "@/db/schema";
 import { formatCurrency } from "@/lib/money-format";
-import { formatDelayHours } from "@/lib/want-format";
 
 export const WANTS_NOTIFICATION_CHANNEL_ID = "wants-decisions";
 
@@ -60,11 +59,9 @@ export async function getNotificationPermissionGranted(): Promise<boolean> {
 export function buildWantNotificationContent(
   item: ItemForNotification
 ): Notifications.NotificationContentInput {
-  const delayAgo = `${formatDelayHours(item.delayHours)} ago`;
-
   return {
     title: "Still want this?",
-    body: `You added ${item.name} (${formatCurrency(item.price, item.currency)}) ${delayAgo}. Still feeling it?`,
+    body: `You added ${item.name} (${formatCurrency(item.price, item.currency)}). Still feeling it?`,
     data: { itemId: String(item.id) },
     ...(Platform.OS === "android"
       ? { channelId: WANTS_NOTIFICATION_CHANNEL_ID }
@@ -105,6 +102,14 @@ export async function cancelWantNotification(
   }
 
   await Notifications.cancelScheduledNotificationAsync(notifId);
+}
+
+export async function cancelAllWantNotifications(): Promise<void> {
+  if (Platform.OS === "web") {
+    return;
+  }
+
+  await Notifications.cancelAllScheduledNotificationsAsync();
 }
 
 export async function rescheduleWantNotification(
