@@ -1,15 +1,19 @@
-import { Button } from "@/components/ui/button";
+import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
+import { OnboardingInfoRow } from "@/components/onboarding/onboarding-info-row";
+import { OnboardingScreen } from "@/components/onboarding/onboarding-screen";
 import { Icon } from "@/components/ui/icon";
+import { Separator } from "@/components/ui/separator";
 import { Text } from "@/components/ui/text";
 import { router } from "expo-router";
 import {
   CreditCard,
+  Hourglass,
   LoaderCircle,
   Plus,
   type LucideIcon,
 } from "lucide-react-native";
+import { Fragment } from "react";
 import { View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 type Step = {
   title: string;
@@ -38,44 +42,39 @@ const STEPS: Step[] = [
 /** PRD S3 — How it works → Notification permission (S4). */
 export default function HowItWorksScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-background px-4 gap-6">
-      <View className="flex-1">
-        <View className="justify-end flex-1 gap-3 tracking-tighter">
-          <Text className="text-3xl font-bold">How it works</Text>
-          <View className="gap-2.5">
-            {STEPS.map((step) => (
-              <View
-                key={step.title}
-                className="flex-row items-center gap-2.5 bg-muted rounded-2xl pr-4 pl-3 py-3"
-              >
-                <View className="h-12 w-12 items-center justify-center bg-white rounded-full">
+    <OnboardingScreen
+      ctaLabel="Continue"
+      onCtaPress={() => router.push("/notification-permission")}
+    >
+      <OnboardingHeader
+        icon={Hourglass}
+        title="How it works"
+        description="Wants gives you a pause — log what you want, wait, then decide with a clear head."
+      />
+      <View className="gap-2.5 flex-1">
+        {STEPS.map((step, index) => (
+          <Fragment key={step.title}>
+            <View className="flex-row gap-4">
+              <Text className="text-base font-semibold">{index + 1}</Text>
+              <OnboardingInfoRow
+                className="flex-1"
+                title={step.title}
+                description={step.description}
+                leading={
                   <Icon
                     as={step.icon}
                     size={28}
                     className="mt-0.5 text-foreground"
                   />
-                </View>
-                <View className="">
-                  <Text className="text-base font-semibold">{step.title}</Text>
-                  <Text variant="muted" className="text-sm leading-6">
-                    {step.description}
-                  </Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
+                }
+              />
+            </View>
+            {index !== STEPS.length - 1 && (
+              <Separator className="my-1 border-border pr-8" />
+            )}
+          </Fragment>
+        ))}
       </View>
-
-      <Button
-        className="w-full"
-        size="lg"
-        onPress={() => {
-          router.push("/notification-permission");
-        }}
-      >
-        <Text>Continue</Text>
-      </Button>
-    </SafeAreaView>
+    </OnboardingScreen>
   );
 }

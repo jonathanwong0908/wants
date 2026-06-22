@@ -61,7 +61,10 @@ export function buildWantNotificationContent(
 ): Notifications.NotificationContentInput {
   return {
     title: "Still want this?",
-    body: `You added ${item.name} (${formatCurrency(item.price, item.currency)}). Still feeling it?`,
+    body: `You added ${item.name} ${formatCurrency(
+      item.price,
+      item.currency
+    )}.`,
     data: { itemId: String(item.id) },
     ...(Platform.OS === "android"
       ? { channelId: WANTS_NOTIFICATION_CHANNEL_ID }
