@@ -11,6 +11,7 @@ import {
   type ItemFormInput,
   type ItemFormValues,
 } from "@/lib/forms/item-form-schema";
+import { getPriceInputPlaceholder } from "@/lib/money-format";
 import { Separator } from "@rn-primitives/dropdown-menu";
 import { View } from "react-native";
 import { useFormContext } from "react-hook-form";
@@ -43,6 +44,7 @@ export function ItemFormFields({
 }: ItemFormFieldsProps) {
   const { control } = useFormContext<ItemFormInput, unknown, ItemFormValues>();
   const allowDecimals = getCurrencyFractionDigits(currencyCode) > 0;
+  const pricePlaceholder = getPriceInputPlaceholder(currencyCode);
 
   return (
     <View className="gap-4">
@@ -71,7 +73,7 @@ export function ItemFormFields({
               <FormInput
                 {...field}
                 label=""
-                placeholder="Price"
+                placeholder={pricePlaceholder}
                 className="rounded-none border-0 bg-transparent"
                 numberOnly
                 allowDecimal={allowDecimals}
@@ -108,7 +110,7 @@ export function ItemFormFields({
             <FormInput
               {...field}
               label="Price"
-              placeholder="Price"
+              placeholder={pricePlaceholder}
               numberOnly
               allowDecimal={allowDecimals}
               onChange={(text) =>

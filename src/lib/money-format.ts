@@ -5,6 +5,10 @@ export function formatCurrency(amount: number, currencyCode: string): string {
   }).format(amount);
 }
 
+export function getPriceInputPlaceholder(currencyCode: string): string {
+  return formatCurrency(0, currencyCode);
+}
+
 /** Placeholder countdown copy for upcoming wants (full timer comes later). */
 export function formatCountdownUntil(notifyAtMs: number, nowMs: number = Date.now()): string {
   const diff = notifyAtMs - nowMs;

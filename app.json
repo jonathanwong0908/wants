@@ -8,7 +8,8 @@
     "scheme": "wants",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/ios-icon.png",
+      "bundleIdentifier": "com.ghuyers.wants"
     },
     "android": {
       "adaptiveIcon": {
@@ -29,6 +30,11 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#208AEF",
+          "ios": {
+            "image": "./assets/images/ios-splash.png",
+            "backgroundColor": "#000000",
+            "resizeMode": "contain"
+          },
           "android": {
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76
