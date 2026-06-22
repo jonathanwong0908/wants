@@ -15,6 +15,7 @@ import { selectWaitingItems } from "@/db/queries/items";
 import { useNotificationPermission } from "@/hooks/use-notification-permission";
 import { useNowTick } from "@/hooks/use-now-tick";
 import { useSavingsStats } from "@/hooks/use-savings-stats";
+import { isDevelopment } from "@/lib/env";
 import { formatCurrency } from "@/lib/money-format";
 import { pushHomeAreaRoute } from "@/lib/push-home-routes";
 import { pushWantRoute } from "@/lib/push-want-route";
@@ -170,7 +171,7 @@ export default function HomeScreen() {
 
   const ListFooterComponent = useMemo(
     () =>
-      __DEV__ ? (
+      isDevelopment ? (
         <View>
           <Button
             variant="outline"

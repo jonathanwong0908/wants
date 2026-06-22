@@ -1,4 +1,5 @@
 import type { items } from "@/db/schema";
+import { isDevelopment } from "@/lib/env";
 import { z } from "zod";
 
 type Item = typeof items.$inferSelect;
@@ -41,7 +42,7 @@ export const DELAY_OPTIONS = PRESET_DELAY_HOURS.map((hours) => ({
 }));
 
 export function getDelayOptionsForForm() {
-  if (!__DEV__) {
+  if (!isDevelopment) {
     return DELAY_OPTIONS;
   }
 
@@ -141,7 +142,7 @@ export function createItemFormSchema(currencyCode: string) {
       .int("Delay must be a whole number of hours")
       .refine(
         (hours) =>
-          hours === DEV_ONE_MINUTE_DELAY_HOURS ? __DEV__ : hours >= 1,
+          hours === DEV_ONE_MINUTE_DELAY_HOURS ? isDevelopment : hours >= 1,
         { message: "Delay must be at least 1 hour" }
       ),
     note: z
