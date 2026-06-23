@@ -1,5 +1,5 @@
 import type { items } from "@/db/schema";
-import { isDevelopment } from "@/lib/env";
+import { isDevelopment, isPreview } from "@/lib/env";
 import { z } from "zod";
 
 type Item = typeof items.$inferSelect;
@@ -42,7 +42,7 @@ export const DELAY_OPTIONS = PRESET_DELAY_HOURS.map((hours) => ({
 }));
 
 export function getDelayOptionsForForm() {
-  if (!isDevelopment) {
+  if (!isDevelopment && !isPreview) {
     return DELAY_OPTIONS;
   }
 
@@ -159,9 +159,7 @@ export function createItemFormSchema(currencyCode: string) {
 export type ItemFormInput = z.input<ReturnType<typeof createItemFormSchema>>;
 export type ItemFormValues = z.output<ReturnType<typeof createItemFormSchema>>;
 
-export function itemToFormDefaultValues(
-  item: Item
-): Partial<ItemFormInput> {
+export function itemToFormDefaultValues(item: Item): Partial<ItemFormInput> {
   return {
     name: item.name,
     price: String(item.price),
