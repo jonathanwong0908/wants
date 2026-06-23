@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/images/ios-icon.png",
-      "bundleIdentifier": "com.ghuyers.wants"
+      "bundleIdentifier": "com.kloobel.wants",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
