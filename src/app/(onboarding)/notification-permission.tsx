@@ -90,7 +90,7 @@ export default function NotificationPermissionScreen() {
               item.currency
             )}
             className={cn("gap-1.5 border border-border", itemClassName)}
-            leadingClassName="overflow-hidden bg-transparent"
+            leadingClassName="overflow-hidden bg-transparent rounded-2xl border border-border"
             descriptionClassName="leading-5"
             leading={
               <Image
