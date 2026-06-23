@@ -12,6 +12,50 @@ import {
   scheduleWantNotification,
 } from "@/lib/notifications";
 
+export async function insertImportedItems(
+  rows: {
+    name: string;
+    price: number;
+    currency: string;
+    delayHours: number;
+    notifyAt: Date;
+    status: ItemStatus;
+    createdAt: Date;
+    decidedAt: Date | null;
+    note: string | null;
+  }[]
+): Promise<(typeof items.$inferSelect)[]> {
+  if (rows.length === 0) {
+    return [];
+  }
+
+  return db.transaction(async (tx) => {
+    const inserted: (typeof items.$inferSelect)[] = [];
+
+    for (const row of rows) {
+      const [item] = await tx
+        .insert(items)
+        .values({
+          name: row.name,
+          price: row.price,
+          currency: row.currency,
+          delayHours: row.delayHours,
+          notifyAt: row.notifyAt,
+          notifId: null,
+          status: row.status,
+          createdAt: row.createdAt,
+          decidedAt: row.decidedAt,
+          note: row.note,
+        })
+        .returning();
+
+      inserted.push(item);
+    }
+
+    return inserted;
+  });
+}
+
 export async function createItem(
   values: ItemFormValues,
   currencyCode: string

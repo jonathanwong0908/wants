@@ -3,6 +3,16 @@ import { and, asc, desc, eq, gt, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { items } from "@/db/schema";
 
+export function selectAllItems() {
+  return db.select().from(items).orderBy(asc(items.createdAt));
+}
+
+export function countAllItems() {
+  return db
+    .select({ count: sql<number>`count(*)` })
+    .from(items);
+}
+
 export function selectWaitingItems() {
   return db
     .select()

@@ -194,7 +194,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 - **Notifications:** status indicator + link to system settings if permission denied
 - **Theme:** Light and Dark (default palette); premium color palettes for Pro — sub-page with selectable themes
 - **Account:** "Upgrade to Pro" (if not pro) / subscription status (if pro) / restore purchases
-- **Data:** "Clear all data" (confirmation dialog, destructive)
+- **Data:** export to CSV (all items); import from CSV (replace or merge when data exists; settings unchanged); "Clear all data" (confirmation dialog, destructive)
 - **About:** version number, privacy policy link, terms link
 
 ### S13 — Paywall *(modal)*
