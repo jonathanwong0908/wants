@@ -10,7 +10,7 @@ import {
   type WaitingListRow,
 } from "@/components/wants/waiting-want-list";
 import { useAppReady } from "@/contexts/app-ready-context";
-import { usePro } from "@/contexts/pro-context";
+import { usePro } from "@/contexts/purchases-context";
 import { useSettings } from "@/contexts/settings-context";
 import { selectWaitingItems } from "@/db/queries/items";
 import { useNotificationPermission } from "@/hooks/use-notification-permission";
@@ -44,7 +44,7 @@ export default function HomeScreen() {
   const { granted: notificationsGranted } = useNotificationPermission();
 
   const { data: waitingItems } = useLiveQuery(selectWaitingItems());
-  const { isPro, purchasePlaceholder, resetPlaceholder } = usePro();
+  const { isPro, setDevProOverride } = usePro();
   const addWantGated = isAddWantGatedWhenReady(isPro, waitingItems);
   const { currencyCode } = useSettings();
   const { totalSaved, skippedCount, hasOtherCurrencySkipped } =
@@ -191,11 +191,7 @@ export default function HomeScreen() {
             variant="outline"
             className="mt-8 w-full"
             onPress={() => {
-              if (isPro) {
-                resetPlaceholder();
-              } else {
-                void purchasePlaceholder(DEFAULT_PLAN_ID);
-              }
+              setDevProOverride(!isPro, DEFAULT_PLAN_ID);
             }}
           >
             <Text>Toggle Pro (dev) — {isPro ? "on" : "off"}</Text>
@@ -212,7 +208,7 @@ export default function HomeScreen() {
           </Button>
         </View>
       ) : null,
-    [isPro, purchasePlaceholder, resetPlaceholder, setOnboardingComplete]
+    [isPro, setDevProOverride, setOnboardingComplete]
   );
 
   return (

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from "@/constants/legal-links";
-import { usePro } from "@/contexts/pro-context";
+import { usePro } from "@/contexts/purchases-context";
 import { openLegalLink } from "@/lib/open-legal-link";
 import {
   DEFAULT_PLAN_ID,
@@ -46,7 +46,7 @@ function PlanDetails({ plan }: { plan: PaywallPlan }) {
         <Text variant="muted" className="text-3xl font-bold leading-none">
           $
         </Text>
-        <Text className="text-5xl font-bold leading-none text-foreground">
+        <Text className="text-5xl font-bold leading-none text-foreground tracking-tighter">
           {plan.priceAmount}
         </Text>
       </View>

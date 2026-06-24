@@ -2,7 +2,7 @@ import { FieldContainer, FieldContainerItem } from "@/components/common/field";
 import { SelectDropdown } from "@/components/common/select-dropdown";
 import { SettingsScreenHeader } from "@/components/settings/settings-screen-shell";
 import { Text } from "@/components/ui/text";
-import { usePro } from "@/contexts/pro-context";
+import { usePro } from "@/contexts/purchases-context";
 import { useSettings } from "@/contexts/settings-context";
 import { useTheme } from "@/contexts/theme-context";
 import { useNotificationPermission } from "@/hooks/use-notification-permission";

@@ -58,17 +58,17 @@ flowchart LR
 
 | Item                                                         | Status                                           |
 | ------------------------------------------------------------ | ------------------------------------------------ |
-| Placeholder `ProProvider`, paywall UI, gates, dev Toggle Pro | Done                                             |
+| Placeholder `ProProvider`, paywall UI, gates, dev Toggle Pro | Done — `PurchasesProvider` replaces `ProProvider` |
 | `react-native-purchases` ^10.4.0 installed                   | Done                                             |
-| `src/lib/purchases.ts` (key selection + SDK helpers)         | Done — **not called from app yet**               |
+| `src/lib/purchases.ts` (key selection + SDK helpers)         | Done — wired via `PurchasesProvider`             |
 | `EXPO_PUBLIC_REVENUECAT_TEST_KEY` in env types               | Done — set in your local `.env`                  |
-| `Purchases.configure` on app launch                          | **Not done** (Phase 3)                           |
-| Paywall still uses `purchasePlaceholder()`                   | **Not done** (Phase 4)                           |
+| `Purchases.configure` on app launch                          | Done (Phase 3)                                   |
+| Paywall still uses `purchasePlaceholder()`                   | **Not done** (Phase 4 — shim routes to RC now)   |
 | `react-native-purchases` config plugin in `app.json`         | Not done (Phase 1)                               |
 | Account settings screen                                      | Removed — subscription hub + subscription screen |
 
 
-Until Phase 3 ships, tapping paywall **does not** create customers in RevenueCat — only local kv-store `is_pro`.
+Until Phase 4 ships paywall prices from offerings, the paywall UI still shows placeholder prices — but purchase/restore go through RevenueCat (Test Store in Expo Go).
 
 ---
 
@@ -206,15 +206,15 @@ Pairs with Phase 0b. Links real Apple product IDs to RC.
 
 - [x] `IS_PRO_KEY` in storage
 - [x] `src/lib/purchases.ts` helpers (see Phase 0a)
-- [ ] **`src/contexts/purchases-context.tsx`** (model on `settings-context.tsx`):
+- [x] **`src/contexts/purchases-context.tsx`** (model on `settings-context.tsx`):
   - Call `configurePurchases()` once on mount
   - `getCustomerInfo()` + `addCustomerInfoUpdateListener`
   - Re-fetch on `AppState` foreground (PRD §8)
   - Expose `{ isPro, proPlan, offerings, loading, purchase(pkg), restore(), refresh() }`
   - Mirror `isPro` to kv-store; seed from kv-store on init
-- [ ] Mount in `src/db/migrations.tsx` beside `SettingsProvider` (replace `ProProvider`)
-- [ ] **`useIsPro()`** → purchases context
-- [ ] Keep dev **Toggle Pro** on Home for internal testing
+- [x] Mount in `src/db/migrations.tsx` beside `SettingsProvider` (replace `ProProvider`)
+- [x] **`useIsPro()`** → purchases context
+- [x] Keep dev **Toggle Pro** on Home for internal testing (`setDevProOverride`)
 
 After Phase 3: Test Store purchases should appear under **Customers** in RC dashboard.
 
@@ -226,7 +226,7 @@ After Phase 3: Test Store purchases should appear under **Customers** in RC dash
 - [x] Paywall shell UI (placeholder)
 - [ ] Prices from `offerings.current` — localized `priceString`
 - [ ] CTA → `purchasePackage(selectedPackage)`
-- [ ] Subscription screen: `restorePurchases()` (replace `restorePlaceholder`)
+- [ ] Subscription screen: `restorePurchases()` (replace `restorePlaceholder`) — restore already uses RC via shim; rename in Phase 4 cleanup
 - [ ] Handle `PURCHASE_CANCELLED_ERROR` silently
 - [ ] Remove or bypass `paywall-placeholder-offerings.ts` in production paths
 

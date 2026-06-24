@@ -1,8 +1,8 @@
-import { usePro } from "@/contexts/pro-context";
+import { usePurchases } from "@/contexts/purchases-context";
 
 export { readIsPro, readProPlan } from "@/lib/pro-status";
 
-/** Thin selector over ProProvider (placeholder for PurchasesProvider). */
+/** Thin selector over PurchasesProvider. */
 export function useIsPro(): boolean {
-  return usePro().isPro;
+  return usePurchases().isPro;
 }

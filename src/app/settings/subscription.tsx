@@ -1,7 +1,7 @@
 import { FieldContainer, FieldContainerItem } from "@/components/common/field";
 import { SettingsScreenShell } from "@/components/settings/settings-screen-shell";
 import { Text } from "@/components/ui/text";
-import { usePro } from "@/contexts/pro-context";
+import { usePro } from "@/contexts/purchases-context";
 import { useIsPro } from "@/hooks/use-is-pro";
 import { isProduction } from "@/lib/env";
 import { pushPaywallRoute } from "@/lib/push-paywall-route";
