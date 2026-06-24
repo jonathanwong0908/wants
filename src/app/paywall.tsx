@@ -88,7 +88,7 @@ export default function PaywallScreen() {
       <SettingsScreenHeader title="" variant="modal" />
       <View className="flex-1 justify-between px-4 pb-2">
         <View>
-          <Text className="pt-2 text-2xl font-bold text-foreground">
+          <Text className="pt-4 text-2xl font-bold text-foreground">
             Upgrade to Pro
           </Text>
           <Text variant="muted" className="mt-2 leading-5">
