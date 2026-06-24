@@ -5,6 +5,7 @@ declare global {
     interface ProcessEnv {
       EXPO_PUBLIC_APP_ENV?: AppEnv;
       EXPO_PUBLIC_POSTHOG_KEY?: string;
+      EXPO_PUBLIC_REVENUECAT_TEST_KEY?: string;
       EXPO_PUBLIC_REVENUECAT_IOS_KEY?: string;
       EXPO_PUBLIC_REVENUECAT_ANDROID_KEY?: string;
     }
