@@ -56,16 +56,16 @@ flowchart LR
 ## Current repo status (Jun 2026)
 
 
-| Item                                                         | Status                                           |
-| ------------------------------------------------------------ | ------------------------------------------------ |
+| Item                                                         | Status                                            |
+| ------------------------------------------------------------ | ------------------------------------------------- |
 | Placeholder `ProProvider`, paywall UI, gates, dev Toggle Pro | Done — `PurchasesProvider` replaces `ProProvider` |
-| `react-native-purchases` ^10.4.0 installed                   | Done                                             |
-| `src/lib/purchases.ts` (key selection + SDK helpers)         | Done — wired via `PurchasesProvider`             |
-| `EXPO_PUBLIC_REVENUECAT_TEST_KEY` in env types               | Done — set in your local `.env`                  |
-| `Purchases.configure` on app launch                          | Done (Phase 3)                                   |
-| Paywall uses RC offerings + `purchasePackage()`               | Done (Phase 4)                                   |
-| `react-native-purchases` config plugin in `app.json`         | Not done (Phase 1)                               |
-| Account settings screen                                      | Removed — subscription hub + subscription screen |
+| `react-native-purchases` ^10.4.0 installed                   | Done                                              |
+| `src/lib/purchases.ts` (key selection + SDK helpers)         | Done — wired via `PurchasesProvider`              |
+| `EXPO_PUBLIC_REVENUECAT_TEST_KEY` in env types               | Done — set in your local `.env`                   |
+| `Purchases.configure` on app launch                          | Done (Phase 3)                                    |
+| Paywall uses RC offerings + `purchasePackage()`              | Done (Phase 4)                                    |
+| `react-native-purchases` config plugin in `app.json`         | Not done (Phase 1)                                |
+| Account settings screen                                      | Removed — subscription hub + subscription screen  |
 
 
 Paywall prices come from RevenueCat offerings (`src/lib/paywall-offerings.ts`); purchase/restore go through RevenueCat (Test Store in Expo Go).
@@ -267,13 +267,13 @@ No other paywalls.
 
 **Checklist (run after Phase 3–4):**
 
-- [ ] Offerings load with localized prices
-- [ ] Purchase flips `isPro`; gates unlock
-- [ ] Customer + `pro` entitlement in RC dashboard
-- [ ] Restore works
-- [ ] Cancel mid-purchase — no error spam
-- [ ] `is_pro` persists; re-syncs on foreground
-- [ ] Dev Toggle Pro still flips local state for quick QA
+- [x] Offerings load with localized prices
+- [x] Purchase flips `isPro`; gates unlock
+- [x] Customer + `pro` entitlement in RC dashboard
+- [x] Restore works
+- [x] Cancel mid-purchase — no error spam
+- [x] `is_pro` persists; re-syncs on foreground
+- [x] Dev Toggle Pro still flips local state for quick QA
 
 ---
 
