@@ -3,40 +3,14 @@ import { SettingsScreenShell } from "@/components/settings/settings-screen-shell
 import { Text } from "@/components/ui/text";
 import { usePro } from "@/contexts/pro-context";
 import { useIsPro } from "@/hooks/use-is-pro";
+import { isProduction } from "@/lib/env";
 import { pushPaywallRoute } from "@/lib/push-paywall-route";
 import { getPaywallPlan } from "@/lib/paywall-placeholder-offerings";
-import { isProduction } from "@/lib/env";
+import {
+  getSubscriptionStatusTitle,
+} from "@/lib/subscription-status";
+import { Separator } from "@rn-primitives/dropdown-menu";
 import { Alert, View } from "react-native";
-
-function getProStatusTitle(
-  proPlan: ReturnType<typeof usePro>["proPlan"]
-): string {
-  switch (proPlan) {
-    case "lifetime":
-      return "Lifetime Pro — no renewal";
-    case "monthly":
-      return "Wants Pro — active";
-    case "annual":
-      return "Wants Pro — active";
-    default:
-      return "Wants Pro — active";
-  }
-}
-
-function getProStatusDetail(
-  proPlan: ReturnType<typeof usePro>["proPlan"]
-): string | null {
-  switch (proPlan) {
-    case "monthly":
-      return "Renews monthly";
-    case "annual":
-      return "Renews annually";
-    case "lifetime":
-      return null;
-    default:
-      return null;
-  }
-}
 
 function handleManageSubscriptionPlaceholder(): void {
   Alert.alert(
@@ -47,15 +21,11 @@ function handleManageSubscriptionPlaceholder(): void {
 
 export default function SettingsSubscriptionScreen() {
   const isPro = useIsPro();
-  const { proPlan, resetPlaceholder } = usePro();
+  const { proPlan, resetPlaceholder, restorePlaceholder } = usePro();
 
-  const statusTitle = isPro ? getProStatusTitle(proPlan) : "Free plan";
-  const statusDetail = isPro ? getProStatusDetail(proPlan) : null;
+  const statusTitle = getSubscriptionStatusTitle(isPro, proPlan);
   const showManageSubscription =
     isPro && (proPlan === "monthly" || proPlan === "annual");
-
-  const showActions =
-    !isPro || showManageSubscription;
 
   return (
     <SettingsScreenShell title="Subscription">
@@ -64,9 +34,6 @@ export default function SettingsSubscriptionScreen() {
           <Text className="text-base font-medium text-foreground">
             {statusTitle}
           </Text>
-          {statusDetail ? (
-            <Text variant="muted">{statusDetail}</Text>
-          ) : null}
           {isPro && proPlan ? (
             <Text variant="muted">
               Plan: {getPaywallPlan(proPlan).title}
@@ -74,16 +41,19 @@ export default function SettingsSubscriptionScreen() {
           ) : null}
         </View>
 
-        {showActions ? (
-          <FieldContainer>
-            {!isPro ? (
+        <FieldContainer>
+          {!isPro ? (
+            <>
               <FieldContainerItem onPress={() => pushPaywallRoute()}>
                 <Text className="text-base text-foreground">
                   Upgrade to Pro
                 </Text>
               </FieldContainerItem>
-            ) : null}
-            {showManageSubscription ? (
+              <Separator />
+            </>
+          ) : null}
+          {showManageSubscription ? (
+            <>
               <FieldContainerItem
                 onPress={handleManageSubscriptionPlaceholder}
                 showChevron={false}
@@ -92,9 +62,16 @@ export default function SettingsSubscriptionScreen() {
                   Manage subscription
                 </Text>
               </FieldContainerItem>
-            ) : null}
-          </FieldContainer>
-        ) : null}
+              <Separator />
+            </>
+          ) : null}
+          <FieldContainerItem
+            onPress={() => void restorePlaceholder()}
+            showChevron={false}
+          >
+            <Text className="text-base text-foreground">Restore purchases</Text>
+          </FieldContainerItem>
+        </FieldContainer>
 
         {!isProduction ? (
           <FieldContainer>

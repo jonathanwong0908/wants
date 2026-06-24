@@ -2,12 +2,14 @@ import { FieldContainer, FieldContainerItem } from "@/components/common/field";
 import { SelectDropdown } from "@/components/common/select-dropdown";
 import { SettingsScreenHeader } from "@/components/settings/settings-screen-shell";
 import { Text } from "@/components/ui/text";
+import { usePro } from "@/contexts/pro-context";
 import { useSettings } from "@/contexts/settings-context";
 import { useTheme } from "@/contexts/theme-context";
 import { useNotificationPermission } from "@/hooks/use-notification-permission";
 import { CURRENCY_OPTIONS } from "@/lib/currency";
 import { DELAY_OPTIONS } from "@/lib/forms/item-form-schema";
 import { pushSettingsRoute } from "@/lib/push-settings-routes";
+import { getSubscriptionHubLabel } from "@/lib/subscription-status";
 import { getThemeDisplayName } from "@/lib/themes/registry";
 import { Separator } from "@rn-primitives/dropdown-menu";
 import { PortalHost, useModalPortalRoot } from "@rn-primitives/portal";
@@ -44,6 +46,7 @@ export default function SettingsIndexScreen() {
     right: 16,
   };
   const { status } = useNotificationPermission();
+  const { isPro, proPlan } = usePro();
 
   const {
     currencyCode,
@@ -112,9 +115,14 @@ export default function SettingsIndexScreen() {
             </FieldContainerItem>
             <Separator />
             <FieldContainerItem
-              onPress={() => pushSettingsRoute("/settings/account")}
+              onPress={() => pushSettingsRoute("/settings/subscription")}
             >
-              <Text className="text-base text-foreground">Account</Text>
+              <View className="flex-row items-center justify-between gap-2">
+                <Text>Subscription</Text>
+                <Text className="text-base text-foreground">
+                  {getSubscriptionHubLabel(isPro, proPlan)}
+                </Text>
+              </View>
             </FieldContainerItem>
             <Separator />
             <FieldContainerItem

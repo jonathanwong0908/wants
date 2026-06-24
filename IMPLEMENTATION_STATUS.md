@@ -137,7 +137,6 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done
 
-- Account screen upgrade / restore (placeholder or RevenueCat) — see [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md) Phase P3
 - About privacy policy and terms links (blocked on URLs)
 
 ### Theme (PRD S12) — partial
@@ -210,7 +209,7 @@ Checklist: [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md)
 - `useIsPro()` reads from `ProProvider`; mounted in `src/db/migrations.tsx`
 - Theme gate wired to reactive pro state
 - Paywall UI (`src/app/paywall.tsx`) with three plan tabs and stub offerings
-- Account screen + Subscription sub-screen
+- Account screen + Subscription sub-screen (subscription hub row on settings; restore on subscription screen)
 - `src/lib/is-add-want-gated.ts` — shared FAB/add gate rule
 - Home FAB + add-want enforcement gates (edit-want intentionally not gated for free users)
 - Dev-only Toggle Pro on Home (`!isProduction`)
