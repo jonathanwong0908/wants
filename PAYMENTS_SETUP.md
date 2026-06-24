@@ -47,7 +47,7 @@ flowchart LR
 | Release        | Production `appl_` only     | Yes              | Yes                                 |
 
 
-**Next step for this repo:** finish **Phase 0a** (if any dashboard items remain) → **Phase 3** → **Phase 4**. Skip **0b** until you want real StoreKit / App Store products.
+**Next step for this repo:** **Phase 5** (verify gates with live entitlements) → **Phase 7** Test Store checklist in Expo Go. Skip **0b** until you want real StoreKit / App Store products.
 
 **Placeholder:** [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md) — **complete** (local UI, gates, subscription settings).
 
@@ -63,12 +63,12 @@ flowchart LR
 | `src/lib/purchases.ts` (key selection + SDK helpers)         | Done — wired via `PurchasesProvider`             |
 | `EXPO_PUBLIC_REVENUECAT_TEST_KEY` in env types               | Done — set in your local `.env`                  |
 | `Purchases.configure` on app launch                          | Done (Phase 3)                                   |
-| Paywall still uses `purchasePlaceholder()`                   | **Not done** (Phase 4 — shim routes to RC now)   |
+| Paywall uses RC offerings + `purchasePackage()`               | Done (Phase 4)                                   |
 | `react-native-purchases` config plugin in `app.json`         | Not done (Phase 1)                               |
 | Account settings screen                                      | Removed — subscription hub + subscription screen |
 
 
-Until Phase 4 ships paywall prices from offerings, the paywall UI still shows placeholder prices — but purchase/restore go through RevenueCat (Test Store in Expo Go).
+Paywall prices come from RevenueCat offerings (`src/lib/paywall-offerings.ts`); purchase/restore go through RevenueCat (Test Store in Expo Go).
 
 ---
 
@@ -223,12 +223,12 @@ After Phase 3: Test Store purchases should appear under **Customers** in RC dash
 ## Phase 4 — Paywall: swap placeholder for RevenueCat
 
 - [x] Route `src/app/paywall.tsx`, modal, `pushPaywallRoute()`
-- [x] Paywall shell UI (placeholder)
-- [ ] Prices from `offerings.current` — localized `priceString`
-- [ ] CTA → `purchasePackage(selectedPackage)`
-- [ ] Subscription screen: `restorePurchases()` (replace `restorePlaceholder`) — restore already uses RC via shim; rename in Phase 4 cleanup
-- [ ] Handle `PURCHASE_CANCELLED_ERROR` silently
-- [ ] Remove or bypass `paywall-placeholder-offerings.ts` in production paths
+- [x] Paywall shell UI
+- [x] Prices from offerings — localized `priceString` via `src/lib/paywall-offerings.ts`
+- [x] CTA → `purchasePackage(selectedPackage)`; dismiss only on success
+- [x] Subscription screen: `restore()` (placeholder aliases removed)
+- [x] Handle `PURCHASE_CANCELLED_ERROR` silently (`purchase()` returns `false`)
+- [x] `paywall-placeholder-offerings.ts` — static copy only (no hardcoded prices)
 
 ---
 
@@ -248,7 +248,7 @@ No other paywalls.
 
 - [x] Settings hub: Subscription row with plan label
 - [x] Subscription screen: status, upgrade, manage (stub), restore
-- [ ] Swap remaining `restorePlaceholder` / `purchasePlaceholder` references after Phase 3–4
+- [x] Swap remaining `restorePlaceholder` / `purchasePlaceholder` references after Phase 3–4
 
 - Account screen removed — subscription is the monetization entry point
 

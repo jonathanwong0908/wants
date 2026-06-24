@@ -9,7 +9,7 @@ function isPaywallPlanId(value: string): value is PaywallPlanId {
   return PRO_PLAN_IDS.includes(value as PaywallPlanId);
 }
 
-/** Non-reactive kv-store read. Prefer `useIsPro()` / `usePro()` in React components. */
+/** Non-reactive kv-store read. Prefer `useIsPro()` / `usePurchases()` in React components. */
 export function readIsPro(): boolean {
   return Storage.getItemSync(IS_PRO_KEY) === "true";
 }
@@ -23,7 +23,7 @@ export function writeIsPro(value: boolean): void {
   }
 }
 
-/** Non-reactive kv-store read. Prefer `usePro().proPlan` in React components. */
+/** Non-reactive kv-store read. Prefer `usePurchases().proPlan` in React components. */
 export function readProPlan(): PaywallPlanId | null {
   const value = Storage.getItemSync(PRO_PLAN_KEY);
   if (!value || !isPaywallPlanId(value)) {

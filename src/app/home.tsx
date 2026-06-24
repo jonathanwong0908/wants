@@ -10,7 +10,7 @@ import {
   type WaitingListRow,
 } from "@/components/wants/waiting-want-list";
 import { useAppReady } from "@/contexts/app-ready-context";
-import { usePro } from "@/contexts/purchases-context";
+import { usePurchases } from "@/contexts/purchases-context";
 import { useSettings } from "@/contexts/settings-context";
 import { selectWaitingItems } from "@/db/queries/items";
 import { useNotificationPermission } from "@/hooks/use-notification-permission";
@@ -44,7 +44,7 @@ export default function HomeScreen() {
   const { granted: notificationsGranted } = useNotificationPermission();
 
   const { data: waitingItems } = useLiveQuery(selectWaitingItems());
-  const { isPro, setDevProOverride } = usePro();
+  const { isPro, setDevProOverride } = usePurchases();
   const addWantGated = isAddWantGatedWhenReady(isPro, waitingItems);
   const { currencyCode } = useSettings();
   const { totalSaved, skippedCount, hasOtherCurrencySkipped } =

@@ -1,7 +1,7 @@
 import { FieldContainer, FieldContainerItem } from "@/components/common/field";
 import { SettingsScreenShell } from "@/components/settings/settings-screen-shell";
 import { Text } from "@/components/ui/text";
-import { usePro } from "@/contexts/purchases-context";
+import { usePurchases } from "@/contexts/purchases-context";
 import { useIsPro } from "@/hooks/use-is-pro";
 import { isProduction } from "@/lib/env";
 import { pushPaywallRoute } from "@/lib/push-paywall-route";
@@ -21,7 +21,7 @@ function handleManageSubscriptionPlaceholder(): void {
 
 export default function SettingsSubscriptionScreen() {
   const isPro = useIsPro();
-  const { proPlan, resetPlaceholder, restorePlaceholder } = usePro();
+  const { proPlan, resetDevPro, restore } = usePurchases();
 
   const statusTitle = getSubscriptionStatusTitle(isPro, proPlan);
   const showManageSubscription =
@@ -66,7 +66,7 @@ export default function SettingsSubscriptionScreen() {
             </>
           ) : null}
           <FieldContainerItem
-            onPress={() => void restorePlaceholder()}
+            onPress={() => void restore()}
             showChevron={false}
           >
             <Text className="text-base text-foreground">Restore purchases</Text>
@@ -76,7 +76,7 @@ export default function SettingsSubscriptionScreen() {
         {!isProduction ? (
           <FieldContainer>
             <FieldContainerItem
-              onPress={resetPlaceholder}
+              onPress={resetDevPro}
               showChevron={false}
             >
               <Text className="text-base text-destructive">

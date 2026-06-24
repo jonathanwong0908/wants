@@ -18,7 +18,6 @@ import Purchases, {
 import {
   configurePurchases,
   describeOfferingsState,
-  findPackageForPlan,
   getActiveOffering,
   getCustomerInfo,
   getOfferings,
@@ -40,12 +39,10 @@ export type PurchasesContextValue = {
   proPlan: PaywallPlanId | null;
   offerings: PurchasesOfferings | null;
   loading: boolean;
-  purchase: (pkg: PurchasesPackage) => Promise<void>;
+  purchase: (pkg: PurchasesPackage) => Promise<boolean>;
   restore: () => Promise<void>;
   refresh: () => Promise<void>;
-  purchasePlaceholder: (planId: PaywallPlanId) => Promise<void>;
-  restorePlaceholder: () => Promise<void>;
-  resetPlaceholder: () => void;
+  resetDevPro: () => void;
   setDevProOverride: (on: boolean, planId?: PaywallPlanId) => void;
 };
 
@@ -147,21 +144,19 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     return () => subscription.remove();
   }, [refresh]);
 
-  const purchase = useCallback(
-    async (pkg: PurchasesPackage) => {
-      try {
-        const customerInfo = await purchasePackage(pkg);
-        devProOverrideRef.current = null;
-        applyCustomerInfoToState(customerInfo, setIsPro, setProPlan);
-      } catch (error) {
-        if (isPurchaseCancelledError(error)) {
-          return;
-        }
-        throw error;
+  const purchase = useCallback(async (pkg: PurchasesPackage): Promise<boolean> => {
+    try {
+      const customerInfo = await purchasePackage(pkg);
+      devProOverrideRef.current = null;
+      applyCustomerInfoToState(customerInfo, setIsPro, setProPlan);
+      return true;
+    } catch (error) {
+      if (isPurchaseCancelledError(error)) {
+        return false;
       }
-    },
-    []
-  );
+      throw error;
+    }
+  }, []);
 
   const restore = useCallback(async () => {
     try {
@@ -180,45 +175,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const purchasePlaceholder = useCallback(
-    async (planId: PaywallPlanId) => {
-      let currentOfferings = offerings ?? (await getOfferings());
-      if (!offerings) {
-        setOfferings(currentOfferings);
-      }
-
-      let pkg = findPackageForPlan(currentOfferings, planId);
-      if (!pkg) {
-        currentOfferings = await getOfferings();
-        setOfferings(currentOfferings);
-        pkg = findPackageForPlan(currentOfferings, planId);
-      }
-
-      if (!pkg) {
-        console.warn(
-          "RevenueCat package not found:",
-          describeOfferingsState(currentOfferings),
-          `plan=${planId}`
-        );
-        Alert.alert(
-          "Upgrade unavailable",
-          __DEV__
-            ? "Subscription options could not be loaded. Check Metro logs and RevenueCat offering `default` is current with Test Store packages."
-            : "Subscription options could not be loaded. Try again later."
-        );
-        return;
-      }
-
-      await purchase(pkg);
-    },
-    [offerings, purchase]
-  );
-
-  const restorePlaceholder = useCallback(async () => {
-    await restore();
-  }, [restore]);
-
-  const resetPlaceholder = useCallback(() => {
+  const resetDevPro = useCallback(() => {
     if (!__DEV__) return;
 
     devProOverrideRef.current = null;
@@ -255,9 +212,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
       purchase,
       restore,
       refresh,
-      purchasePlaceholder,
-      restorePlaceholder,
-      resetPlaceholder,
+      resetDevPro,
       setDevProOverride,
     }),
     [
@@ -268,9 +223,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
       purchase,
       restore,
       refresh,
-      purchasePlaceholder,
-      restorePlaceholder,
-      resetPlaceholder,
+      resetDevPro,
       setDevProOverride,
     ]
   );
@@ -286,9 +239,4 @@ export function usePurchases(): PurchasesContextValue {
     throw new Error("usePurchases must be used within PurchasesProvider");
   }
   return ctx;
-}
-
-/** @deprecated Prefer usePurchases(); kept for Phase 4 migration. */
-export function usePro(): PurchasesContextValue {
-  return usePurchases();
 }

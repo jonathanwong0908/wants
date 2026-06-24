@@ -198,13 +198,15 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 
 ### S13 — Paywall *(modal)*
 
-- Headline: "Unlock the full Wants experience"
-- 3 benefit bullets: unlimited items · custom delays · premium color themes
-- Three pricing options (tabs): $1.99/month · $9.99/year (highlight annual, "save 58%") · lifetime one-time (non-consumable; placeholder ~$19.99)
-- Prices loaded dynamically from RevenueCat — never hardcoded in production (placeholder uses `paywall-placeholder-offerings.ts`)
+- Headline: "Upgrade to Pro"
+- Body copy: free tier limit (one active want) and Pro benefits (unlimited items, custom delays, premium themes)
+- Three plan tabs: Monthly · Annual (default) · Lifetime
+- Prices loaded dynamically from RevenueCat (`product.priceString`) — never hardcoded in production; static copy (tab labels, CTAs) lives in `paywall-placeholder-offerings.ts`
+- Annual tab may show a computed savings subtitle when monthly and annual packages are both available
 - CTA: "Subscribe" on monthly; "Subscribe annually" on annual; "Unlock lifetime access" on lifetime
-- "Restore purchase" link
-- "Maybe later" dismiss
+- Dismiss via modal close button
+- Restore purchases: Subscription settings screen only (not on paywall)
+- Legal footer: subscription terms, Privacy Policy and Terms of Use links
 
 ---
 

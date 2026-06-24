@@ -3,17 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from "@/constants/legal-links";
-import { usePro } from "@/contexts/purchases-context";
+import { usePurchases } from "@/contexts/purchases-context";
 import { openLegalLink } from "@/lib/open-legal-link";
 import {
+  buildPaywallPlans,
+  getPaywallPlanDisplay,
+  type PaywallPlanDisplay,
+} from "@/lib/paywall-offerings";
+import {
   DEFAULT_PLAN_ID,
-  PAYWALL_PLANS,
-  type PaywallPlan,
   type PaywallPlanId,
 } from "@/lib/paywall-placeholder-offerings";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { View } from "react-native";
+import { useMemo, useState } from "react";
+import { Alert, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 function PaywallLegalFooter() {
@@ -39,20 +42,39 @@ function PaywallLegalFooter() {
   );
 }
 
-function PlanDetails({ plan }: { plan: PaywallPlan }) {
+function PlanDetails({
+  plan,
+  loading,
+}: {
+  plan: PaywallPlanDisplay;
+  loading: boolean;
+}) {
+  if (loading) {
+    return (
+      <Text variant="muted" className="text-sm leading-5">
+        Loading prices…
+      </Text>
+    );
+  }
+
+  if (!plan.priceString) {
+    return (
+      <Text variant="muted" className="text-sm leading-5">
+        Price unavailable
+      </Text>
+    );
+  }
+
   return (
     <>
-      <View className="flex-row items-start">
-        <Text variant="muted" className="text-3xl font-bold leading-none">
-          $
-        </Text>
-        <Text className="text-5xl font-bold leading-none text-foreground tracking-tighter">
-          {plan.priceAmount}
-        </Text>
-      </View>
-      <Text variant="muted" className="mt-1 text-sm leading-5">
-        {plan.priceDescription}
+      <Text className="text-5xl font-bold leading-none text-foreground tracking-tighter">
+        {plan.priceString}
       </Text>
+      {plan.priceDescription ? (
+        <Text variant="muted" className="mt-1 text-sm leading-5">
+          {plan.priceDescription}
+        </Text>
+      ) : null}
       {plan.subtitle ? (
         <Text className="mt-1 text-sm font-medium text-primary">
           {plan.subtitle}
@@ -64,20 +86,28 @@ function PlanDetails({ plan }: { plan: PaywallPlan }) {
 
 export default function PaywallScreen() {
   const router = useRouter();
-  const { purchasePlaceholder } = usePro();
+  const { offerings, loading, purchase } = usePurchases();
   const [selectedPlanId, setSelectedPlanId] =
     useState<PaywallPlanId>(DEFAULT_PLAN_ID);
   const [purchasing, setPurchasing] = useState(false);
 
-  const selectedPlan =
-    PAYWALL_PLANS.find((plan) => plan.id === selectedPlanId) ??
-    PAYWALL_PLANS[0];
+  const plans = useMemo(() => buildPaywallPlans(offerings), [offerings]);
+  const selectedPlan = getPaywallPlanDisplay(plans, selectedPlanId);
+  const ctaDisabled = purchasing || loading || !selectedPlan.pkg;
 
   async function handlePurchase() {
+    if (!selectedPlan.pkg) {
+      return;
+    }
+
     setPurchasing(true);
     try {
-      await purchasePlaceholder(selectedPlanId);
-      router.back();
+      const success = await purchase(selectedPlan.pkg);
+      if (success) {
+        router.back();
+      }
+    } catch {
+      Alert.alert("Purchase failed", "Try again.");
     } finally {
       setPurchasing(false);
     }
@@ -104,17 +134,17 @@ export default function PaywallScreen() {
               }
             >
               <TabsList className="w-full">
-                {PAYWALL_PLANS.map((plan) => (
+                {plans.map((plan) => (
                   <TabsTrigger key={plan.id} value={plan.id} className="flex-1">
                     <Text className="text-sm font-medium">{plan.tabLabel}</Text>
                   </TabsTrigger>
                 ))}
               </TabsList>
 
-              {PAYWALL_PLANS.map((plan) => (
+              {plans.map((plan) => (
                 <TabsContent key={plan.id} value={plan.id}>
                   <View className="mt-4 items-start">
-                    <PlanDetails plan={plan} />
+                    <PlanDetails plan={plan} loading={loading} />
                   </View>
                 </TabsContent>
               ))}
@@ -124,7 +154,7 @@ export default function PaywallScreen() {
               <Button
                 size="lg"
                 className="self-start rounded-2xl px-8"
-                disabled={purchasing}
+                disabled={ctaDisabled}
                 onPress={() => void handlePurchase()}
               >
                 <Text className="text-base font-semibold">
