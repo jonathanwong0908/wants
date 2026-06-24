@@ -1,4 +1,5 @@
 import { ItemFormFields } from "@/components/wants/item-form-fields";
+import { ItemFormScrollView } from "@/components/wants/item-form-scroll-view";
 import { ScreenBackButton } from "@/components/layout/screen-back-button";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -20,7 +21,7 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Trash } from "lucide-react-native";
 import { useState } from "react";
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -129,11 +130,7 @@ function EditWantForm({ item }: EditWantFormProps) {
         </View>
       </View>
 
-      <ScrollView
-        className="flex-1 px-5 pt-4"
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
+      <ItemFormScrollView className="flex-1 px-5 pt-4">
         <Form {...methods}>
           <ItemFormFields
             portalHost={EDIT_WANT_PORTAL_HOST}
@@ -144,7 +141,7 @@ function EditWantForm({ item }: EditWantFormProps) {
             delayOptions={getDelayOptionsForValue(item.delayHours)}
           />
         </Form>
-      </ScrollView>
+      </ItemFormScrollView>
       <PortalHost name={EDIT_WANT_PORTAL_HOST} />
     </View>
   );

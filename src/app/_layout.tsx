@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { NotificationBootstrap } from "@/components/notification-bootstrap";
@@ -11,6 +12,7 @@ import "../global.css";
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
+      <KeyboardProvider>
       <AppReadyGate>
         <NotificationBootstrap />
         <ThemeRoot>
@@ -44,6 +46,7 @@ export default function RootLayout() {
         </ThemeRoot>
         <PortalHost />
       </AppReadyGate>
+      </KeyboardProvider>
     </SafeAreaProvider>
   );
 }

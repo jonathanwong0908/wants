@@ -1,4 +1,5 @@
 import { ItemFormFields } from "@/components/wants/item-form-fields";
+import { ItemFormScrollView } from "@/components/wants/item-form-scroll-view";
 import { ScreenBackButton } from "@/components/layout/screen-back-button";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -8,7 +9,7 @@ import { useItemForm } from "@/hooks/use-item-form";
 import type { ItemFormValues } from "@/lib/forms/item-form-schema";
 import { PortalHost, useModalPortalRoot } from "@rn-primitives/portal";
 import { useRouter } from "expo-router";
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -55,11 +56,7 @@ export default function AddWantModalScreen() {
           </Button>
         </View>
 
-        <ScrollView
-          className="flex-1 px-5 pt-4"
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+        <ItemFormScrollView className="flex-1 px-5 pt-4">
           <Form {...methods}>
             <ItemFormFields
               portalHost={ADD_WANT_PORTAL_HOST}
@@ -70,7 +67,7 @@ export default function AddWantModalScreen() {
               showDelayField
             />
           </Form>
-        </ScrollView>
+        </ItemFormScrollView>
         <PortalHost name={ADD_WANT_PORTAL_HOST} />
       </View>
     </SafeAreaView>
