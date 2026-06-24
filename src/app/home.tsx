@@ -10,14 +10,18 @@ import {
   type WaitingListRow,
 } from "@/components/wants/waiting-want-list";
 import { useAppReady } from "@/contexts/app-ready-context";
+import { usePro } from "@/contexts/pro-context";
 import { useSettings } from "@/contexts/settings-context";
 import { selectWaitingItems } from "@/db/queries/items";
 import { useNotificationPermission } from "@/hooks/use-notification-permission";
 import { useNowTick } from "@/hooks/use-now-tick";
 import { useSavingsStats } from "@/hooks/use-savings-stats";
 import { isProduction } from "@/lib/env";
+import { isAddWantGatedWhenReady } from "@/lib/is-add-want-gated";
 import { formatCurrency } from "@/lib/money-format";
+import { DEFAULT_PLAN_ID } from "@/lib/paywall-placeholder-offerings";
 import { pushHomeAreaRoute } from "@/lib/push-home-routes";
+import { pushPaywallRoute } from "@/lib/push-paywall-route";
 import { pushWantRoute } from "@/lib/push-want-route";
 import { THEME } from "@/lib/theme";
 import { LegendList } from "@legendapp/list/react-native";
@@ -40,6 +44,8 @@ export default function HomeScreen() {
   const { granted: notificationsGranted } = useNotificationPermission();
 
   const { data: waitingItems } = useLiveQuery(selectWaitingItems());
+  const { isPro, purchasePlaceholder, resetPlaceholder } = usePro();
+  const addWantGated = isAddWantGatedWhenReady(isPro, waitingItems);
   const { currencyCode } = useSettings();
   const { totalSaved, skippedCount, hasOtherCurrencySkipped } =
     useSavingsStats(currencyCode);
@@ -97,6 +103,14 @@ export default function HomeScreen() {
   const handleOpenTotalSaved = useCallback(() => {
     pushHomeAreaRoute("/total-saved");
   }, []);
+
+  const handleFabPress = useCallback(() => {
+    if (addWantGated === true) {
+      pushPaywallRoute();
+      return;
+    }
+    pushHomeAreaRoute("/add-want");
+  }, [addWantGated]);
 
   const ListHeaderComponent = useMemo(() => {
     const savingsLabel = hasOtherCurrencySkipped
@@ -177,6 +191,19 @@ export default function HomeScreen() {
             variant="outline"
             className="mt-8 w-full"
             onPress={() => {
+              if (isPro) {
+                resetPlaceholder();
+              } else {
+                void purchasePlaceholder(DEFAULT_PLAN_ID);
+              }
+            }}
+          >
+            <Text>Toggle Pro (dev) — {isPro ? "on" : "off"}</Text>
+          </Button>
+          <Button
+            variant="outline"
+            className="mt-4 w-full"
+            onPress={() => {
               setOnboardingComplete(false);
               router.replace("/");
             }}
@@ -185,7 +212,7 @@ export default function HomeScreen() {
           </Button>
         </View>
       ) : null,
-    [setOnboardingComplete]
+    [isPro, purchasePlaceholder, resetPlaceholder, setOnboardingComplete]
   );
 
   return (
@@ -215,8 +242,10 @@ export default function HomeScreen() {
           style={{ bottom: fabBottom, right: 16 }}
         >
           <Pressable
-            accessibilityLabel="Add want"
-            onPress={() => pushHomeAreaRoute("/add-want")}
+            accessibilityLabel={
+              addWantGated === true ? "Upgrade to add more wants" : "Add want"
+            }
+            onPress={handleFabPress}
             className="h-14 w-14 items-center justify-center rounded-full bg-primary shadow-md shadow-black/20 active:bg-primary/90"
           >
             <Plus

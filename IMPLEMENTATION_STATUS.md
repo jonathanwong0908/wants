@@ -26,10 +26,10 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - Modal dismiss on successful save (`router.back()`)
 - Computes `notifyAt` as `now + delayHours`
 - Schedule local notification at `notifyAt` via `src/lib/notifications.ts`; persist `notifId`
+- Free-tier paywall gate: `useFocusEffect` + `router.replace` to paywall when gated; form hidden until waiting count resolves
 
 ### Not done (follow-ups)
 
-- Free-tier paywall gate on Add screen (waiting items ≥ 1, non-pro) — see [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md)
 - Custom delay — **deferred** (not in placeholder scope)
 - Show validation errors inline (`FormMessage` not wired on form fields yet)
 
@@ -49,15 +49,12 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - `useNowTick`: AppState foreground + 60s interval for section moves and countdown copy
 - Tap row → Want detail modal (`/want/[id]`)
 - Notification permission banner when denied + waiting items exist (`notification-permission-banner.tsx`); dismiss persists in kv-store until a new waiting item is added
+- Free-tier FAB paywall gate: Plus icon always; opens paywall instead of add-want when waiting ≥ 1 and not pro
 
 ### PRD divergences (intentional)
 
 - Home shows **all** waiting items, not PRD's cap of 3 on Home
 - Expired waiting items are in a separate **Ready to decide** section, not mixed into Upcoming with a badge
-
-### Not done
-
-- Free-tier FAB paywall gate (lock icon when waiting ≥ 1, non-pro) — see [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md)
 
 ## All Wants (PRD S11) — partial
 
@@ -114,7 +111,6 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done (follow-ups)
 
-- Paywall gate on edit (same as add — not built yet)
 - Custom delay — **deferred**
 
 ## Decision flow (PRD S8) — done
@@ -203,11 +199,11 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 PRD defines **three** enforcement surfaces (FAB, custom delay, theme). Placeholder implements two; custom delay deferred.
 
-### Placeholder (local `is_pro`) — P1–P3 done; P4–P5 remaining
+### Placeholder (local `is_pro`) — P1–P5 done; P6 remaining
 
 Checklist: [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md)
 
-**Done (P1–P3):**
+**Done (P1–P5):**
 
 - `src/lib/pro-status.ts` — kv-store read/write for `is_pro` and `pro_plan`
 - `ProProvider` + `usePro()` — reactive context, stub `purchasePlaceholder(planId)` / `restorePlaceholder`
@@ -215,11 +211,13 @@ Checklist: [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md)
 - Theme gate wired to reactive pro state
 - Paywall UI (`src/app/paywall.tsx`) with three plan tabs and stub offerings
 - Account screen + Subscription sub-screen
+- `src/lib/is-add-want-gated.ts` — shared FAB/add gate rule
+- Home FAB + add-want enforcement gates (edit-want intentionally not gated for free users)
+- Dev-only Toggle Pro on Home (`!isProduction`)
 
 **Not done:**
 
-- Enforcement gates (P4): FAB/add guard
-- Dev toggle (P5)
+- Manual test checklist (P6)
 
 **Other infrastructure already in repo:** `IS_PRO_KEY`, paywall route/modal, `pushPaywallRoute()`.
 

@@ -35,6 +35,8 @@ flowchart TD
   Paywall --> StubPurchase["stub purchase sets is_pro"]
 ```
 
+
+
 PRD §8 defines **three** enforcement surfaces. Placeholder implements two; custom delay (gate 2) is deferred — see Phase P4.
 
 ---
@@ -55,8 +57,8 @@ PRD §8 defines **three** enforcement surfaces. Placeholder implements two; cust
 
 ## Phase P1 — Pro state layer
 
-- [x] **`src/lib/pro-status.ts`** — `readIsPro()`, `writeIsPro(value: boolean)` using kv-store
-- [x] **`src/contexts/pro-context.tsx`** — placeholder for future `PurchasesProvider`:
+- [x] `**src/lib/pro-status.ts`** — `readIsPro()`, `writeIsPro(value: boolean)` using kv-store
+- [x] `**src/contexts/pro-context.tsx**` — placeholder for future `PurchasesProvider`:
   - Seed `isPro` synchronously from kv-store on init (avoid free-tier flash on cold start)
   - Expose `{ isPro, loading, purchasePlaceholder, restorePlaceholder, refresh }`
   - `loading` is always `false` in placeholder
@@ -74,7 +76,7 @@ PRD §8 defines **three** enforcement surfaces. Placeholder implements two; cust
 - [x] Headline: “Unlock the full Wants experience”
 - [x] **Three** benefit bullets: unlimited items · custom delays · premium color themes
 - [x] Three plan tabs: Monthly / Annual / Lifetime (annual default)
-- [x] **`src/lib/paywall-placeholder-offerings.ts`** — typed stub prices (single swap point for RevenueCat later; do not scatter prices in UI)
+- [x] `**src/lib/paywall-placeholder-offerings.ts`** — typed stub prices (single swap point for RevenueCat later; do not scatter prices in UI)
 - [x] Primary CTA: plan-specific (subscribe monthly/annual, lifetime unlock)
 - [x] “Restore purchase” → `restorePlaceholder()`
 - [x] “Maybe later” → dismiss modal
@@ -98,16 +100,18 @@ PRD §8 defines **three** enforcement surfaces. Placeholder implements two; cust
 
 PRD §8 enforcement surfaces (three total):
 
-| Gate | Surface | Placeholder status |
-|------|---------|-------------------|
-| 1 | Home FAB + add route | **Build in placeholder** |
-| 2 | Custom delay | **Deferred** — link to [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) Phase 5 when UX is decided |
-| 3 | Theme settings | **Done** |
+
+| Gate | Surface              | Placeholder status                                                                       |
+| ---- | -------------------- | ---------------------------------------------------------------------------------------- |
+| 1    | Home FAB + add route | **Done**                                                                                 |
+| 2    | Custom delay         | **Deferred** — link to [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) Phase 5 when UX is decided |
+| 3    | Theme settings       | **Done**                                                                                 |
+
 
 ### Gate 1 — Home FAB + add guard
 
-- [ ] **`src/app/home.tsx`** — when `!isPro && waitingItems.length >= 1`: FAB shows lock icon; `onPress` → paywall (not `/add-want`)
-- [ ] **`src/app/add-want.tsx`** — on mount/focus: if gated, open paywall and leave route (blocks deep links)
+- [x] `**src/app/home.tsx`** — when `!isPro && waitingItems.length >= 1`: FAB keeps Plus icon; `onPress` → paywall (not `/add-want`)
+- [x] `**src/app/add-want.tsx**` — on mount/focus: if gated, open paywall and leave route (blocks deep links)
 
 ### Gate 2 — Custom delay (deferred)
 
@@ -116,45 +120,48 @@ No work in placeholder. Future: non-pro Custom → paywall; pro custom input TBD
 ### Gate 3 — Theme settings
 
 - [x] Implemented in `src/app/settings/theme.tsx`
-- [ ] Re-verify reactive `isPro` updates after ProProvider (toggle pro without restart)
+- [x] Re-verify reactive `isPro` updates after ProProvider (toggle pro without restart)
 
 ---
 
 ## Phase P5 — Shared helpers & dev tooling
 
-- [ ] **`src/lib/is-add-want-gated.ts`** — `isAddWantGated(isPro, waitingCount)` → `!isPro && waitingCount >= 1`
-- [ ] **Dev-only “Toggle Pro”** on Home — mirror `!isProduction` pattern in `src/app/home.tsx` (existing “Reset onboarding” footer)
+- [x] `**src/lib/is-add-want-gated.ts**` — `isAddWantGated(isPro, waitingCount)` → `!isPro && waitingCount >= 1`
+- [x] **Dev-only “Toggle Pro”** on Home — mirror `!isProduction` pattern in `src/app/home.tsx` (existing “Reset onboarding” footer)
 
 ---
 
 ## Phase P6 — Manual test checklist
 
-- [ ] Fresh install: `is_pro` false, one waiting item → FAB locked
-- [ ] Paywall CTA → pro → FAB unlocked, can add second item
-- [ ] Navigate to `/add-want` while gated → paywall, cannot stay on add
-- [ ] Past tab: full history visible for free and pro users
-- [ ] Premium theme locked as free; unlocked as pro
-- [ ] Account: upgrade, restore, pro status
-- [ ] Kill app → pro state persists in kv-store
-- [ ] Dev toggle: flip pro without paywall
+- [x] Fresh install: `is_pro` false, one waiting item → FAB locked
+- [x] Paywall CTA → pro → FAB unlocked, can add second item
+- [x] Navigate to `/add-want` while gated → paywall, cannot stay on add
+- [x] Past tab: full history visible for free and pro users
+- [x] Premium theme locked as free; unlocked as pro
+- [x] Account: upgrade, restore, pro status
+- [x] Kill app → pro state persists in kv-store
+- [x] Dev toggle: flip pro without paywall
 
 ---
 
 ## Swap points (placeholder → RevenueCat)
 
-| Placeholder | Replace with (PAYMENTS_SETUP) |
-|-------------|-------------------------------|
-| `ProProvider` | `PurchasesProvider` + `src/lib/purchases.ts` (Phase 3) |
+
+| Placeholder                        | Replace with (PAYMENTS_SETUP)                              |
+| ---------------------------------- | ---------------------------------------------------------- |
+| `ProProvider`                      | `PurchasesProvider` + `src/lib/purchases.ts` (Phase 3)     |
 | `paywall-placeholder-offerings.ts` | `Purchases.getOfferings()` / context `offerings` (Phase 4) |
-| `purchasePlaceholder(planId)` | `purchasePackage()` + customer-info listener (Phase 3–4) |
-| `PRO_PLAN_KEY` / `readProPlan()` | `CustomerInfo.entitlements.active.pro` product identifier |
-| `restorePlaceholder()` | `restorePurchases()` (Phase 3–6) |
-| Dev “Toggle Pro” | Keep for internal testing only |
+| `purchasePlaceholder(planId)`      | `purchasePackage()` + customer-info listener (Phase 3–4)   |
+| `PRO_PLAN_KEY` / `readProPlan()`   | `CustomerInfo.entitlements.active.pro` product identifier  |
+| `restorePlaceholder()`             | `restorePurchases()` (Phase 3–6)                           |
+| Dev “Toggle Pro”                   | Keep for internal testing only                             |
+
 
 ---
 
 ## Next step after placeholder
 
 1. Complete UI/gates in this doc (Phases P1–P5).
-2. Follow [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) **Phase 0a** — RevenueCat Test Store (`test_` key, no Apple account required).
+2. Follow [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) **Phase 0a** — RevenueCat Test Store (`test`_ key, no Apple account required).
 3. When ready for real IAP: **Phase 0b** (Apple Developer) and onward.
+

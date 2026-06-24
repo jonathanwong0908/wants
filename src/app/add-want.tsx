@@ -5,10 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Text } from "@/components/ui/text";
 import { createItem } from "@/db/mutations/items";
+import { selectWaitingItems } from "@/db/queries/items";
 import { useItemForm } from "@/hooks/use-item-form";
+import { useIsPro } from "@/hooks/use-is-pro";
 import type { ItemFormValues } from "@/lib/forms/item-form-schema";
+import { isAddWantGatedWhenReady } from "@/lib/is-add-want-gated";
 import { PortalHost, useModalPortalRoot } from "@rn-primitives/portal";
-import { useRouter } from "expo-router";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback } from "react";
 import { Alert, View } from "react-native";
 import {
   SafeAreaView,
@@ -19,6 +24,18 @@ const ADD_WANT_PORTAL_HOST = "add-want-portal";
 
 export default function AddWantModalScreen() {
   const router = useRouter();
+  const isPro = useIsPro();
+  const { data: waitingItems } = useLiveQuery(selectWaitingItems());
+  const gated = isAddWantGatedWhenReady(isPro, waitingItems);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (gated === true) {
+        router.replace("/paywall" as never);
+      }
+    }, [gated, router])
+  );
+
   const methods = useItemForm();
   const { currencyCode, handleSubmit, formState } = methods;
   const { isValid, isSubmitting } = formState;
@@ -41,6 +58,10 @@ export default function AddWantModalScreen() {
     left: 16,
     right: 16,
   };
+
+  if (gated !== false) {
+    return null;
+  }
 
   return (
     <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background">
