@@ -1,12 +1,8 @@
-import Storage from "expo-sqlite/kv-store";
+import { usePro } from "@/contexts/pro-context";
 
-import { IS_PRO_KEY } from "@/constants/storage-keys";
+export { readIsPro } from "@/lib/pro-status";
 
-export function readIsPro(): boolean {
-  return Storage.getItemSync(IS_PRO_KEY) === "true";
-}
-
-/** Stub until PurchasesProvider mirrors RevenueCat entitlement to kv-store. */
+/** Thin selector over ProProvider (placeholder for PurchasesProvider). */
 export function useIsPro(): boolean {
-  return readIsPro();
+  return usePro().isPro;
 }

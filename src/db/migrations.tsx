@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Text, View } from "react-native";
 
 import { AppReadyProvider } from "@/contexts/app-ready-context";
+import { ProProvider } from "@/contexts/pro-context";
 import { SettingsProvider } from "@/contexts/settings-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { ONBOARDING_COMPLETE_KEY } from "@/constants/storage-keys";
@@ -41,7 +42,9 @@ function AppReadyWithOnboarding({ children }: { children: ReactNode }) {
   return (
     <AppReadyProvider value={{ onboardingComplete, setOnboardingComplete }}>
       <SettingsProvider>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ProProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </ProProvider>
       </SettingsProvider>
     </AppReadyProvider>
   );
