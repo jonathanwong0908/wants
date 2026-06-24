@@ -42,7 +42,10 @@ PRD §8 defines **four** enforcement surfaces. Placeholder implements three; cus
 ## Already in repo
 
 - [x] `IS_PRO_KEY` in `src/constants/storage-keys.ts`
-- [x] `readIsPro()` / `useIsPro()` in `src/hooks/use-is-pro.ts` (reads kv-store directly today)
+- [x] `readIsPro()` / `writeIsPro()` in `src/lib/pro-status.ts`
+- [x] `ProProvider` + `usePro()` in `src/contexts/pro-context.tsx` (stub purchase/restore)
+- [x] `useIsPro()` in `src/hooks/use-is-pro.ts` (reads from `ProProvider`; re-exports `readIsPro`)
+- [x] `ProProvider` mounted in `src/db/migrations.tsx` (wraps `ThemeProvider`)
 - [x] Paywall route `src/app/paywall.tsx` (shell placeholder)
 - [x] Modal registration in `src/app/_layout.tsx`
 - [x] `pushPaywallRoute()` in `src/lib/push-paywall-route.ts`
@@ -52,15 +55,15 @@ PRD §8 defines **four** enforcement surfaces. Placeholder implements three; cus
 
 ## Phase P1 — Pro state layer
 
-- [ ] **`src/lib/pro-status.ts`** — `readIsPro()`, `writeIsPro(value: boolean)` using kv-store
-- [ ] **`src/contexts/pro-context.tsx`** — placeholder for future `PurchasesProvider`:
+- [x] **`src/lib/pro-status.ts`** — `readIsPro()`, `writeIsPro(value: boolean)` using kv-store
+- [x] **`src/contexts/pro-context.tsx`** — placeholder for future `PurchasesProvider`:
   - Seed `isPro` synchronously from kv-store on init (avoid free-tier flash on cold start)
   - Expose `{ isPro, loading, purchasePlaceholder, restorePlaceholder, refresh }`
   - `loading` is always `false` in placeholder
   - `purchasePlaceholder()` — sets `is_pro` true, updates context
   - `restorePlaceholder()` — re-read kv-store or show “nothing to restore” alert
-- [ ] **Update `src/hooks/use-is-pro.ts`** — read from `ProProvider` context (not kv-store directly)
-- [ ] **Mount `ProProvider`** in `src/db/migrations.tsx` inside `AppReadyWithOnboarding`, beside `SettingsProvider`
+- [x] **Update `src/hooks/use-is-pro.ts`** — read from `ProProvider` context (not kv-store directly)
+- [x] **Mount `ProProvider`** in `src/db/migrations.tsx` inside `AppReadyWithOnboarding`, beside `SettingsProvider`
 
 ---
 
@@ -98,7 +101,7 @@ PRD §8 enforcement surfaces (four total):
 | 1 | Home FAB + add route | **Build in placeholder** |
 | 2 | Custom delay | **Deferred** — link to [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) Phase 5 when UX is decided |
 | 3 | Past tab 30-day cap | **Build in placeholder** |
-| 4 | Theme settings | **Done** — verify after ProProvider |
+| 4 | Theme settings | **Done** |
 
 ### Gate 1 — Home FAB + add guard
 

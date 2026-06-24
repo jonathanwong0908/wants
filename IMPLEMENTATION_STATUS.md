@@ -207,15 +207,22 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 PRD defines **four** enforcement surfaces (FAB, custom delay, past tab, theme). Placeholder implements three; custom delay deferred.
 
-### Placeholder (local `is_pro`) — not started
+### Placeholder (local `is_pro`) — P1 done; P2–P5 remaining
 
 Checklist: [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md)
 
-- `ProProvider` + stub purchase/restore
-- Paywall UI, Account screen, FAB/add guard, past-tab cap
-- Dev toggle pro for testing
+**Done (P1):**
 
-**Partial infrastructure already in repo:** `IS_PRO_KEY`, `useIsPro()` (kv-store), paywall route, theme gate.
+- `src/lib/pro-status.ts` — kv-store read/write
+- `ProProvider` + `usePro()` — reactive context, stub `purchasePlaceholder` / `restorePlaceholder`
+- `useIsPro()` reads from `ProProvider`; mounted in `src/db/migrations.tsx`
+- Theme gate wired to reactive pro state
+
+**Not done:**
+
+- Paywall UI (P2), Account screen (P3), FAB/add guard + past-tab cap (P4), dev toggle (P5)
+
+**Other infrastructure already in repo:** `IS_PRO_KEY`, paywall route/modal, `pushPaywallRoute()`.
 
 ### RevenueCat integration — not started
 
