@@ -1,6 +1,6 @@
 # Wants — Payments Setup (RevenueCat, iOS first)
 
-Last updated: 2026-06-08
+Last updated: 2026-06-24
 
 Step-by-step guide for integrating RevenueCat into Wants. See [prd.md](prd.md) for product intent (§8 free vs pro, S13 paywall) and [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for what is implemented vs deferred.
 
@@ -8,23 +8,39 @@ Step-by-step guide for integrating RevenueCat into Wants. See [prd.md](prd.md) f
 
 Tick off phases as you complete them across sessions. Phases are ordered so you can stop and resume at any boundary.
 
+**Placeholder first:** Build monetization UI and gates on local `is_pro` before accounts or live purchases — see [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md).
+
 ---
 
 ## Key facts (confirmed Jun 2026)
 
-- Latest `react-native-purchases` is **10.2.2** (published Jun 4 2026). Requires React Native `>= 0.73`; this repo is on RN `0.83.6` + Expo SDK `55` — compatible.
-- RevenueCat needs **native code**, so it cannot run real purchases in **Expo Go**. In Expo Go it auto-runs **Preview API Mode** (JS mocks) so the app still loads, but **all real testing requires a custom EAS development build**.
-- Install via `npx expo install react-native-purchases` and register its **Expo config plugin** in `app.json`.
-- v1 is local-only / no accounts (PRD §2), so use RevenueCat **anonymous app user IDs** (never pass `appUserID`). Restore works via the user's Apple ID.
-- Entitlement identifier is **`pro`** (PRD §8). Settings key `is_pro` (PRD §3) is **not yet** in the codebase.
+- `react-native-purchases` **^10.4.0** in this repo. Requires React Native `>= 0.73`; repo is on RN `0.83.6` + Expo SDK `55` — compatible.
+- Package is **installed** but **not configured** (no config plugin in `app.json`, no `Purchases.configure` in app code).
+- **RevenueCat Test Store** works without Apple Developer Program or App Store Connect — free RevenueCat account; `test_` or `rcb_` API key; configure products/entitlements in dashboard. ([Test Store docs](https://www.revenuecat.com/docs/test-and-launch/sandbox/test-store))
+- **Expo Go** can exercise Test Store / simulated purchases with a `test_` key (`isExpoGo()` Preview mode). **Native StoreKit sandbox** (`appl_` key) requires a **custom EAS development build**.
+- Install / update via `npx expo install react-native-purchases` and register its **Expo config plugin** in `app.json` before native builds.
+- v1 is local-only / no accounts (PRD §2). Do **not** pass a custom `appUserID` — omit it or use `null` so RevenueCat generates an anonymous ID. Restore ties to the user's Apple ID on platform stores.
+- Entitlement identifier: **`pro`** (PRD §8). Mirror to kv-store key **`is_pro`** — already defined in `src/constants/storage-keys.ts` (`IS_PRO_KEY`). v1 implementation uses kv-store, not a Drizzle settings table.
+- Env keys (see `src/lib/env.ts`, `src/env.d.ts`): `EXPO_PUBLIC_REVENUECAT_IOS_KEY`, `EXPO_PUBLIC_REVENUECAT_ANDROID_KEY`. Add `EXPO_PUBLIC_REVENUECAT_TEST_KEY` for Test Store phase.
+- **Never ship release builds with a `test_` key** — RevenueCat SDK blocks/crashes production builds configured with Test Store keys.
+
+### API key selection
+
+| Environment | Key prefix | When |
+|-------------|------------|------|
+| Expo Go, Test Store, web dev | `test_` or `rcb_` | Placeholder + Phase 0a |
+| iOS native sandbox / production | `appl_` | Phase 0b+ dev build |
+| Android (later) | `goog_` | Android parity pass |
+
+Select via `EXPO_PUBLIC_APP_ENV` / `__DEV__` in `src/lib/purchases.ts` — not hardcoded in components.
 
 ---
 
-## Architecture
+## Architecture (target — RevenueCat)
 
 ```mermaid
 flowchart TD
-  Launch[App launch] --> Configure["Purchases.configure(iOS API key)"]
+  Launch[App launch] --> Configure["Purchases.configure(apiKey)"]
   Configure --> Provider[PurchasesProvider context]
   Provider --> Listener[addCustomerInfoUpdateListener + AppState foreground refresh]
   Listener --> Entitlement{"entitlements.active['pro']?"}
@@ -32,148 +48,190 @@ flowchart TD
   Entitlement -->|no| Free[isPro = false]
   Pro --> Mirror["mirror is_pro to kv-store"]
   Free --> Mirror
-  Mirror --> Gates[3 enforcement surfaces]
+  Mirror --> Gates[4 enforcement surfaces]
   Gates --> FAB[Home FAB lock]
   Gates --> Delay[Custom delay lock]
   Gates --> History[Past tab 30-day cap]
+  Gates --> Theme[Theme settings lock]
   FAB --> Paywall[Custom Paywall modal]
   Delay --> Paywall
   History --> Paywall
+  Theme --> Paywall
   Paywall --> Offerings["Purchases.getOfferings() -> prices"]
   Paywall --> Purchase["purchasePackage / restorePurchases"]
   Purchase --> Listener
 ```
 
----
+**Placeholder architecture** (before this guide's Phase 3): see [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md).
 
-## Phase 0 — Accounts & prerequisites (manual, do first)
-
-- [ ] **Apple Developer Program** membership ($99/yr) — required to create IAP products and use sandbox testing.
-- [ ] **App Store Connect**: create the app record (needs a unique bundle ID, e.g. `com.<you>.wants`). Fill in the minimum metadata; the app does **not** need to be submitted to configure IAPs.
-- [ ] **App Store Connect → Agreements, Tax, and Banking**: accept the **Paid Apps agreement**. In-app purchases will not load in sandbox until this is "Active".
-- [ ] **RevenueCat account** (free) at [app.revenuecat.com](https://app.revenuecat.com).
-- [ ] **Expo / EAS account** (`npx expo login`) for development builds. A Mac with Xcode is the simplest path for an iOS dev build; otherwise iOS builds run on EAS cloud.
-- [ ] **Sandbox test account**: App Store Connect → Users and Access → Sandbox Testers — create one to test purchases without real charges.
+PRD §8 defines **four** enforcement surfaces (FAB, custom delay, past tab, theme). Placeholder implements three; custom delay is deferred.
 
 ---
 
-## Phase 1 — Native foundation & dev build (config + manual)
+## Placeholder — local UI & gates (no accounts)
 
-**Goal:** get a working iOS development build that contains the native RevenueCat module.
-
-- [ ] Add iOS identity to `app.json`: under `expo.ios` add `bundleIdentifier` (matching App Store Connect) and a `buildNumber`. Set `expo.version` for store display.
-- [ ] Install SDK: `npx expo install react-native-purchases` (`react-native-purchases-ui` is **not** needed for the custom paywall).
-- [ ] Register the config plugin in `app.json` `plugins`:
-  - `"react-native-purchases"` (optionally with `ios.userTrackingUsageDescription` if attribution is added later — not required for v1).
-- [ ] Add **EAS config**: run `eas build:configure` to create `eas.json` with a `development` profile (`developmentClient: true`, `distribution: internal`).
-- [ ] **Build the dev client**:
-  - Cloud: `eas build --profile development --platform ios` then install via the QR/registered device, or
-  - Local (Mac + Xcode): `npx expo run:ios` after prebuild.
-  - Register your test device UDID when prompted (EAS handles provisioning).
-- [ ] From now on, run `npx expo start --dev-client` instead of plain Expo Go for any payment testing.
-
-**Manual notes:** the first iOS dev build will prompt EAS to create/managed signing credentials — accept the defaults unless you have existing certs.
+Complete [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md) before or in parallel with Phase 0a. No RevenueCat or Apple account required for placeholder work.
 
 ---
 
-## Phase 2 — Store products & RevenueCat dashboard (manual)
+## Phase 0a — RevenueCat Test Store (no Apple account)
 
-- [ ] **App Store Connect → In-App Purchases / Subscriptions**: create an **Auto-Renewable Subscription group** with two products matching PRD S13:
-  - Monthly (~$3.99) — e.g. product ID `wants_pro_monthly`.
-  - Annual (~$29.99) — e.g. product ID `wants_pro_annual`.
-  - Add a **7-day free trial** introductory offer (PRD S13 CTA "Start free 7-day trial"). Recommend adding it to the annual (or both).
+**Goal:** simulated purchases and real-shaped entitlements before App Store Connect.
+
+- [ ] **RevenueCat account** (free) at [app.revenuecat.com](https://app.revenuecat.com)
+- [ ] **Create Test Store** — Apps and Providers → Test configuration → create Test Store (not only Project Settings API keys)
+- [ ] **Entitlement** named exactly **`pro`**
+- [ ] **Test products** — monthly (~$3.99) and annual (~$29.99) matching PRD S13 intent
+- [ ] **Offering** (e.g. `default`) with packages `$rc_monthly` and `$rc_annual`
+- [ ] Copy **Test Store API key** (`test_...`) → `EXPO_PUBLIC_REVENUECAT_TEST_KEY`
+- [ ] Wire key selection in `src/lib/purchases.ts`: development / Expo Go → `test_`; never use `test_` in production builds
+
+Test Store purchases update `CustomerInfo` and entitlements in the dashboard. Does not validate real StoreKit behavior.
+
+---
+
+## Phase 0b — Apple & App Store Connect (when purchasing Apple Developer)
+
+Required for real IAP products and StoreKit sandbox — **not** required for placeholder or Test Store.
+
+- [ ] **Apple Developer Program** membership ($99/yr)
+- [ ] **App Store Connect**: app record with bundle ID `com.kloobel.wants` (already in `app.json`). Minimum metadata; app does not need submission to configure IAPs.
+- [ ] **Agreements, Tax, and Banking**: accept **Paid Apps agreement** — IAPs won't load in sandbox until Active
+- [ ] **Expo / EAS account** (`npx expo login`) for development builds
+- [ ] **Sandbox test account**: App Store Connect → Users and Access → Sandbox Testers
+
+---
+
+## Phase 1 — Native foundation & dev build
+
+**Goal:** iOS development build containing the native RevenueCat module.
+
+**Partial progress in repo:**
+
+- [x] `bundleIdentifier`: `com.kloobel.wants` in `app.json`
+- [x] `react-native-purchases` installed (`^10.4.0`)
+- [x] `eas.json` with `development` profile (`developmentClient: true`)
+
+**Still needed:**
+
+- [ ] Add `buildNumber` under `expo.ios` if not set for store builds
+- [ ] Register config plugin in `app.json` `plugins`:
+  - `"react-native-purchases"` (optional `ios.userTrackingUsageDescription` only if attribution added later)
+- [ ] **Build dev client**:
+  - Cloud: `eas build --profile development --platform ios`
+  - Local: `npx expo run:ios` after prebuild
+- [ ] Run `npx expo start --dev-client` for **native StoreKit sandbox** testing (`appl_` key)
+
+Expo Go + `test_` key is enough for Test Store; dev build is required for `appl_` / StoreKit sandbox.
+
+---
+
+## Phase 2 — App Store products & RevenueCat iOS app
+
+- [ ] **App Store Connect → Subscriptions**: Auto-Renewable Subscription group with:
+  - Monthly (~$3.99) — e.g. `wants_pro_monthly`
+  - Annual (~$29.99) — e.g. `wants_pro_annual`
+  - **7-day free trial** on annual (or both) — PRD S13 CTA “Start free 7-day trial”
 - [ ] **RevenueCat dashboard**:
-  - Create a Project; add an **iOS app**, upload the **App Store Connect API key / shared secret** so RevenueCat can validate receipts.
-  - Create an **Entitlement** named exactly **`pro`**.
-  - Create **Products** referencing the two App Store product IDs and attach them to the `pro` entitlement.
-  - Create an **Offering** (e.g. `default`) with two **Packages**: `$rc_monthly` and `$rc_annual`.
-  - Copy the **iOS public API key** (`appl_...`) — used by the app in Phase 3.
-- [ ] Store the iOS API key in app config (not hardcoded in components): add to `app.json` `expo.extra` (read via `expo-constants`) or an env-driven `extra` value. This is a *public* SDK key, safe to ship, but keep it in one place.
+  - Add **iOS app**; upload App Store Connect API key / shared secret
+  - Products referencing App Store product IDs → `pro` entitlement
+  - Offering with `$rc_monthly` and `$rc_annual`
+  - Copy **iOS public API key** (`appl_...`) → `EXPO_PUBLIC_REVENUECAT_IOS_KEY`
 
 ---
 
 ## Phase 3 — App integration: configure + entitlement state
 
-**Files to add/change:**
+**Replaces** placeholder `ProProvider` from [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md).
 
-- [ ] **Storage key**: add `IS_PRO_KEY = "is_pro"` to `src/constants/storage-keys.ts`.
-- [ ] **Purchases service** `src/lib/purchases.ts`: wrapper around `Purchases.configure` (iOS key), `getCustomerInfo`, `getOfferings`, `purchasePackage`, `restorePurchases`, plus an `isPro(customerInfo)` helper checking `entitlements.active["pro"]`. Guard for `isExpoGo()` so dev-in-Expo-Go degrades gracefully.
-- [ ] **PurchasesProvider** `src/contexts/purchases-context.tsx` (modeled on `src/contexts/settings-context.tsx`):
-  - `configure` once on mount.
-  - Initial `getCustomerInfo()` + `addCustomerInfoUpdateListener` (per RevenueCat React Native integration pattern).
-  - Re-fetch on `AppState` foreground (PRD §8 "synced on app foreground") — reuse the foreground pattern from `src/hooks/use-notification-permission.ts`.
-  - Expose `{ isPro, offerings, loading, purchase(pkg), restore(), refresh() }`.
-  - **Mirror `isPro` to kv-store** (`is_pro`) so gates have a synchronous, offline-safe read and to satisfy PRD §3.
-  - Seed initial `isPro` synchronously from the kv-store mirror to avoid a free-tier flash on cold start.
-- [ ] **Mount** the provider in `src/db/migrations.tsx` inside `AppReadyWithOnboarding`, wrapping (or beside) `SettingsProvider`, so it's active app-wide after migrations.
-- [ ] **Hook** `useIsPro()` for components (thin selector over the context).
-
----
-
-## Phase 4 — Custom Paywall screen (PRD S13)
-
-- [ ] New route `src/app/paywall.tsx`, registered as a `presentation: "modal"` screen in `src/app/_layout.tsx` (alongside `settings`, `add-want`).
-- [ ] New helper `src/lib/push-paywall-route.ts` (mirrors `src/lib/push-want-route.ts`).
-- [ ] UI per PRD S13, using existing primitives (`Button`, `Text`, theme):
-  - Headline "Unlock the full Wants experience"; 3 bullets (unlimited items, custom delays, full history).
-  - Two pricing options rendered from `offerings.current` packages — **prices read dynamically** from each package's localized `priceString` (never hardcoded). Highlight annual; compute the "save X%" from monthly vs annual package prices.
-  - Primary CTA reflects the annual package's intro/trial ("Start free 7-day trial" when a trial is present on the selected package).
-  - "Restore purchase" → `restorePurchases()`; "Maybe later" → dismiss.
-  - On successful purchase/restore, the customer-info listener flips `isPro`; close the modal when `entitlements.active["pro"]` is present. Handle `PURCHASE_CANCELLED_ERROR` silently.
+- [x] `IS_PRO_KEY` in `src/constants/storage-keys.ts`
+- [ ] **`src/lib/purchases.ts`** — `Purchases.configure` with environment-aware API key; `getCustomerInfo`, `getOfferings`, `purchasePackage`, `restorePurchases`; `isPro(customerInfo)` checking `entitlements.active["pro"]`; `isExpoGo()` guard
+- [ ] **`src/contexts/purchases-context.tsx`** (model on `src/contexts/settings-context.tsx`):
+  - Configure once on mount
+  - Initial `getCustomerInfo()` + `addCustomerInfoUpdateListener`
+  - Re-fetch on `AppState` foreground (PRD §8) — pattern from `src/hooks/use-notification-permission.ts`
+  - Expose `{ isPro, offerings, loading, purchase(pkg), restore(), refresh() }`
+  - Mirror `isPro` to kv-store; seed from kv-store on init to avoid free-tier flash
+- [ ] Mount in `src/db/migrations.tsx` inside `AppReadyWithOnboarding`, beside `SettingsProvider`
+- [ ] **`useIsPro()`** — thin selector over purchases context
 
 ---
 
-## Phase 5 — Three enforcement surfaces (exactly these, PRD §8)
+## Phase 4 — Paywall: swap placeholder for RevenueCat
 
-No other paywalls anywhere (project rule).
+Placeholder route and navigation already exist. Replace stub offerings and purchase handlers.
 
-1. **Home FAB gate** — `src/app/home.tsx`
-   - [ ] When `!isPro` and `waitingItems.length >= 1`, the FAB shows a lock icon and opens the paywall instead of `/add-want`.
-   - [ ] Also guard `src/app/add-want.tsx` on mount so the route can't be entered while gated.
-
-2. **Custom delay lock** — partly net-new (option does not exist yet)
-   - [ ] Add a `Custom` entry to the delay options in `src/lib/forms/item-form-schema.ts` / `src/components/wants/item-form-fields.tsx`.
-   - [ ] Non-pro: selecting `Custom` opens the paywall (no custom value applied).
-   - [ ] Pro: reveal a custom delay input (hours/days). **Confirm UX before building** (slider vs numeric vs day picker) — see Open items below.
-
-3. **Past tab 30-day cap** — `src/app/all-wants.tsx` + `src/db/queries/items.ts`
-   - [ ] Add a date-filtered variant of `selectPastItems` (or filter client-side) so non-pro sees only the last 30 days.
-   - [ ] Show an "Unlock full history" prompt row that opens the paywall.
-   - [ ] Pro sees all-time history.
+- [x] Route `src/app/paywall.tsx`, modal in `src/app/_layout.tsx`
+- [x] `src/lib/push-paywall-route.ts`
+- [ ] Full UI per PRD S13 (if not done in placeholder): headline, **four** bullets (includes premium themes), monthly/annual cards
+- [ ] Prices from `offerings.current` — localized `priceString` (never hardcoded in production)
+- [ ] CTA reflects trial on selected package when present
+- [ ] `restorePurchases()`; dismiss on success; handle `PURCHASE_CANCELLED_ERROR` silently
+- [ ] Remove or bypass `src/lib/paywall-placeholder-offerings.ts`
 
 ---
 
-## Phase 6 — Settings Account screen (PRD S12)
+## Phase 5 — Enforcement gates (PRD §8)
 
-- [ ] Flesh out `src/app/settings/account.tsx`:
-  - If `!isPro`: show "Upgrade to Pro" → paywall.
-  - If `isPro`: show subscription status.
-  - Always: "Restore purchases" → `restorePurchases()` with a result alert.
+Four surfaces per PRD. Placeholder covers FAB, past tab, and theme; verify and wire to `PurchasesProvider`.
+
+1. **Home FAB + add guard** — `src/app/home.tsx`, `src/app/add-want.tsx` (see PAYMENTS_PLACEHOLDER Phase P4)
+2. **Custom delay** — **deferred** (not in placeholder scope). When built:
+   - Add Custom to delay picker
+   - Non-pro → paywall
+   - Pro custom input UX TBD
+3. **Past tab 30-day cap** — `src/app/all-wants.tsx`, `src/db/queries/items.ts`
+4. **Theme settings** — `src/app/settings/theme.tsx` (done; verify with live entitlement sync)
+
+No other paywalls (project rule).
+
+---
+
+## Phase 6 — Account screen (PRD S12)
+
+- [ ] Flesh out `src/app/settings/account.tsx` if placeholder not complete
+- [ ] Swap `restorePlaceholder()` for `restorePurchases()` with result alert
 
 ---
 
 ## Phase 7 — Testing & verification
 
-- [ ] Run on the **dev build** (`npx expo start --dev-client`), signed into the **sandbox tester** Apple ID on the device.
-- [ ] Verify: offerings load with localized prices; purchase monthly/annual flips `isPro`; all three gates unlock; restore works on a fresh install; cancel mid-purchase is handled.
-- [ ] Confirm `is_pro` persists across cold starts (kv-store mirror) and re-syncs on foreground.
+| Mode | Build | API key | Validates |
+|------|-------|---------|-----------|
+| Placeholder | Expo Go | none | UI, gates, kv-store `is_pro` |
+| Test Store | Expo Go or dev | `test_` | RC offerings, simulated purchase, entitlements |
+| Apple sandbox | Dev client | `appl_` | StoreKit, sandbox tester Apple ID |
+| Production | Release | `appl_` only | Never `test_` |
+
+Checklist:
+
+- [ ] Offerings load with localized prices (Test Store or sandbox)
+- [ ] Purchase flips `isPro`; all active gates unlock
+- [ ] Restore works on fresh install
+- [ ] Cancel mid-purchase handled silently
+- [ ] `is_pro` persists across cold starts; re-syncs on foreground
 
 ---
 
 ## Docs to update when implementation is complete
 
-- [ ] [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md): move Monetization / Paywall (PRD §8/S13) from "Not started" to done, and the related "Not done" follow-ups under Add / Home / All Wants / Edit / Settings.
+- [ ] [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md): monetization / paywall sections
+- [ ] [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md): mark phases done or archive swap table
 
 ---
 
 ## Open items
 
-- **Custom-delay input UX** for pro users (the picker currently only supports preset hours). Confirm before Phase 5: slider vs numeric input vs day picker.
+- **Custom delay** — deferred from placeholder; no pro custom input yet; full feature and UX TBD before Phase 5 gate 2
+- Align `.cursor/rules/project-context.mdc` enforcement count with PRD §8 (four surfaces) if not already updated
 
 ---
 
 ## Reference links
 
 - [RevenueCat React Native SDK](https://github.com/RevenueCat/react-native-purchases)
+- [RevenueCat Test Store](https://www.revenuecat.com/docs/test-and-launch/sandbox/test-store)
+- [Sandbox testing overview](https://www.revenuecat.com/docs/test-and-launch/sandbox)
+- [Monetization placeholder checklist](PAYMENTS_PLACEHOLDER.md)
 - [Expo development builds](https://docs.expo.dev/develop/development-builds/introduction/)
 - [EAS Build](https://docs.expo.dev/build/introduction/)

@@ -11,7 +11,7 @@ Treat [prd.md](prd.md) at the repo root as the single narrative source of truth 
 
 ## When to read the PRD
 
-Before implementing **screens, flows, DB fields / data-shape changes, notifications, paywall gates, currency handling, or navigation structure**, read the relevant sections in `prd.md`—especially §2 (stack + constraints), §3–§4 (conceptual model + currency), §5 (navigation), §6 (screens), §7 (notifications), §8 (free vs pro and **exactly three** enforcement locations), §11 (terminology).
+Before implementing **screens, flows, DB fields / data-shape changes, notifications, paywall gates, currency handling, or navigation structure**, read the relevant sections in `prd.md`—especially §2 (stack + constraints), §3–§4 (conceptual model + currency), §5 (navigation), §6 (screens), §7 (notifications), §8 (free vs pro and **exactly four** enforcement locations), §11 (terminology).
 
 If the user’s request contradicts `prd.md`, surface the mismatch and confirm whether `prd.md` should be updated.
 
@@ -20,7 +20,7 @@ If the user’s request contradicts `prd.md`, surface the mismatch and confirm w
 - **Product:** Impulse-buy delay app; push-first UX is core differentiators (§1).
 - **v1 privacy / architecture:** All data **local-only**—no backend, no user accounts (§2).
 - **Stack direction:** Expo, Expo Router, expo-sqlite, Drizzle ORM, expo-notifications, RevenueCat, lucide-react-native, Zustand, optional PostHog (§2). PRD details are guidance, not verbatim API prescriptions—prefer current docs—but do not swap to incompatible stacks casually unless direction changes.
-- **Monetization enforcement (only these three surfaces):** Home FAB gate, custom-delay lock, Past-tab history limit for non-pro (§8). Don’t invent extra paywalls elsewhere without explicit approval and a PRD update.
+- **Monetization enforcement (only these four surfaces):** Home FAB gate, custom-delay lock, Past-tab history limit for non-pro, premium theme selection in settings. Don’t invent extra paywalls elsewhere without explicit approval and a PRD update.
 
 ## Naming
 

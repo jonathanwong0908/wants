@@ -1,6 +1,6 @@
 # Wants — Implementation Status
 
-Last updated: 2026-06-09
+Last updated: 2026-06-24
 
 Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md) for product intent.
 
@@ -29,8 +29,8 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done (follow-ups)
 
-- Free-tier paywall gate on Add screen (waiting items ≥ 1, non-pro)
-- Custom delay option (pro only)
+- Free-tier paywall gate on Add screen (waiting items ≥ 1, non-pro) — see [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md)
+- Custom delay — **deferred** (not in placeholder scope)
 - Show validation errors inline (`FormMessage` not wired on form fields yet)
 
 ## Home (PRD S5) — partial
@@ -57,7 +57,7 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done
 
-- Free-tier FAB paywall gate (lock icon when waiting ≥ 1, non-pro)
+- Free-tier FAB paywall gate (lock icon when waiting ≥ 1, non-pro) — see [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md)
 
 ## All Wants (PRD S11) — partial
 
@@ -76,7 +76,7 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done
 
-- Free-tier Past tab 30-day history limit + unlock prompt
+- Free-tier Past tab 30-day history limit + unlock prompt — see [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md)
 
 ## Want Detail (PRD S8 scaffold) — partial
 
@@ -118,7 +118,8 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done (follow-ups)
 
-- Paywall / custom delay pro gate on edit (same as add — not built yet)
+- Paywall gate on edit (same as add — not built yet)
+- Custom delay — **deferred**
 
 ## Decision flow (PRD S8) — done
 
@@ -144,14 +145,30 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done
 
-- RevenueCat upgrade / restore
+- Account screen upgrade / restore (placeholder or RevenueCat) — see [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md) Phase P3
 - About privacy policy and terms links (blocked on URLs)
 
-## Paywall (PRD S13)
+### Theme (PRD S12) — partial
 
-### Not started
+**Files:** `src/app/settings/theme.tsx`
 
-Setup and implementation steps: [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) (Phases 0–7).
+#### Done
+
+- Premium theme pro gate (4th PRD §8 enforcement surface): lock icon + paywall when non-pro selects pro-tier theme
+
+## Paywall (PRD S13) — partial
+
+**Files:** `src/app/paywall.tsx`, `src/lib/push-paywall-route.ts`, `src/app/_layout.tsx`
+
+### Done
+
+- Modal route registered; shell placeholder screen
+- `pushPaywallRoute()` helper
+
+### Not done
+
+- Full paywall UI (PRD S13): benefits, plan cards, CTA, restore, dismiss
+- Placeholder or RevenueCat purchase flow — [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md) Phase P2; [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) Phase 4
 
 ## Onboarding (PRD S4)
 
@@ -188,9 +205,22 @@ Setup and implementation steps: [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) (Phases 0
 
 ## Monetization (PRD §8)
 
-### Not started
+PRD defines **four** enforcement surfaces (FAB, custom delay, past tab, theme). Placeholder implements three; custom delay deferred.
 
-Setup and implementation steps: [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) (Phases 0–7).
+### Placeholder (local `is_pro`) — not started
 
-- RevenueCat integration
-- Three enforcement surfaces: Home FAB, custom delay, Past tab history limit
+Checklist: [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md)
+
+- `ProProvider` + stub purchase/restore
+- Paywall UI, Account screen, FAB/add guard, past-tab cap
+- Dev toggle pro for testing
+
+**Partial infrastructure already in repo:** `IS_PRO_KEY`, `useIsPro()` (kv-store), paywall route, theme gate.
+
+### RevenueCat integration — not started
+
+Setup: [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) (Phases 0a–7)
+
+- Test Store (`test_` key) then Apple sandbox (`appl_` key)
+- `PurchasesProvider` replaces placeholder `ProProvider`
+- Custom delay gate (deferred; UX TBD)
