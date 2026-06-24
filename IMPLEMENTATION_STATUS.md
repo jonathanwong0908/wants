@@ -74,10 +74,6 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 - Past tab rows are tappable (PRD S11 only specifies Upcoming → Decision)
 
-### Not done
-
-- Free-tier Past tab 30-day history limit + unlock prompt — see [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md)
-
 ## Want Detail (PRD S8 scaffold) — partial
 
 **Files:** `src/app/want/[id].tsx`, `src/components/wants/want-detail-content.tsx`, `src/components/wants/want-decision-actions.tsx`, `src/lib/push-want-route.ts`, `src/lib/want-format.ts`, `src/lib/date-format.ts`, `src/db/queries/items.ts`, `src/db/mutations/items.ts` (`skipItem`, `buyItem`)
@@ -205,22 +201,25 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ## Monetization (PRD §8)
 
-PRD defines **four** enforcement surfaces (FAB, custom delay, past tab, theme). Placeholder implements three; custom delay deferred.
+PRD defines **three** enforcement surfaces (FAB, custom delay, theme). Placeholder implements two; custom delay deferred.
 
-### Placeholder (local `is_pro`) — P1 done; P2–P5 remaining
+### Placeholder (local `is_pro`) — P1–P3 done; P4–P5 remaining
 
 Checklist: [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md)
 
-**Done (P1):**
+**Done (P1–P3):**
 
-- `src/lib/pro-status.ts` — kv-store read/write
-- `ProProvider` + `usePro()` — reactive context, stub `purchasePlaceholder` / `restorePlaceholder`
+- `src/lib/pro-status.ts` — kv-store read/write for `is_pro` and `pro_plan`
+- `ProProvider` + `usePro()` — reactive context, stub `purchasePlaceholder(planId)` / `restorePlaceholder`
 - `useIsPro()` reads from `ProProvider`; mounted in `src/db/migrations.tsx`
 - Theme gate wired to reactive pro state
+- Paywall UI (`src/app/paywall.tsx`) with three plan tabs and stub offerings
+- Account screen + Subscription sub-screen
 
 **Not done:**
 
-- Paywall UI (P2), Account screen (P3), FAB/add guard + past-tab cap (P4), dev toggle (P5)
+- Enforcement gates (P4): FAB/add guard
+- Dev toggle (P5)
 
 **Other infrastructure already in repo:** `IS_PRO_KEY`, paywall route/modal, `pushPaywallRoute()`.
 

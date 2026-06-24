@@ -1,6 +1,6 @@
 import { usePro } from "@/contexts/pro-context";
 
-export { readIsPro } from "@/lib/pro-status";
+export { readIsPro, readProPlan } from "@/lib/pro-status";
 
 /** Thin selector over ProProvider (placeholder for PurchasesProvider). */
 export function useIsPro(): boolean {

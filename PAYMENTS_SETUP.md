@@ -51,7 +51,6 @@ flowchart TD
   Mirror --> Gates[4 enforcement surfaces]
   Gates --> FAB[Home FAB lock]
   Gates --> Delay[Custom delay lock]
-  Gates --> History[Past tab 30-day cap]
   Gates --> Theme[Theme settings lock]
   FAB --> Paywall[Custom Paywall modal]
   Delay --> Paywall
@@ -64,7 +63,7 @@ flowchart TD
 
 **Placeholder architecture** (before this guide's Phase 3): see [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md).
 
-PRD §8 defines **four** enforcement surfaces (FAB, custom delay, past tab, theme). Placeholder implements three; custom delay is deferred.
+PRD §8 defines **three** enforcement surfaces (FAB, custom delay, theme). Placeholder implements two; custom delay is deferred.
 
 ---
 
@@ -81,8 +80,8 @@ Complete [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md) before or in paralle
 - [ ] **RevenueCat account** (free) at [app.revenuecat.com](https://app.revenuecat.com)
 - [ ] **Create Test Store** — Apps and Providers → Test configuration → create Test Store (not only Project Settings API keys)
 - [ ] **Entitlement** named exactly **`pro`**
-- [ ] **Test products** — monthly (~$3.99) and annual (~$29.99) matching PRD S13 intent
-- [ ] **Offering** (e.g. `default`) with packages `$rc_monthly` and `$rc_annual`
+- [ ] **Test products** — monthly (~$1.99), annual (~$9.99), and lifetime non-consumable (~$19.99 placeholder) matching PRD S13 intent
+- [ ] **Offering** (e.g. `default`) with packages `$rc_monthly`, `$rc_annual`, and `$rc_lifetime`
 - [ ] Copy **Test Store API key** (`test_...`) → `EXPO_PUBLIC_REVENUECAT_TEST_KEY`
 - [ ] Wire key selection in `src/lib/purchases.ts`: development / Expo Go → `test_`; never use `test_` in production builds
 
@@ -129,13 +128,13 @@ Expo Go + `test_` key is enough for Test Store; dev build is required for `appl_
 ## Phase 2 — App Store products & RevenueCat iOS app
 
 - [ ] **App Store Connect → Subscriptions**: Auto-Renewable Subscription group with:
-  - Monthly (~$3.99) — e.g. `wants_pro_monthly`
-  - Annual (~$29.99) — e.g. `wants_pro_annual`
-  - **7-day free trial** on annual (or both) — PRD S13 CTA “Start free 7-day trial”
+  - Monthly (~$1.99) — e.g. `wants_pro_monthly`
+  - Annual (~$9.99) — e.g. `wants_pro_annual`
+- [ ] **App Store Connect → In-App Purchases**: Non-consumable lifetime unlock — e.g. `wants_pro_lifetime` (~$19.99 placeholder)
 - [ ] **RevenueCat dashboard**:
   - Add **iOS app**; upload App Store Connect API key / shared secret
-  - Products referencing App Store product IDs → `pro` entitlement
-  - Offering with `$rc_monthly` and `$rc_annual`
+  - Products referencing App Store product IDs → `pro` entitlement (subscriptions + lifetime non-consumable)
+  - Offering with `$rc_monthly`, `$rc_annual`, and `$rc_lifetime`
   - Copy **iOS public API key** (`appl_...`) → `EXPO_PUBLIC_REVENUECAT_IOS_KEY`
 
 ---
@@ -163,9 +162,9 @@ Placeholder route and navigation already exist. Replace stub offerings and purch
 
 - [x] Route `src/app/paywall.tsx`, modal in `src/app/_layout.tsx`
 - [x] `src/lib/push-paywall-route.ts`
-- [ ] Full UI per PRD S13 (if not done in placeholder): headline, **four** bullets (includes premium themes), monthly/annual cards
+- [ ] Full UI per PRD S13 (if not done in placeholder): headline, **three** bullets (includes premium themes), monthly/annual/lifetime tabs
 - [ ] Prices from `offerings.current` — localized `priceString` (never hardcoded in production)
-- [ ] CTA reflects trial on selected package when present
+- [ ] CTA reflects selected package (subscribe monthly/annual, lifetime unlock)
 - [ ] `restorePurchases()`; dismiss on success; handle `PURCHASE_CANCELLED_ERROR` silently
 - [ ] Remove or bypass `src/lib/paywall-placeholder-offerings.ts`
 
@@ -173,15 +172,14 @@ Placeholder route and navigation already exist. Replace stub offerings and purch
 
 ## Phase 5 — Enforcement gates (PRD §8)
 
-Four surfaces per PRD. Placeholder covers FAB, past tab, and theme; verify and wire to `PurchasesProvider`.
+Three surfaces per PRD. Placeholder covers FAB and theme; verify and wire to `PurchasesProvider`.
 
 1. **Home FAB + add guard** — `src/app/home.tsx`, `src/app/add-want.tsx` (see PAYMENTS_PLACEHOLDER Phase P4)
 2. **Custom delay** — **deferred** (not in placeholder scope). When built:
    - Add Custom to delay picker
    - Non-pro → paywall
    - Pro custom input UX TBD
-3. **Past tab 30-day cap** — `src/app/all-wants.tsx`, `src/db/queries/items.ts`
-4. **Theme settings** — `src/app/settings/theme.tsx` (done; verify with live entitlement sync)
+3. **Theme settings** — `src/app/settings/theme.tsx` (done; verify with live entitlement sync)
 
 No other paywalls (project rule).
 
@@ -223,8 +221,6 @@ Checklist:
 ## Open items
 
 - **Custom delay** — deferred from placeholder; no pro custom input yet; full feature and UX TBD before Phase 5 gate 2
-- Align `.cursor/rules/project-context.mdc` enforcement count with PRD §8 (four surfaces) if not already updated
-
 ---
 
 ## Reference links

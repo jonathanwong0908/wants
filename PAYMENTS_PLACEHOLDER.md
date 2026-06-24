@@ -10,7 +10,7 @@ Tick off phases as you complete them across sessions.
 
 ## Goal & scope
 
-Build paywall UI (PRD S13), Account screen (S12), and **three active enforcement gates** (Home FAB + add guard, Past tab cap, theme settings — theme already done). Drive pro state from kv-store `is_pro` via a `ProProvider` placeholder (future swap target for `PurchasesProvider`).
+Build paywall UI (PRD S13), Account screen (S12), and **two active enforcement gates** (Home FAB + add guard, theme settings — theme already done). Drive pro state from kv-store `is_pro` via a `ProProvider` placeholder (future swap target for `PurchasesProvider`).
 
 v1 stores `is_pro` in **kv-store** (`IS_PRO_KEY`), not a Drizzle settings table — this matches PRD §3 conceptual “settings” prefs.
 
@@ -30,12 +30,12 @@ v1 stores `is_pro` in **kv-store** (`IS_PRO_KEY`), not a Drizzle settings table 
 flowchart TD
   KV["kv-store is_pro"] --> ProProvider["ProProvider placeholder"]
   ProProvider --> useIsPro["useIsPro hook"]
-  useIsPro --> Gates["3 active gates"]
+  useIsPro --> Gates["2 active gates"]
   Gates --> Paywall["paywall modal"]
   Paywall --> StubPurchase["stub purchase sets is_pro"]
 ```
 
-PRD §8 defines **four** enforcement surfaces. Placeholder implements three; custom delay (gate 2) is deferred — see Phase P4.
+PRD §8 defines **three** enforcement surfaces. Placeholder implements two; custom delay (gate 2) is deferred — see Phase P4.
 
 ---
 
@@ -71,37 +71,38 @@ PRD §8 defines **four** enforcement surfaces. Placeholder implements three; cus
 
 **File:** `src/app/paywall.tsx`
 
-- [ ] Headline: “Unlock the full Wants experience”
-- [ ] **Four** benefit bullets: unlimited items · custom delays · full history · premium color themes
-- [ ] Two plan cards: Monthly / Annual (annual highlighted)
-- [ ] **`src/lib/paywall-placeholder-offerings.ts`** — typed stub prices (single swap point for RevenueCat later; do not scatter prices in UI)
-- [ ] Primary CTA: “Start free 7-day trial” (placeholder copy until RC trial metadata)
-- [ ] “Restore purchase” → `restorePlaceholder()`
-- [ ] “Maybe later” → dismiss modal
-- [ ] CTA → `purchasePlaceholder()` → dismiss on success
+- [x] Headline: “Unlock the full Wants experience”
+- [x] **Three** benefit bullets: unlimited items · custom delays · premium color themes
+- [x] Three plan tabs: Monthly / Annual / Lifetime (annual default)
+- [x] **`src/lib/paywall-placeholder-offerings.ts`** — typed stub prices (single swap point for RevenueCat later; do not scatter prices in UI)
+- [x] Primary CTA: plan-specific (subscribe monthly/annual, lifetime unlock)
+- [x] “Restore purchase” → `restorePlaceholder()`
+- [x] “Maybe later” → dismiss modal
+- [x] CTA → `purchasePlaceholder(planId)` → dismiss on success
 
 ---
 
-## Phase P3 — Account screen (PRD S12)
+## Phase P3 — Account & Subscription screens (PRD S12)
 
-**File:** `src/app/settings/account.tsx`
+**Files:** `src/app/settings/account.tsx`, `src/app/settings/subscription.tsx`
 
-- [ ] If `!isPro`: “Upgrade to Pro” → `pushPaywallRoute()`
-- [ ] If `isPro`: subscription status (e.g. “Wants Pro — active”)
-- [ ] Always: “Restore purchases” → `restorePlaceholder()` with result alert
+- [x] If `!isPro`: “Upgrade to Pro” → `pushPaywallRoute()`
+- [x] If `isPro`: subscription status (e.g. “Wants Pro — active”)
+- [x] Always: “Subscription” row on Account → subscription sub-screen
+- [x] Always: “Restore purchases” → `restorePlaceholder()` with result alert
+- [x] Subscription screen: free vs pro status, plan detail from `PRO_PLAN_KEY`, manage-subscription stub for monthly/annual
 
 ---
 
 ## Phase P4 — Enforcement gates
 
-PRD §8 enforcement surfaces (four total):
+PRD §8 enforcement surfaces (three total):
 
 | Gate | Surface | Placeholder status |
 |------|---------|-------------------|
 | 1 | Home FAB + add route | **Build in placeholder** |
 | 2 | Custom delay | **Deferred** — link to [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) Phase 5 when UX is decided |
-| 3 | Past tab 30-day cap | **Build in placeholder** |
-| 4 | Theme settings | **Done** |
+| 3 | Theme settings | **Done** |
 
 ### Gate 1 — Home FAB + add guard
 
@@ -112,12 +113,7 @@ PRD §8 enforcement surfaces (four total):
 
 No work in placeholder. Future: non-pro Custom → paywall; pro custom input TBD.
 
-### Gate 3 — Past tab 30-day cap
-
-- [ ] **`src/db/queries/items.ts`** — `selectPastItemsSince(since: Date)` or client-side filter
-- [ ] **`src/app/all-wants.tsx`** — non-pro: last 30 days only; “Unlock full history” row → paywall when older items exist; pro: all-time
-
-### Gate 4 — Theme settings
+### Gate 3 — Theme settings
 
 - [x] Implemented in `src/app/settings/theme.tsx`
 - [ ] Re-verify reactive `isPro` updates after ProProvider (toggle pro without restart)
@@ -136,7 +132,7 @@ No work in placeholder. Future: non-pro Custom → paywall; pro custom input TBD
 - [ ] Fresh install: `is_pro` false, one waiting item → FAB locked
 - [ ] Paywall CTA → pro → FAB unlocked, can add second item
 - [ ] Navigate to `/add-want` while gated → paywall, cannot stay on add
-- [ ] Past tab: 30 days only as free; full history as pro; upsell when capped
+- [ ] Past tab: full history visible for free and pro users
 - [ ] Premium theme locked as free; unlocked as pro
 - [ ] Account: upgrade, restore, pro status
 - [ ] Kill app → pro state persists in kv-store
@@ -150,7 +146,8 @@ No work in placeholder. Future: non-pro Custom → paywall; pro custom input TBD
 |-------------|-------------------------------|
 | `ProProvider` | `PurchasesProvider` + `src/lib/purchases.ts` (Phase 3) |
 | `paywall-placeholder-offerings.ts` | `Purchases.getOfferings()` / context `offerings` (Phase 4) |
-| `purchasePlaceholder()` | `purchasePackage()` + customer-info listener (Phase 3–4) |
+| `purchasePlaceholder(planId)` | `purchasePackage()` + customer-info listener (Phase 3–4) |
+| `PRO_PLAN_KEY` / `readProPlan()` | `CustomerInfo.entitlements.active.pro` product identifier |
 | `restorePlaceholder()` | `restorePurchases()` (Phase 3–6) |
 | Dev “Toggle Pro” | Keep for internal testing only |
 

@@ -186,24 +186,23 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 - **Upcoming tab:** all items with `status = waiting`, ordered by `notifyAt` ascending. Each card shows name, price, countdown or "Ready to decide" badge. Tappable → Decision screen.
 - **Past tab:** all items with `status = skipped` or `bought`, ordered by `decidedAt` descending. Each row shows name, price, status badge (Saved / Bought), date decided.
 - Summary row at top of Past tab: "[X] skipped · [Y] bought · [total] saved"
-- **Free tier gate on Past tab:** show only last 30 days if not pro, with "Unlock full history" prompt
 
 ### S12 — Settings *(modal or pushed screen)*
 
 - **Defaults:** default delay picker, currency picker
 - **Notifications:** status indicator + link to system settings if permission denied
 - **Theme:** Light and Dark (default palette); premium color palettes for Pro — sub-page with selectable themes
-- **Account:** "Upgrade to Pro" (if not pro) / subscription status (if pro) / restore purchases
+- **Account:** "Upgrade to Pro" (if not pro) / subscription status (if pro) / link to Subscription sub-screen / restore purchases
 - **Data:** export to CSV (all items); import from CSV (replace or merge when data exists; settings unchanged); "Clear all data" (confirmation dialog, destructive)
 - **About:** version number, privacy policy link, terms link
 
 ### S13 — Paywall *(modal)*
 
 - Headline: "Unlock the full Wants experience"
-- 4 benefit bullets: unlimited items · custom delays · full history · premium color themes
-- Two pricing options: $3.99/month · $29.99/year (highlight annual, "save 37%")
-- Prices loaded dynamically from RevenueCat — never hardcoded
-- CTA: "Start free 7-day trial"
+- 3 benefit bullets: unlimited items · custom delays · premium color themes
+- Three pricing options (tabs): $1.99/month · $9.99/year (highlight annual, "save 58%") · lifetime one-time (non-consumable; placeholder ~$19.99)
+- Prices loaded dynamically from RevenueCat — never hardcoded in production (placeholder uses `paywall-placeholder-offerings.ts`)
+- CTA: "Subscribe" on monthly; "Subscribe annually" on annual; "Unlock lifetime access" on lifetime
 - "Restore purchase" link
 - "Maybe later" dismiss
 
@@ -225,16 +224,15 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 | -------------------- | ----------------------------- | ----------------------- |
 | Active waiting items | Max 1                         | Unlimited               |
 | Delay options        | 24h, 3 days, 1 week           | + Custom                |
-| Past items history   | Last 30 days                  | All time                |
+| Past items history   | All time                      | All time                |
 | Color themes         | Light, Dark (default palette) | + Premium color palettes |
 
 
-Enforcement points (exactly 4, nowhere else):
+Enforcement points (exactly 3, nowhere else):
 
 1. FAB on Home — locked if waiting items ≥ 1
 2. Custom delay option in delay picker
-3. Past tab on All Items screen — capped at 30 days
-4. Theme settings — selecting a premium color palette when not pro opens the paywall
+3. Theme settings — selecting a premium color palette when not pro opens the paywall
 
 `is_pro` is read from the settings table, synced from RevenueCat on app foreground. RevenueCat entitlement name: `pro`.
 

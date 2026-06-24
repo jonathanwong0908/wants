@@ -8,13 +8,21 @@ import {
 } from "react";
 import { Alert } from "react-native";
 
-import { readIsPro, writeIsPro } from "@/lib/pro-status";
+import {
+  readIsPro,
+  readProPlan,
+  writeIsPro,
+  writeProPlan,
+} from "@/lib/pro-status";
+import type { PaywallPlanId } from "@/lib/paywall-placeholder-offerings";
 
 export type ProContextValue = {
   isPro: boolean;
+  proPlan: PaywallPlanId | null;
   loading: false;
-  purchasePlaceholder: () => Promise<void>;
+  purchasePlaceholder: (planId: PaywallPlanId) => Promise<void>;
   restorePlaceholder: () => Promise<void>;
+  resetPlaceholder: () => void;
   refresh: () => void;
 };
 
@@ -22,14 +30,18 @@ const ProContext = createContext<ProContextValue | null>(null);
 
 export function ProProvider({ children }: { children: ReactNode }) {
   const [isPro, setIsPro] = useState(() => readIsPro());
+  const [proPlan, setProPlan] = useState(() => readProPlan());
 
   const refresh = useCallback(() => {
     setIsPro(readIsPro());
+    setProPlan(readProPlan());
   }, []);
 
-  const purchasePlaceholder = useCallback(async () => {
+  const purchasePlaceholder = useCallback(async (planId: PaywallPlanId) => {
     writeIsPro(true);
+    writeProPlan(planId);
     setIsPro(true);
+    setProPlan(planId);
   }, []);
 
   const restorePlaceholder = useCallback(async () => {
@@ -42,15 +54,30 @@ export function ProProvider({ children }: { children: ReactNode }) {
     }
   }, [refresh]);
 
+  const resetPlaceholder = useCallback(() => {
+    writeIsPro(false);
+    setIsPro(false);
+    setProPlan(null);
+  }, []);
+
   const value = useMemo<ProContextValue>(
     () => ({
       isPro,
+      proPlan,
       loading: false,
       purchasePlaceholder,
       restorePlaceholder,
+      resetPlaceholder,
       refresh,
     }),
-    [isPro, purchasePlaceholder, restorePlaceholder, refresh]
+    [
+      isPro,
+      proPlan,
+      purchasePlaceholder,
+      restorePlaceholder,
+      resetPlaceholder,
+      refresh,
+    ]
   );
 
   return <ProContext.Provider value={value}>{children}</ProContext.Provider>;
