@@ -16,6 +16,7 @@ import { selectWaitingItems } from "@/db/queries/items";
 import { useNotificationPermission } from "@/hooks/use-notification-permission";
 import { useNowTick } from "@/hooks/use-now-tick";
 import { useSavingsStats } from "@/hooks/use-savings-stats";
+import { useThemePalette } from "@/hooks/use-theme-palette";
 import { isProduction } from "@/lib/env";
 import { isAddWantGatedWhenReady } from "@/lib/is-add-want-gated";
 import { formatCurrency } from "@/lib/money-format";
@@ -23,13 +24,12 @@ import { DEFAULT_PLAN_ID } from "@/lib/paywall-placeholder-offerings";
 import { pushHomeAreaRoute } from "@/lib/push-home-routes";
 import { pushPaywallRoute } from "@/lib/push-paywall-route";
 import { pushWantRoute } from "@/lib/push-want-route";
-import { THEME } from "@/lib/theme";
 import { LegendList } from "@legendapp/list/react-native";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
 import { ChevronRight, Plus, Settings } from "lucide-react-native";
 import { useCallback, useMemo } from "react";
-import { Pressable, useColorScheme, View } from "react-native";
+import { Pressable, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -37,7 +37,7 @@ import {
 
 export default function HomeScreen() {
   const { setOnboardingComplete } = useAppReady();
-  const palette = THEME[useColorScheme() === "dark" ? "dark" : "light"];
+  const palette = useThemePalette();
   const iconTint = palette.foreground;
   const insets = useSafeAreaInsets();
   const nowMs = useNowTick();

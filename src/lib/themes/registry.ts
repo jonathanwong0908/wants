@@ -1,3 +1,5 @@
+import { isProduction } from "@/lib/env";
+import { retroSepiaThemeDefinition } from "@/lib/themes/palettes/retro-sepia";
 import type { ThemeDefinition, ThemeId } from "@/lib/themes/types";
 
 export const THEME_REGISTRY: ThemeDefinition[] = [
@@ -13,7 +15,7 @@ export const THEME_REGISTRY: ThemeDefinition[] = [
     tier: "free",
     colorScheme: "dark",
   },
-  // Future pro palettes: add entries with tier: "pro" and themeStyle from nativewind vars().
+  ...(!isProduction ? [retroSepiaThemeDefinition] : []),
 ];
 
 const THEME_BY_ID = new Map<ThemeId, ThemeDefinition>(
