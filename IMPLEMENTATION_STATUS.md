@@ -1,8 +1,45 @@
 # Wants — Implementation Status
 
-Last updated: 2026-06-24
+Last updated: 2026-06-25
 
 Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md) for product intent.
+
+**Payments / Apple / RevenueCat:** [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) (Phases 0a–7). Not listed below.
+
+---
+
+## Remaining work — non-payments (prioritized)
+
+Tick off as you complete them. Safe to implement without Apple sandbox or StoreKit.
+
+**Out of v1 scope (for now):** Custom delay — removed from this backlog; scrub copy/docs when tackling P1 #4 below. PRD §8 still mentions it; update [prd.md](prd.md) if you drop it permanently.
+
+### P0 — Before TestFlight / App Store
+
+- [ ] **Privacy Policy + Terms URLs** — set `PRIVACY_POLICY_URL` / `TERMS_OF_USE_URL` in `src/constants/legal-links.ts`; wire About + paywall footer (`src/app/settings/about.tsx`, `src/app/paywall.tsx`)
+- [ ] **`ios.buildNumber` in `app.json`** — required for EAS / App Store uploads alongside `version`
+
+### P1 — Product polish (no payments dependency)
+
+- [ ] **About screen legal links** — add Privacy / Terms rows (version only today); reuse `openLegalLink`
+- [ ] **Remove custom-delay copy** — paywall benefits, placeholder offerings, docs; do not implement the feature
+- [ ] **iOS 64-notification prioritization** — when active waiting items exceed iOS local schedule cap, prioritize soonest `notifyAt` (`src/lib/notifications.ts`, reconciliation hooks)
+
+### P2 — Optional for v1
+
+- [ ] **Delete from want detail** — delete only on edit screen today (`src/app/want/[id].tsx`)
+- [ ] **Home: cap Upcoming at 3 items** — PRD S5; app currently shows all waiting items (see PRD divergences under Home)
+- [ ] **Refresh this file** — keep screen-by-screen sections in sync as items ship
+
+### P3 — Defer (not payments; not app code now)
+
+- Store listing assets (screenshots, description) — App Store Connect
+- Android `package` + parity — PRD: iOS first
+- PostHog analytics — PRD: optional v2
+- PRD divergences (Ready section split, past rows tappable) — intentional unless you change UX
+- v2/v3 (widget, share card, iCloud, streaks, templates) — see PRD §10
+
+---
 
 ## DB layer convention
 
@@ -30,8 +67,8 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done (follow-ups)
 
-- Custom delay — **deferred** (not in placeholder scope)
-- Show validation errors inline (`FormMessage` not wired on form fields yet)
+- ~~Custom delay~~ — **removed from v1** (see backlog P1 #4)
+- ~~Show validation errors inline~~ — done via `FormInput` / `FormTextarea` + `FormMessage`
 
 ## Home (PRD S5) — partial
 
@@ -89,7 +126,7 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done (follow-ups)
 
-- Delete from want detail (delete lives on edit screen only — see Edit Want)
+- Delete from want detail — see backlog P2 (delete on edit screen only)
 
 ## Edit Want — partial
 
@@ -102,7 +139,7 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 - Pre-filled form via `useItemForm` + `itemToFormDefaultValues(item)`; form remounts with `key={item.id}`
 - Waiting items: edit name, price, delay, note; `notifyAt` recalculated as `createdAt + delayHours` when delay changes
 - Skipped / bought items: edit name, price, note only (delay field hidden; `delayHours` / `notifyAt` unchanged in DB)
-- `getDelayOptionsForValue` for non-preset delay values (future custom delay)
+- `getDelayOptionsForValue` for non-preset delay values (legacy; custom delay not in v1)
 - `updateItem()` Drizzle mutation; `router.back()` on success; detail auto-refreshes via `useLiveQuery`
 - Delete: destructive trash icon in edit header; `Alert.alert` confirmation; hard delete via `deleteItem()`; `router.dismiss(2)` returns to Home / All Wants
 - Skipped-item delete: savings-aware confirmation — same currency warns price will be removed from Home saved total; other currency explains saved total unchanged (`src/lib/delete-want-alert.ts`)
@@ -111,7 +148,7 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done (follow-ups)
 
-- Custom delay — **deferred**
+- None (custom delay removed from v1)
 
 ## Decision flow (PRD S8) — done
 
@@ -137,7 +174,7 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done
 
-- About privacy policy and terms links (blocked on URLs)
+- About privacy policy and terms links — see backlog P0 #1, P1 #3 (`src/constants/legal-links.ts`)
 
 ### Theme (PRD S12) — partial
 
@@ -147,19 +184,20 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 - Premium theme pro gate (4th PRD §8 enforcement surface): lock icon + paywall when non-pro selects pro-tier theme
 
-## Paywall (PRD S13) — partial
+## Paywall (PRD S13) — done
 
-**Files:** `src/app/paywall.tsx`, `src/lib/push-paywall-route.ts`, `src/app/_layout.tsx`
+**Files:** `src/app/paywall.tsx`, `src/lib/paywall-offerings.ts`, `src/lib/push-paywall-route.ts`, `src/contexts/purchases-context.tsx`
 
 ### Done
 
-- Modal route registered; shell placeholder screen
-- `pushPaywallRoute()` helper
+- Modal route; `pushPaywallRoute()` helper
+- Benefits copy, plan tabs (monthly / annual / lifetime), dynamic prices from RevenueCat offerings
+- CTA → `purchasePackage()`; dismiss on success; legal footer (URLs pending — backlog P0)
+- Restore on Subscription settings screen only (not on paywall)
 
 ### Not done
 
-- Full paywall UI (PRD S13): benefits, plan cards, CTA, restore, dismiss
-- Placeholder or RevenueCat purchase flow — [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md) Phase P2; [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) Phase 4
+- Legal URLs — see backlog P0 #1
 
 ## Onboarding (PRD S4)
 
@@ -192,38 +230,27 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 ### Not done (follow-ups)
 
-- iOS 64 scheduled-notification prioritization for Pro unlimited waiting items (when paywall ships)
+- iOS 64 scheduled-notification prioritization — see backlog P1 #3
 
 ## Monetization (PRD §8)
 
-PRD defines **three** enforcement surfaces (FAB, custom delay, theme). Placeholder implements two; custom delay deferred.
+PRD lists three enforcement surfaces (FAB, custom delay, theme). **v1 ships two:** FAB + theme. Custom delay removed from v1 (see backlog).
 
-### Placeholder (local `is_pro`) — P1–P5 done; P6 remaining
+### RevenueCat in app — done (Test Store)
 
-Checklist: [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md)
+**Files:** `src/contexts/purchases-context.tsx`, `src/lib/purchases.ts`, `src/hooks/use-is-pro.ts`
 
-**Done (P1–P5):**
-
-- `src/lib/pro-status.ts` — kv-store read/write for `is_pro` and `pro_plan`
-- `ProProvider` + `usePro()` — reactive context, stub `purchasePlaceholder(planId)` / `restorePlaceholder`
-- `useIsPro()` reads from `ProProvider`; mounted in `src/db/migrations.tsx`
-- Theme gate wired to reactive pro state
-- Paywall UI (`src/app/paywall.tsx`) with three plan tabs and stub offerings
-- Account screen + Subscription sub-screen (subscription hub row on settings; restore on subscription screen)
-- `src/lib/is-add-want-gated.ts` — shared FAB/add gate rule
-- Home FAB + add-want enforcement gates (edit-want intentionally not gated for free users)
+- `PurchasesProvider` + `usePurchases()` / `useIsPro()` — configure, offerings, purchase, restore, foreground refresh
+- Entitlement `pro` mirrored to kv-store `is_pro`
+- Gates: Home FAB + add-want, premium theme selection
 - Dev-only Toggle Pro on Home (`!isProduction`)
+- Paywall + Subscription settings wired to RevenueCat (Expo Go + `test_` key)
 
-**Not done:**
+### Not done (payments infra — see PAYMENTS_SETUP.md)
 
-- Manual test checklist (P6)
-
-**Other infrastructure already in repo:** `IS_PRO_KEY`, paywall route/modal, `pushPaywallRoute()`.
-
-### RevenueCat integration — not started
-
-Setup: [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) (Phases 0a–7)
-
-- Test Store (`test_` key) then Apple sandbox (`appl_` key)
-- `PurchasesProvider` replaces placeholder `ProProvider`
-- Custom delay gate (deferred; UX TBD)
+- Phase 0b: App Store Connect app, agreements, sandbox tester
+- Phase 1: `react-native-purchases` config plugin, dev client build, `ios.buildNumber` (also backlog P0)
+- Phase 2: ASC subscription products, `appl_` key
+- Phase 7: StoreKit sandbox verification
+- Manage subscription → real App Store link (subscription screen placeholder alert today)
+- Manual test checklist — [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md) P6 if still relevant
