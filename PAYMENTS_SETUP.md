@@ -161,7 +161,7 @@ Purchases appear in RC dashboard only after **Phase 3**.
 
 **Skip until Track B.** Not required for placeholder, Test Store, or Phase 3–4 in Expo Go.
 
-- [ ] Apple Developer Program ($99/yr)
+- [x] Apple Developer Program ($99/yr)
 - [ ] App Store Connect app: bundle ID `com.kloobel.wants` (in `app.json`)
 - [ ] Agreements, Tax, Banking — **Paid Apps** agreement Active
 - [ ] Expo / EAS account for dev builds
@@ -181,7 +181,7 @@ Purchases appear in RC dashboard only after **Phase 3**.
 
 **Still needed:**
 
-- [ ] `buildNumber` under `expo.ios` if missing
+- [x] `buildNumber` under `expo.ios` if missing
 - [ ] Config plugin in `app.json`: `"react-native-purchases"`
 - [ ] Dev client: `eas build --profile development --platform ios` or `npx expo run:ios`
 - [ ] `npx expo start --dev-client`
