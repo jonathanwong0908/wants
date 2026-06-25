@@ -1,10 +1,9 @@
+import { PaywallLegalFooter } from "@/components/legal/legal-links";
 import { SettingsScreenHeader } from "@/components/settings/settings-screen-shell";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
-import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from "@/constants/legal-links";
 import { usePurchases } from "@/contexts/purchases-context";
-import { openLegalLink } from "@/lib/open-legal-link";
 import {
   buildPaywallPlans,
   getPaywallPlanDisplay,
@@ -18,29 +17,6 @@ import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { Alert, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-function PaywallLegalFooter() {
-  return (
-    <Text variant="muted" className="text-xs leading-4 text-center">
-      Lifetime is a one-time purchase. Subscriptions auto-renew unless cancelled
-      at least 24 hours before renewal. Manage in Apple ID settings.{" "}
-      <Text
-        className="text-xs text-primary underline"
-        onPress={() => void openLegalLink(PRIVACY_POLICY_URL)}
-      >
-        Privacy Policy
-      </Text>{" "}
-      and{" "}
-      <Text
-        className="text-xs text-primary underline"
-        onPress={() => void openLegalLink(TERMS_OF_USE_URL)}
-      >
-        Terms of Use
-      </Text>
-      .
-    </Text>
-  );
-}
 
 function PlanDetails({
   plan,

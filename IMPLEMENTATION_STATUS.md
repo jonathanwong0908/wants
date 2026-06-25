@@ -16,12 +16,12 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 
 ### P0 — Before TestFlight / App Store
 
-- [ ] **Privacy Policy + Terms URLs** — set `PRIVACY_POLICY_URL` / `TERMS_OF_USE_URL` in `src/constants/legal-links.ts`; wire About + paywall footer (`src/app/settings/about.tsx`, `src/app/paywall.tsx`)
-- [ ] **`ios.buildNumber` in `app.json`** — required for EAS / App Store uploads alongside `version`
+- [x] **Privacy Policy + Terms URLs** — `PRIVACY_POLICY_URL` / `TERMS_OF_USE_URL` in `src/constants/legal-links.ts`; About rows + paywall footer via `src/components/legal/legal-links.tsx`
+- [x] **`ios.buildNumber` in `app.json`** — required for EAS / App Store uploads alongside `version`
 
 ### P1 — Product polish (no payments dependency)
 
-- [ ] **About screen legal links** — add Privacy / Terms rows (version only today); reuse `openLegalLink`
+- [x] **About screen legal links** — Privacy / Terms rows on About; shared `LegalLinkSettingsRows` / `openLegalLink`
 - [ ] **Remove custom-delay copy** — paywall benefits, placeholder offerings, docs; do not implement the feature
 - [ ] **iOS 64-notification prioritization** — when active waiting items exceed iOS local schedule cap, prioritize soonest `notifyAt` (`src/lib/notifications.ts`, reconciliation hooks)
 
@@ -170,11 +170,7 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 - `useItemForm`, Home, and All Wants wired to settings
 - Notifications sub-screen: permission status + Open system settings when not granted
 - Clear all data: wipes items table, cancels scheduled notifications; preserves kv-store prefs
-- About screen: app version via expo-constants
-
-### Not done
-
-- About privacy policy and terms links — see backlog P0 #1, P1 #3 (`src/constants/legal-links.ts`)
+- About screen: app version via expo-constants; Privacy Policy + Terms of Use links (`src/components/legal/legal-links.tsx`)
 
 ### Theme (PRD S12) — partial
 
@@ -192,12 +188,8 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 
 - Modal route; `pushPaywallRoute()` helper
 - Benefits copy, plan tabs (monthly / annual / lifetime), dynamic prices from RevenueCat offerings
-- CTA → `purchasePackage()`; dismiss on success; legal footer (URLs pending — backlog P0)
+- CTA → `purchasePackage()`; dismiss on success; legal footer with Privacy / Terms links
 - Restore on Subscription settings screen only (not on paywall)
-
-### Not done
-
-- Legal URLs — see backlog P0 #1
 
 ## Onboarding (PRD S4)
 
@@ -254,3 +246,4 @@ PRD lists three enforcement surfaces (FAB, custom delay, theme). **v1 ships two:
 - Phase 7: StoreKit sandbox verification
 - Manage subscription → real App Store link (subscription screen placeholder alert today)
 - Manual test checklist — [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md) P6 if still relevant
+
