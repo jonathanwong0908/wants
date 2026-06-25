@@ -120,7 +120,7 @@ flowchart TD
 
 
 
-PRD §8: three enforcement surfaces (FAB/add, custom delay deferred, theme). Placeholder gates already wired to `useIsPro()` — Phase 5 is verify with live entitlements after Phase 3.
+PRD §8: two enforcement surfaces (FAB/add, theme). Placeholder gates already wired to `useIsPro()` — Phase 5 is verify with live entitlements after Phase 3.
 
 ---
 
@@ -237,8 +237,7 @@ After Phase 3: Test Store purchases should appear under **Customers** in RC dash
 Gates already implemented in placeholder — **re-verify** after Phase 3:
 
 1. **Home FAB + add guard** — `home.tsx`, `add-want.tsx`
-2. **Custom delay** — **deferred**
-3. **Theme settings** — `theme.tsx`
+2. **Theme settings** — `theme.tsx`
 
 No other paywalls.
 
@@ -286,7 +285,7 @@ No other paywalls.
 
 ## Open items
 
-- **Custom delay** gate — deferred; UX TBD
+- None
 
 ---
 

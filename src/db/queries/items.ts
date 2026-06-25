@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, isNull, or, sql } from "drizzle-orm";
+import { asc, desc, eq, or, sql } from "drizzle-orm";
 
 import { db } from "@/db/client";
 import { items } from "@/db/schema";
@@ -18,20 +18,6 @@ export function selectWaitingItems() {
     .select()
     .from(items)
     .where(eq(items.status, "waiting"))
-    .orderBy(asc(items.notifyAt));
-}
-
-export function selectWaitingItemsNeedingSchedule(now: Date) {
-  return db
-    .select()
-    .from(items)
-    .where(
-      and(
-        eq(items.status, "waiting"),
-        isNull(items.notifId),
-        gt(items.notifyAt, now)
-      )
-    )
     .orderBy(asc(items.notifyAt));
 }
 

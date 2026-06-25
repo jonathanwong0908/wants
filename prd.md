@@ -49,7 +49,7 @@ The core entity. One row per thing the user wants to buy.
 | name       | What the user wants to buy                                      |
 | price      | Numeric amount                                                  |
 | currency   | ISO currency code (e.g. USD, JPY) — stored per item, not global |
-| delayHours | Waiting period in hours (24 / 72 / 168 / custom)                |
+| delayHours | Waiting period in hours (24 / 72 / 168)                           |
 | notifyAt   | Timestamp when the notification fires                           |
 | notifId    | expo-notifications identifier, for cancellation                 |
 | status     | `waiting` · `skipped` · `bought`                                |
@@ -156,10 +156,10 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 ### S6 — Add item *(modal)*
 
 - Fields: item name (required), price (required), delay picker, optional note
-- Delay picker options: 24h / 3 days / 1 week / Custom (pro only)
+- Delay picker options: 24h / 3 days / 1 week
 - Default delay pre-filled from settings
 - On submit: schedule notification, save item, dismiss modal
-- **Free tier gate on Add screen:** if waiting items ≥ 1 and not pro, block adding and open paywall. Custom delay also locked for non-pro.
+- **Free tier gate on Add screen:** if waiting items ≥ 1 and not pro, block adding and open paywall.
 
 ### S7 — Push notification *(system notification, not a screen)*
 
@@ -199,7 +199,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 ### S13 — Paywall *(modal)*
 
 - Headline: "Upgrade to Pro"
-- Body copy: free tier limit (one active want) and Pro benefits (unlimited items, custom delays, premium themes)
+- Body copy: free tier limit (one active want) and Pro benefits (unlimited items, premium themes)
 - Three plan tabs: Monthly · Annual (default) · Lifetime
 - Prices loaded dynamically from RevenueCat (`product.priceString`) — never hardcoded in production; static copy (tab labels, CTAs) lives in `paywall-placeholder-offerings.ts`
 - Annual tab may show a computed savings subtitle when monthly and annual packages are both available
@@ -225,16 +225,15 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 | Feature              | Free                          | Pro                     |
 | -------------------- | ----------------------------- | ----------------------- |
 | Active waiting items | Max 1                         | Unlimited               |
-| Delay options        | 24h, 3 days, 1 week           | + Custom                |
+| Delay options        | 24h, 3 days, 1 week           | 24h, 3 days, 1 week     |
 | Past items history   | All time                      | All time                |
 | Color themes         | Light, Dark (default palette) | + Premium color palettes |
 
 
-Enforcement points (exactly 3, nowhere else):
+Enforcement points (exactly 2, nowhere else):
 
 1. FAB on Home — locked if waiting items ≥ 1
-2. Custom delay option in delay picker
-3. Theme settings — selecting a premium color palette when not pro opens the paywall
+2. Theme settings — selecting a premium color palette when not pro opens the paywall
 
 `is_pro` is read from the settings table, synced from RevenueCat on app foreground. RevenueCat entitlement name: `pro`.
 

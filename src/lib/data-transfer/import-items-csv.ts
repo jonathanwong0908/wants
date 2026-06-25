@@ -2,13 +2,13 @@ import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
 
 import { clearAllItems } from "@/db/mutations/clear-all-data";
-import { insertImportedItems, setItemNotifId } from "@/db/mutations/items";
+import { insertImportedItems } from "@/db/mutations/items";
 import {
   parseItemsCsv,
   type CsvParseError,
   type ParsedItemRow,
 } from "@/lib/csv/items-csv";
-import { scheduleWantNotification } from "@/lib/notifications";
+import { reconcileWaitingWantNotifications } from "@/lib/notifications";
 
 export type ImportMode = "merge" | "replace";
 
@@ -59,18 +59,7 @@ export async function importParsedItems(
   }
 
   const inserted = await insertImportedItems(rows);
-  const now = Date.now();
-
-  for (const item of inserted) {
-    if (item.status !== "waiting" || item.notifyAt.getTime() <= now) {
-      continue;
-    }
-
-    const notifId = await scheduleWantNotification(item);
-    if (notifId) {
-      await setItemNotifId(item.id, notifId);
-    }
-  }
+  await reconcileWaitingWantNotifications();
 
   return { importedCount: inserted.length };
 }

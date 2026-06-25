@@ -19,8 +19,6 @@ v1 stores `is_pro` in **kv-store** (`IS_PRO_KEY`), not a Drizzle settings table 
 ## Explicitly out of scope
 
 - RevenueCat `Purchases.configure`, real offerings, StoreKit sandbox
-- **Custom delay** — no Custom picker option; no pro custom input (deferred; paywall may still list custom delays as a Pro benefit)
-- iOS 64-notification prioritization for unlimited waiting items (Pro)
 
 ---
 
@@ -37,7 +35,7 @@ flowchart TD
 
 
 
-PRD §8 defines **three** enforcement surfaces. Placeholder implements two; custom delay (gate 2) is deferred — see Phase P4.
+PRD §8 defines **two** enforcement surfaces. Placeholder implements both.
 
 ---
 
@@ -74,7 +72,7 @@ PRD §8 defines **three** enforcement surfaces. Placeholder implements two; cust
 **File:** `src/app/paywall.tsx`
 
 - [x] Headline: “Unlock the full Wants experience”
-- [x] **Three** benefit bullets: unlimited items · custom delays · premium color themes
+- [x] **Two** benefit bullets: unlimited items · premium color themes
 - [x] Three plan tabs: Monthly / Annual / Lifetime (annual default)
 - [x] `**src/lib/paywall-placeholder-offerings.ts`** — typed stub prices (single swap point for RevenueCat later; do not scatter prices in UI)
 - [x] Primary CTA: plan-specific (subscribe monthly/annual, lifetime unlock)
@@ -98,14 +96,13 @@ PRD §8 defines **three** enforcement surfaces. Placeholder implements two; cust
 
 ## Phase P4 — Enforcement gates
 
-PRD §8 enforcement surfaces (three total):
+PRD §8 enforcement surfaces (two total):
 
 
-| Gate | Surface              | Placeholder status                                                                       |
-| ---- | -------------------- | ---------------------------------------------------------------------------------------- |
-| 1    | Home FAB + add route | **Done**                                                                                 |
-| 2    | Custom delay         | **Deferred** — link to [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) Phase 5 when UX is decided |
-| 3    | Theme settings       | **Done**                                                                                 |
+| Gate | Surface              | Placeholder status |
+| ---- | -------------------- | ------------------ |
+| 1    | Home FAB + add route | **Done**           |
+| 2    | Theme settings       | **Done**           |
 
 
 ### Gate 1 — Home FAB + add guard
@@ -113,11 +110,7 @@ PRD §8 enforcement surfaces (three total):
 - [x] `**src/app/home.tsx`** — when `!isPro && waitingItems.length >= 1`: FAB keeps Plus icon; `onPress` → paywall (not `/add-want`)
 - [x] `**src/app/add-want.tsx**` — on mount/focus: if gated, open paywall and leave route (blocks deep links)
 
-### Gate 2 — Custom delay (deferred)
-
-No work in placeholder. Future: non-pro Custom → paywall; pro custom input TBD.
-
-### Gate 3 — Theme settings
+### Gate 2 — Theme settings
 
 - [x] Implemented in `src/app/settings/theme.tsx`
 - [x] Re-verify reactive `isPro` updates after ProProvider (toggle pro without restart)

@@ -99,8 +99,8 @@ export default function PaywallScreen() {
           </Text>
           <Text variant="muted" className="mt-2 leading-5">
             Wants is free with one active want at a time. Pro unlocks unlimited
-            items, custom delays, and premium themes. Choose a monthly, annual,
-            or lifetime plan to unlock the full experience.
+            items and premium themes. Choose a monthly, annual, or lifetime plan
+            to unlock the full experience.
           </Text>
           <View className="mt-4 gap-6">
             <Tabs

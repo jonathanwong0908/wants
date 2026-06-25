@@ -8,8 +8,7 @@ import {
 } from "@/lib/forms/item-form-schema";
 import {
   cancelWantNotification,
-  rescheduleWantNotification,
-  scheduleWantNotification,
+  reconcileWaitingWantNotifications,
 } from "@/lib/notifications";
 
 export async function insertImportedItems(
@@ -79,14 +78,7 @@ export async function createItem(
     })
     .returning();
 
-  const notifId = await scheduleWantNotification(inserted);
-
-  if (notifId) {
-    await db
-      .update(items)
-      .set({ notifId })
-      .where(eq(items.id, inserted.id));
-  }
+  await reconcileWaitingWantNotifications();
 
   return inserted.id;
 }
@@ -124,24 +116,15 @@ export async function updateItem(
       updates.notifyAt = computeNotifyAt(context.createdAt, values.delayHours);
     }
 
+    await db.update(items).set(updates).where(eq(items.id, id));
+
     if (delayChanged || nameChanged || priceChanged) {
-      const nextNotifyAt =
-        updates.notifyAt ?? computeNotifyAt(context.createdAt, values.delayHours);
-
-      const notifId = await rescheduleWantNotification(context.previousNotifId, {
-        id,
-        name: values.name.trim(),
-        price: values.price,
-        currency: context.currencyCode,
-        delayHours: values.delayHours,
-        notifyAt: nextNotifyAt,
-      });
-
-      updates.notifId = notifId;
-      if (!delayChanged) {
-        updates.notifyAt = nextNotifyAt;
-      }
+      await cancelWantNotification(context.previousNotifId);
+      await setItemNotifId(id, null);
     }
+
+    await reconcileWaitingWantNotifications();
+    return;
   }
 
   await db.update(items).set(updates).where(eq(items.id, id));
@@ -164,6 +147,7 @@ export async function deleteItem(
 ): Promise<void> {
   await cancelWantNotification(context.notifId);
   await db.delete(items).where(eq(items.id, id));
+  await reconcileWaitingWantNotifications();
 }
 
 type SkipItemContext = {
@@ -180,6 +164,8 @@ export async function skipItem(
     .update(items)
     .set({ status: "skipped", decidedAt: new Date() })
     .where(and(eq(items.id, id), eq(items.status, "waiting")));
+
+  await reconcileWaitingWantNotifications();
 }
 
 type BuyItemContext = {
@@ -196,4 +182,6 @@ export async function buyItem(
     .update(items)
     .set({ status: "bought", decidedAt: new Date() })
     .where(and(eq(items.id, id), eq(items.status, "waiting")));
+
+  await reconcileWaitingWantNotifications();
 }

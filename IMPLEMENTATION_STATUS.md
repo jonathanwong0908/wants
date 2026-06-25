@@ -12,8 +12,6 @@ Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md)
 
 Tick off as you complete them. Safe to implement without Apple sandbox or StoreKit.
 
-**Out of v1 scope (for now):** Custom delay — removed from this backlog; scrub copy/docs when tackling P1 #4 below. PRD §8 still mentions it; update [prd.md](prd.md) if you drop it permanently.
-
 ### P0 — Before TestFlight / App Store
 
 - [x] **Privacy Policy + Terms URLs** — `PRIVACY_POLICY_URL` / `TERMS_OF_USE_URL` in `src/constants/legal-links.ts`; About rows + paywall footer via `src/components/legal/legal-links.tsx`
@@ -22,8 +20,8 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 ### P1 — Product polish (no payments dependency)
 
 - [x] **About screen legal links** — Privacy / Terms rows on About; shared `LegalLinkSettingsRows` / `openLegalLink`
-- [ ] **Remove custom-delay copy** — paywall benefits, placeholder offerings, docs; do not implement the feature
-- [ ] **iOS 64-notification prioritization** — when active waiting items exceed iOS local schedule cap, prioritize soonest `notifyAt` (`src/lib/notifications.ts`, reconciliation hooks)
+- [x] **Remove custom-delay copy** — paywall benefits, placeholder offerings, docs; do not implement the feature
+- [x] **iOS 64-notification prioritization** — when active waiting items exceed iOS local schedule cap, prioritize soonest `notifyAt` (`src/lib/notifications.ts`, reconciliation hooks)
 
 ### P2 — Optional for v1
 
@@ -67,8 +65,7 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 
 ### Not done (follow-ups)
 
-- ~~Custom delay~~ — **removed from v1** (see backlog P1 #4)
-- ~~Show validation errors inline~~ — done via `FormInput` / `FormTextarea` + `FormMessage`
+- None
 
 ## Home (PRD S5) — partial
 
@@ -139,7 +136,7 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 - Pre-filled form via `useItemForm` + `itemToFormDefaultValues(item)`; form remounts with `key={item.id}`
 - Waiting items: edit name, price, delay, note; `notifyAt` recalculated as `createdAt + delayHours` when delay changes
 - Skipped / bought items: edit name, price, note only (delay field hidden; `delayHours` / `notifyAt` unchanged in DB)
-- `getDelayOptionsForValue` for non-preset delay values (legacy; custom delay not in v1)
+- `getDelayOptionsForValue` for non-preset delay values (legacy data)
 - `updateItem()` Drizzle mutation; `router.back()` on success; detail auto-refreshes via `useLiveQuery`
 - Delete: destructive trash icon in edit header; `Alert.alert` confirmation; hard delete via `deleteItem()`; `router.dismiss(2)` returns to Home / All Wants
 - Skipped-item delete: savings-aware confirmation — same currency warns price will be removed from Home saved total; other currency explains saved total unchanged (`src/lib/delete-want-alert.ts`)
@@ -148,7 +145,7 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 
 ### Not done (follow-ups)
 
-- None (custom delay removed from v1)
+- None
 
 ## Decision flow (PRD S8) — done
 
@@ -211,7 +208,7 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 - `setNotificationHandler` for foreground display
 - Android notification channel (`wants-decisions`)
 - Schedule per-item local notification at `notifyAt` (DATE trigger); PRD S7 title/body copy
-- Persist `notifId` on create; backfill on foreground via `selectWaitingItemsNeedingSchedule`
+- Persist `notifId` on create; backfill on foreground via `reconcileWaitingWantNotifications()`
 - Cancel on skip / buy / delete
 - Reschedule on edit when name, price, or delay changes
 - Deep link on notification tap → `/want/[id]` (cold start + warm via `getLastNotificationResponse` + response listener)
@@ -219,14 +216,15 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 - Home permission banner when denied + waiting items exist
 - Settings notifications screen: status + link to system settings
 - Expired-waiting UI fallback via existing `useNowTick` + Ready to decide section
+- iOS 64 pending-notification cap: `reconcileWaitingWantNotifications()` keeps soonest 64 future waiting items scheduled; backfills on foreground and after create / edit / skip / buy / delete / import
 
 ### Not done (follow-ups)
 
-- iOS 64 scheduled-notification prioritization — see backlog P1 #3
+- None
 
 ## Monetization (PRD §8)
 
-PRD lists three enforcement surfaces (FAB, custom delay, theme). **v1 ships two:** FAB + theme. Custom delay removed from v1 (see backlog).
+PRD lists two enforcement surfaces (FAB, theme). v1 ships both.
 
 ### RevenueCat in app — done (Test Store)
 
