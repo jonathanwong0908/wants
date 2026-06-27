@@ -45,6 +45,11 @@ function isTestStoreKey(key: string): boolean {
   return key.startsWith("test_") || key.startsWith("rcb_");
 }
 
+/** Test Store keys are only valid in Expo Go or JS debug builds — not EAS preview/release. */
+export function canUseTestStoreKey(): boolean {
+  return isExpoGo() || __DEV__;
+}
+
 function getPlatformRevenueCatKey(): string | undefined {
   if (Platform.OS === "ios") {
     return env.revenueCatIosKey;
@@ -56,28 +61,40 @@ function getPlatformRevenueCatKey(): string | undefined {
 }
 
 export function getRevenueCatApiKey(): string {
+  const platformKey = getPlatformRevenueCatKey();
+  const testStoreAllowed = canUseTestStoreKey();
+
   if (isProduction) {
-    const key = getPlatformRevenueCatKey();
-    if (!key) {
+    if (!platformKey) {
       throw new Error(
         `Missing RevenueCat production API key for ${Platform.OS}. Set EXPO_PUBLIC_REVENUECAT_${Platform.OS === "ios" ? "IOS" : "ANDROID"}_KEY.`
       );
     }
-    if (isTestStoreKey(key)) {
+    if (isTestStoreKey(platformKey)) {
       throw new Error(
         "RevenueCat Test Store API keys cannot be used in production builds."
       );
     }
-    return key;
+    return platformKey;
   }
 
-  if (env.revenueCatTestKey) {
+  if (testStoreAllowed && env.revenueCatTestKey) {
     return env.revenueCatTestKey;
   }
 
-  const platformKey = getPlatformRevenueCatKey();
   if (platformKey) {
+    if (isTestStoreKey(platformKey) && !testStoreAllowed) {
+      throw new Error(
+        `RevenueCat Test Store API keys cannot be used in ${Platform.OS} release/preview native builds. Set EXPO_PUBLIC_REVENUECAT_${Platform.OS === "ios" ? "IOS" : "ANDROID"}_KEY (appl_/goog_) for EAS preview builds.`
+      );
+    }
     return platformKey;
+  }
+
+  if (env.revenueCatTestKey && !testStoreAllowed) {
+    throw new Error(
+      "RevenueCat Test Store API keys cannot be used in release/preview native builds. Use Expo Go or a development client with EXPO_PUBLIC_REVENUECAT_TEST_KEY, or set EXPO_PUBLIC_REVENUECAT_IOS_KEY for EAS preview builds."
+    );
   }
 
   throw new Error(
