@@ -182,7 +182,7 @@ Purchases appear in RC dashboard only after **Phase 3**.
 **Still needed:**
 
 - [x] `buildNumber` under `expo.ios` if missing
-- [ ] Config plugin in `app.json`: `"react-native-purchases"`
+- [x] Native module via autolinking (`react-native-purchases` in `package.json` — no Expo config plugin in v10.4.0)
 - [x] Dev client: `eas build --profile development --platform ios` or `npx expo run:ios`
 - [ ] `npx expo start --dev-client`
 
