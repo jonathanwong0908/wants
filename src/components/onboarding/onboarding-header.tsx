@@ -1,5 +1,5 @@
+import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
-import { THEME } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { Image, type ImageSource } from "expo-image";
 import type { LucideIcon } from "lucide-react-native";
@@ -60,9 +60,10 @@ export function OnboardingHeader({
             mediaSize.container
           )}
         >
-          <IconComponent
+          <Icon
+            as={IconComponent}
             size={mediaSize.icon}
-            color={THEME.light.cardForeground}
+            className="text-card-foreground"
           />
         </View>
       ) : null}

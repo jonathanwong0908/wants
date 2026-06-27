@@ -2,7 +2,7 @@ import { DarkTheme, DefaultTheme, type Theme } from "@react-navigation/native";
 
 export const THEME = {
   light: {
-    background: "hsl(0 0% 100%)",
+    background: "hsl(0 0% 98.04%)",
     foreground: "hsl(0 0% 3.9%)",
     card: "hsl(0 0% 100%)",
     cardForeground: "hsl(0 0% 3.9%)",
@@ -29,7 +29,7 @@ export const THEME = {
     chart5: "hsl(27 87% 67%)",
   },
   dark: {
-    background: "hsl(0 0% 3.9%)",
+    background: "hsl(0 0% 7.06%)",
     foreground: "hsl(0 0% 98%)",
     card: "hsl(0 0% 9.8%)",
     cardForeground: "hsl(0 0% 98%)",

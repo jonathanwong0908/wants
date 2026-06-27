@@ -6,8 +6,11 @@ import { NotificationBootstrap } from "@/components/notification-bootstrap";
 import { ThemeRoot } from "@/components/theme-root";
 import { AppReadyGate } from "@/db/migrations";
 import "@/lib/notifications";
+import { bootstrapThemeColorScheme } from "@/lib/themes/bootstrap";
 import { PortalHost } from "@rn-primitives/portal";
 import "../global.css";
+
+bootstrapThemeColorScheme();
 
 export default function RootLayout() {
   return (

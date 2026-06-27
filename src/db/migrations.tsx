@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Text, View } from "react-native";
 
+import { SplashScreenController } from "@/components/splash-screen-controller";
 import { AppReadyProvider } from "@/contexts/app-ready-context";
 import { PurchasesProvider } from "@/contexts/purchases-context";
 import { SettingsProvider } from "@/contexts/settings-context";
@@ -14,7 +15,7 @@ import { ONBOARDING_COMPLETE_KEY } from "@/constants/storage-keys";
 import migrations from "../../drizzle/migrations.js";
 import { db } from "./client";
 
-// Keep the native splash visible until migrations finish and onboarding flag is read (see hideAsync below).
+// Keep the native splash visible until migrations finish and theme is ready (see SplashScreenController).
 SplashScreen.preventAutoHideAsync().catch((reason) => {
   console.warn(reason);
 });
@@ -43,7 +44,10 @@ function AppReadyWithOnboarding({ children }: { children: ReactNode }) {
     <AppReadyProvider value={{ onboardingComplete, setOnboardingComplete }}>
       <SettingsProvider>
         <PurchasesProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <SplashScreenController />
+            {children}
+          </ThemeProvider>
         </PurchasesProvider>
       </SettingsProvider>
     </AppReadyProvider>
@@ -54,11 +58,11 @@ export function AppReadyGate({ children }: AppReadyGateProps) {
   const { success, error } = useMigrations(db, migrations);
 
   useEffect(() => {
-    if (!success && !error) return;
+    if (!error) return;
     SplashScreen.hideAsync().catch((reason) => {
       console.warn(reason);
     });
-  }, [success, error]);
+  }, [error]);
 
   if (error) {
     return (

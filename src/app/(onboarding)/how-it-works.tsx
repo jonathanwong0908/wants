@@ -64,7 +64,7 @@ export default function HowItWorksScreen() {
                   <Icon
                     as={step.icon}
                     size={28}
-                    className="mt-0.5 text-foreground"
+                    className="mt-0.5 text-card-foreground"
                   />
                 }
               />
