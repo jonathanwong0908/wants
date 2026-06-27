@@ -59,14 +59,7 @@ export default function HomeScreen() {
       nowMs
     );
 
-    const rows: WaitingListRow[] = [
-      ...buildWaitingSectionRows({
-        title: "Upcoming",
-        items: upcoming,
-        emptyMessage: "Nothing waiting",
-        showAllLink: true,
-      }),
-    ];
+    const rows: WaitingListRow[] = [];
 
     if (ready.length > 0) {
       rows.push(
@@ -77,6 +70,15 @@ export default function HomeScreen() {
         })
       );
     }
+
+    rows.push(
+      ...buildWaitingSectionRows({
+        title: "Upcoming",
+        items: upcoming,
+        emptyMessage: "Nothing waiting",
+        showAllLink: true,
+      })
+    );
 
     return rows;
   }, [waitingItems, nowMs]);

@@ -63,12 +63,15 @@ export default function TotalSavedScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <Text variant="muted" className="mb-4 text-sm">
-          across {skippedCount} {skippedCount === 1 ? "decision" : "decisions"}
-        </Text>
+        {!isEmpty ? (
+          <Text variant="muted" className="mb-4 text-sm">
+            across {skippedCount}{" "}
+            {skippedCount === 1 ? "decision" : "decisions"}
+          </Text>
+        ) : null}
 
         {isEmpty ? (
-          <View className="flex-1 items-center justify-center px-8 py-16">
+          <View className="items-center justify-center px-8 py-16">
             <Text variant="muted" className="text-center text-sm">
               Nothing saved yet — skip a want to start.
             </Text>
