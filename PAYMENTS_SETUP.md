@@ -165,7 +165,7 @@ Purchases appear in RC dashboard only after **Phase 3**.
 - [x] App Store Connect app: bundle ID `com.kloobel.wants` (in `app.json`)
 - [x] Agreements, Tax, Banking — **Paid Apps** agreement Active
 - [x] Expo / EAS account for dev builds
-- [ ] Sandbox tester (Users and Access → Sandbox Testers)
+- [x] Sandbox tester (Users and Access → Sandbox Testers)
 
 ---
 
