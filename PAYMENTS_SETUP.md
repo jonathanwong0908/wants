@@ -192,10 +192,10 @@ Purchases appear in RC dashboard only after **Phase 3**.
 
 Pairs with Phase 0b. Links real Apple product IDs to RC.
 
-- [ ] App Store Connect subscriptions: `wants_pro_monthly`, `wants_pro_annual`
-- [ ] App Store Connect non-consumable: `wants_pro_lifetime`
-- [ ] RevenueCat: add **iOS app**, link products → **`pro`** entitlement
-- [ ] Offering packages `$rc_monthly`, `$rc_annual`, `$rc_lifetime`
+- [x] App Store Connect subscriptions: `wants_pro_monthly`, `wants_pro_annual`
+- [x] App Store Connect non-consumable: `wants_pro_lifetime`
+- [x] RevenueCat: add **iOS app**, link products → **`pro`** entitlement
+- [x] Offering packages `$rc_monthly`, `$rc_annual`, `$rc_lifetime`
 - [ ] `EXPO_PUBLIC_REVENUECAT_IOS_KEY` (`appl_…`)
 
 ---
