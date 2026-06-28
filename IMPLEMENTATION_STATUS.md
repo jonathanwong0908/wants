@@ -1,6 +1,6 @@
 # Wants — Implementation Status
 
-Last updated: 2026-06-25
+Last updated: 2026-06-28
 
 Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md) for product intent.
 
@@ -16,6 +16,7 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 
 - [x] **Privacy Policy + Terms URLs** — `PRIVACY_POLICY_URL` / `TERMS_OF_USE_URL` in `src/constants/legal-links.ts`; About rows + paywall footer via `src/components/legal/legal-links.tsx`
 - [x] **`ios.buildNumber` in `app.json`** — required for EAS / App Store uploads alongside `version`
+- [ ] **EAS production env** — `EXPO_PUBLIC_APP_ENV=production`, `EXPO_PUBLIC_REVENUECAT_IOS_KEY=appl_…` (preview env verified Jun 2026)
 
 ### P1 — Product polish (no payments dependency)
 
@@ -226,7 +227,7 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 
 PRD lists two enforcement surfaces (FAB, theme). v1 ships both.
 
-### RevenueCat in app — done (Test Store)
+### RevenueCat — done (Test Store + StoreKit sandbox)
 
 **Files:** `src/contexts/purchases-context.tsx`, `src/lib/purchases.ts`, `src/hooks/use-is-pro.ts`
 
@@ -234,14 +235,16 @@ PRD lists two enforcement surfaces (FAB, theme). v1 ships both.
 - Entitlement `pro` mirrored to kv-store `is_pro`
 - Gates: Home FAB + add-want, premium theme selection
 - Dev-only Toggle Pro on Home (`!isProduction`)
-- Paywall + Subscription settings wired to RevenueCat (Expo Go + `test_` key)
+- Paywall + Subscription settings wired to RevenueCat
+- **Expo Go:** Test Store (`test_` key)
+- **EAS preview build:** StoreKit sandbox verified on physical device (Jun 2026); sandbox Apple ID under **Settings → Developer → Sandbox Apple Account** (iOS 18+)
 
-### Not done (payments infra — see PAYMENTS_SETUP.md)
+### Not done (payments — pre-release)
 
-- Phase 0b: App Store Connect app, agreements, sandbox tester
-- Phase 1: `react-native-purchases` config plugin, dev client build, `ios.buildNumber` (also backlog P0)
-- Phase 2: ASC subscription products, `appl_` key
-- Phase 7: StoreKit sandbox verification
-- Manage subscription → real App Store link (subscription screen placeholder alert today)
-- Manual test checklist — [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md) P6 if still relevant
+- TestFlight / App Store production build + submit
+- EAS **production** environment variables
+- Manage subscription → real App Store subscription management URL (placeholder alert today)
+- Optional: Apple Server Notifications → RevenueCat; remaining Phase 7 sandbox checks (restore, cancel, persist)
+
+See [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) open items.
 

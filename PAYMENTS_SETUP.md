@@ -1,6 +1,6 @@
 # Wants — Payments Setup (RevenueCat, iOS first)
 
-Last updated: 2026-06-24
+Last updated: 2026-06-28
 
 Step-by-step guide for integrating RevenueCat into Wants. See [prd.md](prd.md) for product intent (§8 free vs pro, S13 paywall) and [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for what is implemented vs deferred.
 
@@ -47,7 +47,7 @@ flowchart LR
 | Release        | Production `appl_` only     | Yes              | Yes                                 |
 
 
-**Next step for this repo:** **Phase 5** (verify gates with live entitlements) → **Phase 7** Test Store checklist in Expo Go. Skip **0b** until you want real StoreKit / App Store products.
+**Next step for this repo:** **TestFlight** (optional release-like QA) → **production** build + App Store submit. Track B sandbox verified on **EAS preview** build (Jun 2026).
 
 **Placeholder:** [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md) — **complete** (local UI, gates, subscription settings).
 
@@ -64,11 +64,14 @@ flowchart LR
 | `EXPO_PUBLIC_REVENUECAT_TEST_KEY` in env types               | Done — set in your local `.env`                   |
 | `Purchases.configure` on app launch                          | Done (Phase 3)                                    |
 | Paywall uses RC offerings + `purchasePackage()`              | Done (Phase 4)                                    |
-| `react-native-purchases` config plugin in `app.json`         | Not done (Phase 1)                                |
+| `react-native-purchases` config plugin in `app.json`         | N/A — autolinking only (v10.4.0)                  |
+| App Store products + RC iOS app + `default` offering         | Done (Phase 2)                                    |
+| StoreKit sandbox on physical device                          | Done — EAS **preview** build + sandbox Apple ID   |
+| `EXPO_PUBLIC_REVENUECAT_IOS_KEY` in EAS **preview** env      | Done — verified sandbox purchase in RC dashboard  |
 | Account settings screen                                      | Removed — subscription hub + subscription screen  |
 
 
-Paywall prices come from RevenueCat offerings (`src/lib/paywall-offerings.ts`); purchase/restore go through RevenueCat (Test Store in Expo Go).
+Paywall prices come from RevenueCat offerings (`src/lib/paywall-offerings.ts`). **Expo Go** uses Test Store (`test_` key); **preview / TestFlight / production** builds use StoreKit (`appl_` key).
 
 ---
 
@@ -76,7 +79,7 @@ Paywall prices come from RevenueCat offerings (`src/lib/paywall-offerings.ts`); 
 
 - RN `0.83.6` + Expo SDK `55` — compatible with `react-native-purchases` ^10.4.0 (Test Store min RN SDK 9.5.4).
 - **Test Store** — free RC account; `test_` or `rcb_` API key; no App Store Connect. ([Test Store docs](https://www.revenuecat.com/docs/test-and-launch/sandbox/test-store))
-- **Expo Go** + `test_` key → Test Store simulated purchases. **StoreKit sandbox** (`appl_` key) needs a **custom dev build** (Phase 1).
+- **Expo Go** + `test_` key → Test Store simulated purchases. **StoreKit sandbox** (`appl_` key) needs a **native build** (EAS **preview** or **production** — dev client optional).
 - v1 local-only (PRD §2): do **not** pass a custom `appUserID` — anonymous RC ID; restore on real stores ties to Apple ID.
 - Entitlement identifier: **`pro`**. Mirror to kv-store **`is_pro`** (`IS_PRO_KEY`).
 - **Never ship release builds with a `test_` key** — blocked/crashes in production.
@@ -132,13 +135,13 @@ PRD §8: two enforcement surfaces (FAB/add, theme). Placeholder gates already wi
 
 - [x] RevenueCat account at [app.revenuecat.com](https://app.revenuecat.com)
 - [x] **Test Store** enabled (sidebar **Apps** → Test Store, or auto-created on new project)
-- [ ] Entitlement named exactly **`pro`**
+- [x] Entitlement named exactly **`pro`**
 - [x] Three **Test Store** products (suggested IDs for later Apple parity):
   - `wants_pro_monthly` — subscription ~$1.99/mo
   - `wants_pro_annual` — subscription ~$9.99/yr
   - `wants_pro_lifetime` — one-time ~$19.99
-- [ ] All three products attached to entitlement **`pro`**
-- [ ] Offering **`default`** (current) with packages `$rc_monthly`, `$rc_annual`, `$rc_lifetime`
+- [x] All three products attached to entitlement **`pro`**
+- [x] Offering **`default`** (current) with packages `$rc_monthly`, `$rc_annual`, `$rc_lifetime`
 - [x] Copy **Test Store public API key** (`test_…`)
 
 ### B. Codebase / local env
@@ -173,18 +176,13 @@ Purchases appear in RC dashboard only after **Phase 3**.
 
 **Required for `appl_` / StoreKit sandbox.** **Not required** for Expo Go + `test_`.
 
-**Partial progress:**
-
 - [x] `bundleIdentifier`: `com.kloobel.wants`
 - [x] `react-native-purchases` installed
-- [x] `eas.json` development profile
-
-**Still needed:**
-
-- [x] `buildNumber` under `expo.ios` if missing
+- [x] `eas.json` build profiles (`development`, `preview`, `production` with `environment` on preview/production)
+- [x] `buildNumber` under `expo.ios`
 - [x] Native module via autolinking (`react-native-purchases` in `package.json` — no Expo config plugin in v10.4.0)
-- [x] Dev client: `eas build --profile development --platform ios` or `npx expo run:ios`
-- [ ] `npx expo start --dev-client`
+- [x] Native iOS build for StoreKit: `eas build --profile preview --platform ios` (verified Jun 2026)
+- [ ] Dev client + Metro (`eas build --profile development` + `npx expo start --dev-client`) — optional; not needed for IAP testing if using preview/TestFlight
 
 ---
 
@@ -196,7 +194,8 @@ Pairs with Phase 0b. Links real Apple product IDs to RC.
 - [x] App Store Connect non-consumable: `wants_pro_lifetime`
 - [x] RevenueCat: add **iOS app**, link products → **`pro`** entitlement
 - [x] Offering packages `$rc_monthly`, `$rc_annual`, `$rc_lifetime`
-- [ ] `EXPO_PUBLIC_REVENUECAT_IOS_KEY` (`appl_…`)
+- [x] `EXPO_PUBLIC_REVENUECAT_IOS_KEY` (`appl_…`) in EAS **preview** env (verified sandbox purchase)
+- [ ] `EXPO_PUBLIC_REVENUECAT_IOS_KEY` in EAS **production** env (before App Store / TestFlight production profile)
 
 ---
 
@@ -234,12 +233,15 @@ After Phase 3: Test Store purchases should appear under **Customers** in RC dash
 
 ## Phase 5 — Enforcement gates (verify live entitlements)
 
-Gates already implemented in placeholder — **re-verify** after Phase 3:
+Gates already implemented in placeholder — **re-verify** with a real sandbox purchase (dev toggle **off**):
 
 1. **Home FAB + add guard** — `home.tsx`, `add-want.tsx`
 2. **Theme settings** — `theme.tsx`
 
 No other paywalls.
+
+- [x] Sandbox purchase unlocks FAB / add (verified on preview build, Jun 2026)
+- [ ] Premium theme gate re-verified after sandbox purchase (quick manual pass)
 
 ---
 
@@ -260,11 +262,12 @@ No other paywalls.
 | -------------- | ---------- | ------------ | ---------------------------------------------------- |
 | Placeholder    | Expo Go    | none         | UI, gates, local `is_pro`                            |
 | **Test Store** | Expo Go    | `test_`      | RC offerings, simulated purchase, dashboard customer |
-| Apple sandbox  | Dev client | `appl_`      | Real StoreKit, sandbox Apple ID                      |
-| Production     | Release    | `appl_` only | Never `test_`                                        |
+| Apple sandbox  | EAS **preview** or dev client | `appl_` (EAS preview env) | Real StoreKit, sandbox Apple ID — **verified Jun 2026** |
+| TestFlight     | EAS **production**            | `appl_` (EAS production env) | Release-like; same sandbox Apple ID flow              |
+| Production     | App Store release             | `appl_` only              | Never `test_`                                         |
 
 
-**Checklist (run after Phase 3–4):**
+**Checklist — Test Store (Expo Go + `test_`):**
 
 - [x] Offerings load with localized prices
 - [x] Purchase flips `isPro`; gates unlock
@@ -274,18 +277,47 @@ No other paywalls.
 - [x] `is_pro` persists; re-syncs on foreground
 - [x] Dev Toggle Pro still flips local state for quick QA
 
+**Checklist — StoreKit sandbox (preview build + sandbox Apple ID):**
+
+- [x] Offerings load with Apple prices
+- [x] Sandbox purchase completes; `pro` in RC dashboard
+- [x] Revenue appears in RC (sandbox transaction)
+- [ ] Restore after reinstall
+- [ ] Cancel mid-purchase — no error spam
+- [ ] `is_pro` persists after kill + reopen
+
+---
+
+## EAS environment variables (reference)
+
+Set in [expo.dev](https://expo.dev) → project → **Environment variables**. Build profiles in `eas.json` map via `"environment"`.
+
+| EAS environment | `EXPO_PUBLIC_APP_ENV` | RevenueCat keys |
+| --- | --- | --- |
+| **development** | `development` | `test_` (+ optional `appl_` for local dev client) |
+| **preview** | `preview` | `appl_` only — **verified** |
+| **production** | `production` | `appl_` only — set before TestFlight / App Store |
+
+Local `.env` is for Expo Go / Metro only; EAS builds bake vars at compile time.
+
 ---
 
 ## Docs to update when RevenueCat integration is complete
 
-- [ ] [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)
-- [ ] [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md) — archive or mark swap complete
+- [x] [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)
+- [x] [PAYMENTS_PLACEHOLDER.md](PAYMENTS_PLACEHOLDER.md) — marked swap complete
 
 ---
 
-## Open items
+## Open items (pre-release)
 
-- None
+- [ ] EAS **production** env: `EXPO_PUBLIC_REVENUECAT_IOS_KEY` + `EXPO_PUBLIC_APP_ENV=production`
+- [ ] TestFlight internal test (optional): `eas build --profile production` → `eas submit`
+- [ ] Phase 5: premium theme gate quick re-verify after sandbox purchase
+- [ ] Phase 7 sandbox: restore, cancel, persist checks
+- [ ] Subscription screen: replace manage-subscription placeholder with App Store URL
+- [ ] Apple Server Notifications URL in App Store Connect → RevenueCat (optional, speeds renewals)
+- [ ] IAP review screenshots on ASC products before App Store submit
 
 ---
 

@@ -1,6 +1,8 @@
 # Wants — Monetization Placeholder (local `is_pro`)
 
-Last updated: 2026-06-24
+Last updated: 2026-06-28
+
+> **Status: swap complete (Jun 2026).** `PurchasesProvider` replaced `ProProvider`; paywall and gates use RevenueCat. This doc is kept as a historical checklist. Active integration guide: [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md).
 
 Implementation checklist for monetization **UI and gating logic** before an Apple Developer account or live RevenueCat purchases. For RevenueCat / App Store integration, see [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md). For high-level done/not-done, see [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
 
@@ -16,9 +18,9 @@ v1 stores `is_pro` in **kv-store** (`IS_PRO_KEY`), not a Drizzle settings table 
 
 ---
 
-## Explicitly out of scope
+## Explicitly out of scope (was placeholder — now in PAYMENTS_SETUP)
 
-- RevenueCat `Purchases.configure`, real offerings, StoreKit sandbox
+- ~~RevenueCat `Purchases.configure`, real offerings, StoreKit sandbox~~ — **done**; see [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) Phases 2–7
 
 ---
 
@@ -154,7 +156,5 @@ PRD §8 enforcement surfaces (two total):
 
 ## Next step after placeholder
 
-1. Complete UI/gates in this doc (Phases P1–P5).
-2. Follow [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) **Phase 0a** — RevenueCat Test Store (`test`_ key, no Apple account required).
-3. When ready for real IAP: **Phase 0b** (Apple Developer) and onward.
+~~Complete placeholder, then PAYMENTS_SETUP Phase 0a onward.~~ **Done.** Next: [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) open items (TestFlight, production env, App Store submit).
 
