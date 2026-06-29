@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/contexts/theme-context';
+import { resolveDisplayFontStyle } from '@/lib/fonts/resolve-display-font-style';
 import { resolveMetaFontStyle } from '@/lib/fonts/resolve-meta-font-style';
 import { Slot } from '@rn-primitives/slot';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -80,9 +81,16 @@ function Text({
     asChild?: boolean;
   }) {
   const textClass = React.useContext(TextClassContext);
-  const { metaFonts } = useTheme();
+  const { metaFonts, displayFonts } = useTheme();
   const Component = asChild ? Slot : RNText;
   const variantClasses = textVariants({ variant });
+  const displayFontStyle = resolveDisplayFontStyle(
+    displayFonts,
+    variant,
+    variantClasses,
+    textClass,
+    className
+  );
   const metaFontStyle = resolveMetaFontStyle(
     metaFonts,
     variant,
@@ -94,7 +102,7 @@ function Text({
   return (
     <Component
       className={cn(variantClasses, textClass, className)}
-      style={[metaFontStyle, style]}
+      style={[displayFontStyle, metaFontStyle, style]}
       role={variant ? ROLE[variant] : undefined}
       aria-level={variant ? ARIA_LEVEL[variant] : undefined}
       {...props}

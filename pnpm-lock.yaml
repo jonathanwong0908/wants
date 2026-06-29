@@ -11,6 +11,9 @@ importers:
       '@expo-google-fonts/jetbrains-mono':
         specifier: ^0.4.1
         version: 0.4.1
+      '@expo-google-fonts/libre-franklin':
+        specifier: ^0.4.2
+        version: 0.4.2
       '@hookform/resolvers':
         specifier: ^5.4.0
         version: 5.4.0(react-hook-form@7.76.1(react@19.2.0))
@@ -1249,6 +1252,9 @@ packages:
 
   '@expo-google-fonts/jetbrains-mono@0.4.1':
     resolution: {integrity: sha512-CslACrtMOcRwoWXCO7OMEI+9w3fukWSoBtvNz46OqPoogEuuoY0tkDY1O8sFumk8t0pC6Cx0Xr95O0TOQhpkug==}
+
+  '@expo-google-fonts/libre-franklin@0.4.2':
+    resolution: {integrity: sha512-aUf6qenmy23hL2BteGl8bk1Y1rmxplz3e1HhmjDkFt171aT7gEc4uSbuS1URbD5mUPzt0rv+VuOlKezPlDegew==}
 
   '@expo-google-fonts/material-symbols@0.4.36':
     resolution: {integrity: sha512-hFIN8h99qUid9OppB9Sj18sUQib2O0I9c0soBmgb932Kz+20pAaGe/PRH6NdAqm8/DdOs+Hwx8A4Fqn9ZNadhg==}
@@ -6599,6 +6605,8 @@ snapshots:
       levn: 0.4.1
 
   '@expo-google-fonts/jetbrains-mono@0.4.1': {}
+
+  '@expo-google-fonts/libre-franklin@0.4.2': {}
 
   '@expo-google-fonts/material-symbols@0.4.36': {}
 

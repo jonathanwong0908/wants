@@ -1,5 +1,10 @@
 import { vars } from "nativewind";
 
+import {
+  DISPLAY_FONT_BOLD,
+  DISPLAY_FONT_EXTRABOLD,
+  DISPLAY_FONT_SEMIBOLD,
+} from "@/lib/fonts/load-app-fonts";
 import type { ThemeDefinition, ThemePalette } from "@/lib/themes/types";
 
 /** HSL components (no hsl() wrapper) — single source for CSS vars and JS palette. */
@@ -91,4 +96,9 @@ export const retroSepiaThemeDefinition: ThemeDefinition = {
   colorScheme: "light",
   themeStyle: retroSepiaThemeStyle,
   palette: retroSepiaPalette,
+  displayFonts: {
+    semibold: DISPLAY_FONT_SEMIBOLD,
+    bold: DISPLAY_FONT_BOLD,
+    extrabold: DISPLAY_FONT_EXTRABOLD,
+  },
 };

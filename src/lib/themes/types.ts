@@ -9,6 +9,12 @@ export type ThemeMetaFonts = {
   bold: string;
 };
 
+export type ThemeDisplayFonts = {
+  semibold: string;
+  bold: string;
+  extrabold: string;
+};
+
 export type ResolvedColorScheme = "light" | "dark";
 
 /** Free themes use built-in ids; pro palettes extend this union as they are added. */
@@ -28,4 +34,6 @@ export type ThemeDefinition = {
   palette?: ThemePalette;
   /** Optional monospace faces for small and metadata text. */
   metaFonts?: ThemeMetaFonts;
+  /** Optional sans-serif faces for large titles and headings. */
+  displayFonts?: ThemeDisplayFonts;
 };
