@@ -20,7 +20,6 @@ import { useThemePalette } from "@/hooks/use-theme-palette";
 import { isProduction } from "@/lib/env";
 import { isAddWantGatedWhenReady } from "@/lib/is-add-want-gated";
 import { formatCurrency } from "@/lib/money-format";
-import { DEFAULT_PLAN_ID } from "@/lib/paywall-placeholder-offerings";
 import { pushHomeAreaRoute } from "@/lib/push-home-routes";
 import { pushPaywallRoute } from "@/lib/push-paywall-route";
 import { pushWantRoute } from "@/lib/push-want-route";
@@ -188,7 +187,7 @@ export default function HomeScreen() {
             variant="outline"
             className="mt-8 w-full"
             onPress={() => {
-              setDevProOverride(!isPro, DEFAULT_PLAN_ID);
+              setDevProOverride(!isPro);
             }}
           >
             <Text>Toggle Pro (dev) — {isPro ? "on" : "off"}</Text>

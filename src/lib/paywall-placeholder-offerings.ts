@@ -1,51 +1,12 @@
-export type PaywallPlanId = "monthly" | "annual" | "lifetime";
-
-export type PaywallPlanConfig = {
-  id: PaywallPlanId;
-  tabLabel: string;
-  title: string;
-  ctaLabel: string;
-};
-
 export const PAYWALL_BENEFITS = [
   "Unlimited waiting items",
   "Premium color themes",
   "Custom waiting periods",
 ] as const;
 
-export const PAYWALL_PLAN_IDS: PaywallPlanId[] = [
-  "monthly",
-  "annual",
-  "lifetime",
-];
+export const PAYWALL_HEADLINE = "Upgrade to Pro";
 
-export const PAYWALL_PLAN_CONFIG: PaywallPlanConfig[] = [
-  {
-    id: "monthly",
-    tabLabel: "Monthly",
-    title: "Monthly",
-    ctaLabel: "Subscribe",
-  },
-  {
-    id: "annual",
-    tabLabel: "Annual",
-    title: "Annual",
-    ctaLabel: "Subscribe annually",
-  },
-  {
-    id: "lifetime",
-    tabLabel: "Lifetime",
-    title: "Lifetime",
-    ctaLabel: "Unlock lifetime access",
-  },
-];
+export const PAYWALL_BODY =
+  "Wants is free with one active want at a time. Pro unlocks unlimited items, custom waiting periods, and premium themes.";
 
-export const DEFAULT_PLAN_ID: PaywallPlanId = "annual";
-
-export function getPaywallPlan(id: PaywallPlanId): PaywallPlanConfig {
-  const plan = PAYWALL_PLAN_CONFIG.find((entry) => entry.id === id);
-  if (!plan) {
-    throw new Error(`Unknown paywall plan: ${id}`);
-  }
-  return plan;
-}
+export const PAYWALL_CTA_LABEL = "Unlock Pro";

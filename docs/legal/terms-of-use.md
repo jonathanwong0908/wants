@@ -65,29 +65,17 @@ We may modify free or Pro feature limits with reasonable notice where required b
 
 ---
 
-## 6. Subscriptions, billing, and auto-renewal
+## 6. Purchases and billing
 
-Wants Pro may be offered as:
-
-- A **monthly** subscription
-- An **annual** subscription
-- A **lifetime** one-time purchase
+Wants Pro is offered as a **lifetime one-time purchase**.
 
 Prices are shown in the App at the time of purchase and may vary by region, currency, and platform.
-
-### Auto-renewing subscriptions
-
-If you purchase a monthly or annual subscription:
-
-- Payment will be charged to your Apple ID or Google Play account at confirmation of purchase
-- Subscriptions **automatically renew** unless auto-renew is turned off at least **24 hours** before the end of the current period
-- Your account will be charged for renewal within 24 hours prior to the end of the current period
-- You can manage or cancel subscriptions in your Apple ID or Google Play account settings
-- Any unused portion of a free trial period, if offered, will be forfeited when you purchase a subscription, where applicable
 
 ### Lifetime purchase
 
 A lifetime purchase is a one-time payment that unlocks Pro features for as long as the App and associated entitlement remain supported, subject to these Terms and platform policies. "Lifetime" means for the life of the App service, not your lifetime.
+
+Payment will be charged to your Apple ID or Google Play account at confirmation of purchase.
 
 ### Restore purchases
 

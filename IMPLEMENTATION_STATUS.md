@@ -181,7 +181,7 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 ### Done
 
 - Modal route; `pushPaywallRoute()` helper
-- Benefits copy (unlimited items, custom waiting periods, premium themes), plan tabs (monthly / annual / lifetime), dynamic prices from RevenueCat offerings
+- Benefits copy (unlimited items, custom waiting periods, premium themes), single lifetime unlock price from RevenueCat offerings
 - CTA → `purchasePackage()`; dismiss on success; legal footer with Privacy / Terms links
 - Restore on Subscription settings screen only (not on paywall)
 
@@ -239,7 +239,7 @@ PRD enforcement: FAB (second want), premium theme, Custom delay selection. v1 sh
 
 - TestFlight / App Store production build + submit
 - EAS **production** environment variables
-- Manage subscription → real App Store subscription management URL (placeholder alert today)
+- Manage subscription → removed (lifetime-only model; no recurring subscriptions)
 - Optional: Apple Server Notifications → RevenueCat; remaining Phase 7 sandbox checks (restore, cancel, persist)
 
 See [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) open items.

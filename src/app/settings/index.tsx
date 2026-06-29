@@ -52,7 +52,7 @@ export default function SettingsIndexScreen() {
     right: 16,
   };
   const { status } = useNotificationPermission();
-  const { isPro, proPlan } = usePurchases();
+  const { isPro } = usePurchases();
   const isProUser = useIsPro();
   const [customPickerVisible, setCustomPickerVisible] = useState(false);
 
@@ -149,7 +149,7 @@ export default function SettingsIndexScreen() {
               <View className="flex-row items-center justify-between gap-2">
                 <Text>Subscription</Text>
                 <Text className="text-base text-foreground">
-                  {getSubscriptionHubLabel(isPro, proPlan)}
+                  {getSubscriptionHubLabel(isPro)}
                 </Text>
               </View>
             </FieldContainerItem>

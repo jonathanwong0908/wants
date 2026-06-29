@@ -1,6 +1,6 @@
 # Wants — Payments Setup (RevenueCat, iOS first)
 
-Last updated: 2026-06-28
+Last updated: 2026-06-29
 
 Step-by-step guide for integrating RevenueCat into Wants. See [prd.md](prd.md) for product intent (§8 free vs pro, S13 paywall) and [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for what is implemented vs deferred.
 
@@ -73,6 +73,53 @@ flowchart LR
 
 Paywall prices come from RevenueCat offerings (`src/lib/paywall-offerings.ts`). **Expo Go** uses Test Store (`test_` key); **preview / TestFlight / production** builds use StoreKit (`appl_` key).
 
+**Monetization model (Jun 2026):** Single lifetime unlock — product **`wants_pro_unlock`**, suggested price **$9.99 USD**. No subscriptions. Entitlement **`pro`**. See [Manual migration guide](#manual-migration-guide-lifetime-only) below if updating from the old three-plan catalog.
+
+---
+
+## Manual migration guide (lifetime-only)
+
+Complete these steps **before** testing the updated app against real offerings.
+
+### 1. App Store Connect
+
+1. Open [App Store Connect](https://appstoreconnect.apple.com) → **Apps** → Wants → **Monetization** → **In-App Purchases**.
+2. **Old subscriptions** (`wants_pro_monthly`, `wants_pro_annual`): remove from sale or delete (app not live; no legacy support).
+3. **Old non-consumable** (`wants_pro_lifetime`): remove if replaced.
+4. **Create non-consumable IAP:**
+   - Product ID: **`wants_pro_unlock`** (must match `PRO_PRODUCT_ID` in `src/lib/purchases.ts`)
+   - Type: **Non-Consumable**
+   - Price: **$9.99 USD** (Apple sets localized prices)
+   - Display name / description: e.g. "Wants Pro — Lifetime Unlock"
+   - Add IAP review screenshot (paywall screen)
+5. Submit IAP for review with the app binary.
+
+### 2. RevenueCat dashboard (iOS app)
+
+Per [RevenueCat non-subscriptions docs](https://www.revenuecat.com/docs/platform-resources/non-subscriptions): configure as **non-consumable** so restore works.
+
+1. **Product catalog → Products** — import/link **`wants_pro_unlock`**; set **non-consumable**; detach old products.
+2. **Entitlements** — attach **only** `wants_pro_unlock` to **`pro`**.
+3. **Offerings → `default`** — remove monthly/annual/old lifetime packages; add **one** lifetime package (`$rc_lifetime` recommended); set as **current** offering.
+4. Verify offering preview shows **1 package** (~$9.99 US).
+
+### 3. RevenueCat Test Store (Expo Go)
+
+1. Add **`wants_pro_unlock`** as non-consumable, ~$9.99.
+2. Attach to entitlement **`pro`**.
+3. Update **`default`** offering to single lifetime package.
+
+### 4. EAS / env
+
+No API key changes. Rebuild preview/production after ASC + RC are updated.
+
+### 5. Verification
+
+| Environment | Build | Pass criteria |
+| --- | --- | --- |
+| Test Store | Expo Go + `test_` key | 1 package loads; purchase flips `isPro`; restore works |
+| StoreKit sandbox | EAS preview + `appl_` key | $9.99; purchase + restore; RC shows `pro` entitlement |
+
 ---
 
 ## Key facts
@@ -81,7 +128,7 @@ Paywall prices come from RevenueCat offerings (`src/lib/paywall-offerings.ts`). 
 - **Test Store** — free RC account; `test_` or `rcb_` API key; no App Store Connect. ([Test Store docs](https://www.revenuecat.com/docs/test-and-launch/sandbox/test-store))
 - **Expo Go** + `test_` key → Test Store simulated purchases. **StoreKit sandbox** (`appl_` key) needs a **native build** (EAS **preview** or **production** — dev client optional).
 - v1 local-only (PRD §2): do **not** pass a custom `appUserID` — anonymous RC ID; restore on real stores ties to Apple ID.
-- Entitlement identifier: **`pro`**. Mirror to kv-store **`is_pro`** (`IS_PRO_KEY`).
+- Entitlement identifier: **`pro`**. Product identifier: **`wants_pro_unlock`**. Mirror to kv-store **`is_pro`** (`IS_PRO_KEY`).
 - **Never ship release builds with a `test_` key** — blocked/crashes in production.
 
 ### API keys
@@ -136,12 +183,9 @@ PRD §8: two enforcement surfaces (FAB/add, theme). Placeholder gates already wi
 - [x] RevenueCat account at [app.revenuecat.com](https://app.revenuecat.com)
 - [x] **Test Store** enabled (sidebar **Apps** → Test Store, or auto-created on new project)
 - [x] Entitlement named exactly **`pro`**
-- [x] Three **Test Store** products (suggested IDs for later Apple parity):
-  - `wants_pro_monthly` — subscription ~$1.99/mo
-  - `wants_pro_annual` — subscription ~$9.99/yr
-  - `wants_pro_lifetime` — one-time ~$19.99
-- [x] All three products attached to entitlement **`pro`**
-- [x] Offering **`default`** (current) with packages `$rc_monthly`, `$rc_annual`, `$rc_lifetime`
+- [ ] One **Test Store** product: **`wants_pro_unlock`** — non-consumable ~$9.99
+- [ ] Product attached to entitlement **`pro`**
+- [ ] Offering **`default`** (current) with single lifetime package (`$rc_lifetime`)
 - [x] Copy **Test Store public API key** (`test_…`)
 
 ### B. Codebase / local env
@@ -153,7 +197,7 @@ PRD §8: two enforcement surfaces (FAB/add, theme). Placeholder gates already wi
 
 ### C. Manual verify (0a only)
 
-- [x] Dashboard: offering shows 3 packages with prices
+- [ ] Dashboard: offering shows 1 package with price
 - [x] App still launches (SDK not configured yet — expected)
 
 Purchases appear in RC dashboard only after **Phase 3**.
@@ -190,10 +234,9 @@ Purchases appear in RC dashboard only after **Phase 3**.
 
 Pairs with Phase 0b. Links real Apple product IDs to RC.
 
-- [x] App Store Connect subscriptions: `wants_pro_monthly`, `wants_pro_annual`
-- [x] App Store Connect non-consumable: `wants_pro_lifetime`
-- [x] RevenueCat: add **iOS app**, link products → **`pro`** entitlement
-- [x] Offering packages `$rc_monthly`, `$rc_annual`, `$rc_lifetime`
+- [ ] App Store Connect non-consumable: **`wants_pro_unlock`** (~$9.99 USD)
+- [ ] RevenueCat: iOS app links **`wants_pro_unlock`** → **`pro`** entitlement
+- [ ] Offering **`default`**: single lifetime package (`$rc_lifetime`)
 - [x] `EXPO_PUBLIC_REVENUECAT_IOS_KEY` (`appl_…`) in EAS **preview** env (verified sandbox purchase)
 - [ ] `EXPO_PUBLIC_REVENUECAT_IOS_KEY` in EAS **production** env (before App Store / TestFlight production profile)
 
@@ -209,7 +252,7 @@ Pairs with Phase 0b. Links real Apple product IDs to RC.
   - Call `configurePurchases()` once on mount
   - `getCustomerInfo()` + `addCustomerInfoUpdateListener`
   - Re-fetch on `AppState` foreground (PRD §8)
-  - Expose `{ isPro, proPlan, offerings, loading, purchase(pkg), restore(), refresh() }`
+  - Expose `{ isPro, offerings, loading, purchase(pkg), restore(), refresh() }`
   - Mirror `isPro` to kv-store; seed from kv-store on init
 - [x] Mount in `src/db/migrations.tsx` beside `SettingsProvider` (replace `ProProvider`)
 - [x] **`useIsPro()`** → purchases context
@@ -247,8 +290,8 @@ No other paywalls.
 
 ## Phase 6 — Subscription settings (PRD S12)
 
-- [x] Settings hub: Subscription row with plan label
-- [x] Subscription screen: status, upgrade, manage (stub), restore
+- [x] Settings hub: Subscription row with plan label (Free / Pro)
+- [x] Subscription screen: status, upgrade, restore
 - [x] Swap remaining `restorePlaceholder` / `purchasePlaceholder` references after Phase 3–4
 
 - Account screen removed — subscription is the monetization entry point
@@ -315,9 +358,8 @@ Local `.env` is for Expo Go / Metro only; EAS builds bake vars at compile time.
 - [ ] TestFlight internal test (optional): `eas build --profile production` → `eas submit`
 - [ ] Phase 5: premium theme gate quick re-verify after sandbox purchase
 - [ ] Phase 7 sandbox: restore, cancel, persist checks
-- [ ] Subscription screen: replace manage-subscription placeholder with App Store URL
-- [ ] Apple Server Notifications URL in App Store Connect → RevenueCat (optional, speeds renewals)
-- [ ] IAP review screenshots on ASC products before App Store submit
+- [ ] Re-verify after `wants_pro_unlock` migration: offerings load, purchase, restore, gates
+- [ ] IAP review screenshots on ASC for `wants_pro_unlock` before App Store submit
 
 ---
 

@@ -26,41 +26,31 @@ import {
   restorePurchases,
   syncProStatusFromCustomerInfo,
 } from "@/lib/purchases";
-import type { PaywallPlanId } from "@/lib/paywall-placeholder-offerings";
-import {
-  readIsPro,
-  readProPlan,
-  writeIsPro,
-  writeProPlan,
-} from "@/lib/pro-status";
+import { readIsPro, writeIsPro } from "@/lib/pro-status";
 
 export type PurchasesContextValue = {
   isPro: boolean;
-  proPlan: PaywallPlanId | null;
   offerings: PurchasesOfferings | null;
   loading: boolean;
   purchase: (pkg: PurchasesPackage) => Promise<boolean>;
   restore: () => Promise<void>;
   refresh: () => Promise<void>;
   resetDevPro: () => void;
-  setDevProOverride: (on: boolean, planId?: PaywallPlanId) => void;
+  setDevProOverride: (on: boolean) => void;
 };
 
 const PurchasesContext = createContext<PurchasesContextValue | null>(null);
 
 function applyCustomerInfoToState(
   customerInfo: CustomerInfo,
-  setIsPro: (value: boolean) => void,
-  setProPlan: (value: PaywallPlanId | null) => void
+  setIsPro: (value: boolean) => void
 ): void {
-  const { isPro, proPlan } = syncProStatusFromCustomerInfo(customerInfo);
+  const { isPro } = syncProStatusFromCustomerInfo(customerInfo);
   setIsPro(isPro);
-  setProPlan(proPlan);
 }
 
 export function PurchasesProvider({ children }: { children: ReactNode }) {
   const [isPro, setIsPro] = useState(() => readIsPro());
-  const [proPlan, setProPlan] = useState(() => readProPlan());
   const [offerings, setOfferings] = useState<PurchasesOfferings | null>(null);
   const [loading, setLoading] = useState(true);
   const devProOverrideRef = useRef<boolean | null>(null);
@@ -74,7 +64,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
       if (!shouldApplyRemoteUpdate()) {
         return;
       }
-      applyCustomerInfoToState(customerInfo, setIsPro, setProPlan);
+      applyCustomerInfoToState(customerInfo, setIsPro);
     },
     [shouldApplyRemoteUpdate]
   );
@@ -148,7 +138,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     try {
       const customerInfo = await purchasePackage(pkg);
       devProOverrideRef.current = null;
-      applyCustomerInfoToState(customerInfo, setIsPro, setProPlan);
+      applyCustomerInfoToState(customerInfo, setIsPro);
       return true;
     } catch (error) {
       if (isPurchaseCancelledError(error)) {
@@ -162,7 +152,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     try {
       const customerInfo = await restorePurchases();
       devProOverrideRef.current = null;
-      applyCustomerInfoToState(customerInfo, setIsPro, setProPlan);
+      applyCustomerInfoToState(customerInfo, setIsPro);
 
       if (readIsPro()) {
         Alert.alert("Restore purchases", "Wants Pro is active.");
@@ -180,33 +170,24 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
 
     devProOverrideRef.current = null;
     writeIsPro(false);
-    writeProPlan(null);
     setIsPro(false);
-    setProPlan(null);
 
     void refresh().catch((error) => {
       console.warn("RevenueCat refresh after dev reset failed:", error);
     });
   }, [refresh]);
 
-  const setDevProOverride = useCallback(
-    (on: boolean, planId?: PaywallPlanId) => {
-      if (!__DEV__) return;
+  const setDevProOverride = useCallback((on: boolean) => {
+    if (!__DEV__) return;
 
-      const plan = on ? (planId ?? readProPlan() ?? "annual") : null;
-      devProOverrideRef.current = on;
-      writeIsPro(on);
-      writeProPlan(plan);
-      setIsPro(on);
-      setProPlan(plan);
-    },
-    []
-  );
+    devProOverrideRef.current = on;
+    writeIsPro(on);
+    setIsPro(on);
+  }, []);
 
   const value = useMemo<PurchasesContextValue>(
     () => ({
       isPro,
-      proPlan,
       offerings,
       loading,
       purchase,
@@ -217,7 +198,6 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     }),
     [
       isPro,
-      proPlan,
       offerings,
       loading,
       purchase,

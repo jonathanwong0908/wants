@@ -204,13 +204,12 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 
 - Headline: "Upgrade to Pro"
 - Body copy: free tier limit (one active want) and Pro benefits (unlimited items, custom waiting periods, premium themes)
-- Three plan tabs: Monthly · Annual (default) · Lifetime
-- Prices loaded dynamically from RevenueCat (`product.priceString`) — never hardcoded in production; static copy (tab labels, CTAs) lives in `paywall-placeholder-offerings.ts`
-- Annual tab may show a computed savings subtitle when monthly and annual packages are both available
-- CTA: "Subscribe" on monthly; "Subscribe annually" on annual; "Unlock lifetime access" on lifetime
+- Single lifetime unlock: price loaded dynamically from RevenueCat (`product.priceString`) — never hardcoded in production; static copy (headline, body, CTA) lives in `paywall-placeholder-offerings.ts`
+- Price description: "Pay once for {priceString}"
+- CTA: "Unlock Pro"
 - Dismiss via modal close button
 - Restore purchases: Subscription settings screen only (not on paywall)
-- Legal footer: subscription terms, Privacy Policy and Terms of Use links
+- Legal footer: lifetime purchase terms, Privacy Policy and Terms of Use links
 
 ---
 
@@ -281,6 +280,6 @@ Enforcement points (nowhere else):
 | Total saved screen | Per-currency breakdown of skipped savings; opened from Home hero |
 | Notify at       | Timestamp when the push notification fires           |
 | Decision screen | Where the user chooses skip or buy                   |
-| Pro             | Paid subscription tier                               |
+| Pro             | Paid lifetime unlock tier                            |
 
 

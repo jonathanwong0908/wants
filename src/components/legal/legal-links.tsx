@@ -42,8 +42,8 @@ export function LegalLinkSettingsRows() {
 export function PaywallLegalFooter() {
   return (
     <Text variant="muted" className="text-xs leading-4 text-center">
-      Lifetime is a one-time purchase. Subscriptions auto-renew unless cancelled
-      at least 24 hours before renewal. Manage in Apple ID settings.{" "}
+      Lifetime unlock is a one-time purchase. Restore purchases from
+      subscription settings if you reinstall.{" "}
       <LegalLinkText
         url={PRIVACY_POLICY_URL}
         label="Privacy Policy"
