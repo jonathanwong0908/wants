@@ -1,5 +1,9 @@
 import { useTheme } from "@/contexts/theme-context";
+import { vars } from "nativewind";
 import { View, type ViewProps } from "react-native";
+
+/** Keep CSS vars on ThemeRoot from first paint so NativeWind never upgrades/remounts the navigator wrapper. */
+const DEFAULT_THEME_STYLE = vars({});
 
 type Props = ViewProps & {
   children: React.ReactNode;
@@ -8,16 +12,12 @@ type Props = ViewProps & {
 export function ThemeRoot({ children, style, ...props }: Props) {
   const { themeStyle } = useTheme();
 
-  if (themeStyle == null) {
-    return (
-      <View className="flex-1 bg-background" style={style} {...props}>
-        {children}
-      </View>
-    );
-  }
-
   return (
-    <View className="flex-1 bg-background" style={[themeStyle, style]} {...props}>
+    <View
+      className="flex-1 bg-background"
+      style={[themeStyle ?? DEFAULT_THEME_STYLE, style]}
+      {...props}
+    >
       {children}
     </View>
   );

@@ -67,10 +67,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const setThemeId = useCallback(
     (id: ThemeId) => {
       persistThemeId(id);
-      setColorScheme(readResolvedColorSchemeForThemeId(id));
       setThemeIdState(id);
     },
-    [setColorScheme]
+    []
   );
 
   const value = useMemo<ThemeContextValue>(
