@@ -1,4 +1,4 @@
-import { isProduction } from "@/lib/env";
+import { industrialThemeDefinition } from "@/lib/themes/palettes/industrial";
 import { retroSepiaThemeDefinition } from "@/lib/themes/palettes/retro-sepia";
 import type { ThemeDefinition, ThemeId } from "@/lib/themes/types";
 
@@ -15,7 +15,8 @@ export const THEME_REGISTRY: ThemeDefinition[] = [
     tier: "free",
     colorScheme: "dark",
   },
-  ...(!isProduction ? [retroSepiaThemeDefinition] : []),
+  retroSepiaThemeDefinition,
+  industrialThemeDefinition,
 ];
 
 const THEME_BY_ID = new Map<ThemeId, ThemeDefinition>(

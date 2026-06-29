@@ -18,6 +18,8 @@ const RETRO_SEPIA_HSL = {
   mutedForeground: "25 15% 42%",
   accent: "35 18% 86%",
   accentForeground: "25 35% 18%",
+  fab: "20 45% 32%",
+  fabForeground: "35 30% 94%",
   destructive: "8 55% 42%",
   destructiveForeground: "35 30% 94%",
   border: "30 20% 78%",
@@ -45,6 +47,8 @@ const CSS_VAR_KEYS: Record<keyof typeof RETRO_SEPIA_HSL, string> = {
   mutedForeground: "--muted-foreground",
   accent: "--accent",
   accentForeground: "--accent-foreground",
+  fab: "--fab",
+  fabForeground: "--fab-foreground",
   destructive: "--destructive",
   destructiveForeground: "--destructive-foreground",
   border: "--border",
@@ -87,5 +91,4 @@ export const retroSepiaThemeDefinition: ThemeDefinition = {
   colorScheme: "light",
   themeStyle: retroSepiaThemeStyle,
   palette: retroSepiaPalette,
-  devOnly: true,
 };

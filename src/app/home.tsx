@@ -244,11 +244,11 @@ export default function HomeScreen() {
               addWantGated === true ? "Upgrade to add more wants" : "Add want"
             }
             onPress={handleFabPress}
-            className="h-14 w-14 items-center justify-center rounded-full bg-primary shadow-md shadow-black/20 active:bg-primary/90"
+            className="h-14 w-14 items-center justify-center rounded-full bg-fab shadow-md shadow-black/20 active:bg-fab/90"
           >
             <Plus
               size={28}
-              color={palette.primaryForeground}
+              color={palette.fabForeground}
               strokeWidth={1.75}
             />
           </Pressable>

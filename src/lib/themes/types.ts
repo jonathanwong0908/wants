@@ -21,6 +21,4 @@ export type ThemeDefinition = {
   themeStyle?: StyleProp<ViewStyle>;
   /** Full hsl() palette when themeStyle overrides CSS vars; omitted for Light/Dark. */
   palette?: ThemePalette;
-  /** Excluded from production builds; for internal palette testing only. */
-  devOnly?: boolean;
 };
