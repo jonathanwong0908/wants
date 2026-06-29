@@ -1,6 +1,6 @@
 import type { items } from "@/db/schema";
 import { itemStatusValues } from "@/db/schema";
-import { CURRENCY_OPTIONS } from "@/lib/currency";
+import { isSupportedCurrencyCode } from "@/lib/currency";
 import {
   ITEM_NAME_MAX_LENGTH,
   NOTE_MAX_LENGTH,
@@ -24,10 +24,6 @@ export const WANTS_CSV_COLUMNS = [
 ] as const;
 
 type Item = typeof items.$inferSelect;
-
-const SUPPORTED_CURRENCY_CODES = new Set(
-  CURRENCY_OPTIONS.map((option) => option.value)
-);
 
 export type ParsedItemRow = {
   name: string;
@@ -159,7 +155,7 @@ const csvRowSchema = z
       .string()
       .trim()
       .min(1, "currency is required")
-      .refine((value) => SUPPORTED_CURRENCY_CODES.has(value), {
+      .refine((value) => isSupportedCurrencyCode(value), {
         message: "currency is not supported",
       }),
     delay_hours: z

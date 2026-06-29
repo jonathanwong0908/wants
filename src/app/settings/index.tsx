@@ -6,7 +6,7 @@ import { usePurchases } from "@/contexts/purchases-context";
 import { useSettings } from "@/contexts/settings-context";
 import { useTheme } from "@/contexts/theme-context";
 import { useNotificationPermission } from "@/hooks/use-notification-permission";
-import { CURRENCY_OPTIONS } from "@/lib/currency";
+import { getCurrencyOptionLabel } from "@/lib/currency";
 import { DELAY_OPTIONS } from "@/lib/forms/item-form-schema";
 import { pushSettingsRoute } from "@/lib/push-settings-routes";
 import { getSubscriptionHubLabel } from "@/lib/subscription-status";
@@ -51,7 +51,6 @@ export default function SettingsIndexScreen() {
   const {
     currencyCode,
     defaultDelayHours,
-    setCurrencyCode,
     setDefaultDelayHours,
   } = useSettings();
   const { themeId } = useTheme();
@@ -80,17 +79,14 @@ export default function SettingsIndexScreen() {
               </View>
             </FieldContainerItem>
             <Separator />
-            <FieldContainerItem>
+            <FieldContainerItem
+              onPress={() => pushSettingsRoute("/settings/currency")}
+            >
               <View className="flex-row items-center justify-between gap-2">
                 <Text>Currency</Text>
-                <SelectDropdown
-                  options={CURRENCY_OPTIONS}
-                  value={currencyCode}
-                  onChange={setCurrencyCode}
-                  portalHost={SETTINGS_PORTAL_HOST}
-                  sideOffset={sideOffset}
-                  insets={dropdownInsets}
-                />
+                <Text className="text-base text-foreground">
+                  {getCurrencyOptionLabel(currencyCode)}
+                </Text>
               </View>
             </FieldContainerItem>
             <Separator />

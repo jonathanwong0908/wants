@@ -5,7 +5,7 @@ import {
   CURRENCY_KEY,
   DEFAULT_DELAY_HOURS_KEY,
 } from "@/constants/storage-keys";
-import { CURRENCY_OPTIONS } from "@/lib/currency";
+import { isSupportedCurrencyCode } from "@/lib/currency";
 import {
   DEFAULT_CURRENCY_CODE,
   DEFAULT_DELAY_HOURS,
@@ -18,16 +18,8 @@ import {
 } from "@/lib/themes/storage";
 import type { ThemeId } from "@/lib/themes/types";
 
-const SUPPORTED_CURRENCY_CODES = new Set(
-  CURRENCY_OPTIONS.map((option) => option.value)
-);
-
 function isPresetDelayHours(hours: number): hours is (typeof PRESET_DELAY_HOURS)[number] {
   return (PRESET_DELAY_HOURS as readonly number[]).includes(hours);
-}
-
-function isSupportedCurrencyCode(code: string): boolean {
-  return SUPPORTED_CURRENCY_CODES.has(code);
 }
 
 export function readDefaultDelayHours(): number {
