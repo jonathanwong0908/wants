@@ -1,4 +1,5 @@
 import { TextClassContext } from '@/components/ui/text';
+import { useTheme } from '@/contexts/theme-context';
 import { cn } from '@/lib/utils';
 import * as TabsPrimitive from '@rn-primitives/tabs';
 import { Platform } from 'react-native';
@@ -15,10 +16,13 @@ function TabsList({
   style,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.List>) {
+  const { themeId } = useTheme();
+
   return (
     <TabsPrimitive.List
       className={cn(
         'bg-muted flex h-9 flex-row items-center justify-center rounded-xl p-[3px]',
+        themeId === 'industrial' && 'border border-border',
         Platform.select({ web: 'inline-flex w-fit', native: 'mr-auto' }),
         className
       )}
