@@ -86,6 +86,7 @@ export default function AddWantModalScreen() {
               currencyCode={currencyCode}
               autoFocusName
               showDelayField
+              isPro={isPro}
             />
           </Form>
         </ItemFormScrollView>

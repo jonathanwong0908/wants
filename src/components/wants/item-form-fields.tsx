@@ -3,18 +3,23 @@ import { SelectDropdown } from "@/components/common/select-dropdown";
 import { FormInput } from "@/components/form/form-input";
 import { FormTextarea } from "@/components/form/form-textarea";
 import { FormField } from "@/components/ui/form";
+import { CustomDelayPicker } from "@/components/wants/custom-delay-picker";
 import {
+  CUSTOM_DELAY_OPTION_VALUE,
+  DEFAULT_DELAY_HOURS,
   getCurrencyFractionDigits,
-  getDelayOptionsForForm,
   NOTE_MAX_LENGTH,
   sanitizePriceInput,
   type ItemFormInput,
   type ItemFormValues,
 } from "@/lib/forms/item-form-schema";
 import { getPriceInputPlaceholder } from "@/lib/money-format";
+import { pushPaywallRoute } from "@/lib/push-paywall-route";
+import { getDelayOptionsForValue } from "@/lib/want-format";
 import { Separator } from "@rn-primitives/dropdown-menu";
+import { useMemo, useState } from "react";
 import { View } from "react-native";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 type DropdownInsets = {
   top?: number;
@@ -28,9 +33,9 @@ type ItemFormFieldsProps = {
   sideOffset: number;
   dropdownInsets: DropdownInsets;
   currencyCode: string;
+  isPro: boolean;
   autoFocusName?: boolean;
   showDelayField?: boolean;
-  delayOptions?: { label: string; value: string }[];
 };
 
 export function ItemFormFields({
@@ -38,13 +43,46 @@ export function ItemFormFields({
   sideOffset,
   dropdownInsets,
   currencyCode,
+  isPro,
   autoFocusName = false,
   showDelayField = true,
-  delayOptions = getDelayOptionsForForm(),
 }: ItemFormFieldsProps) {
-  const { control } = useFormContext<ItemFormInput, unknown, ItemFormValues>();
+  const { control, setValue } = useFormContext<
+    ItemFormInput,
+    unknown,
+    ItemFormValues
+  >();
+  const [customPickerVisible, setCustomPickerVisible] = useState(false);
   const allowDecimals = getCurrencyFractionDigits(currencyCode) > 0;
   const pricePlaceholder = getPriceInputPlaceholder(currencyCode);
+  const delayHours = useWatch({ control, name: "delayHours" });
+
+  const dropdownOptions = useMemo(
+    () => getDelayOptionsForValue(delayHours ?? DEFAULT_DELAY_HOURS, true),
+    [delayHours]
+  );
+
+  function handleDelayChange(
+    value: string,
+    onChange: (hours: number) => void
+  ) {
+    if (value === CUSTOM_DELAY_OPTION_VALUE) {
+      if (!isPro) {
+        pushPaywallRoute();
+        return;
+      }
+
+      setCustomPickerVisible(true);
+      return;
+    }
+
+    onChange(Number(value));
+  }
+
+  function handleCustomDelayConfirm(hours: number) {
+    setValue("delayHours", hours, { shouldDirty: true, shouldValidate: true });
+    setCustomPickerVisible(false);
+  }
 
   return (
     <View className="gap-4">
@@ -91,9 +129,11 @@ export function ItemFormFields({
               <FieldContainerItem>
                 <SelectDropdown
                   label="Delay"
-                  options={delayOptions}
-                  value={String(field.value)}
-                  onChange={(value) => field.onChange(Number(value))}
+                  options={dropdownOptions}
+                  value={String(delayHours ?? field.value)}
+                  onChange={(value) =>
+                    handleDelayChange(value, field.onChange)
+                  }
                   portalHost={portalHost}
                   sideOffset={sideOffset}
                   insets={dropdownInsets}
@@ -135,6 +175,13 @@ export function ItemFormFields({
             }}
           />
         )}
+      />
+
+      <CustomDelayPicker
+        visible={customPickerVisible}
+        initialDelayHours={delayHours ?? 72}
+        onConfirm={handleCustomDelayConfirm}
+        onCancel={() => setCustomPickerVisible(false)}
       />
     </View>
   );

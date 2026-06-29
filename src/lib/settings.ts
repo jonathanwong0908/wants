@@ -9,7 +9,8 @@ import { isSupportedCurrencyCode } from "@/lib/currency";
 import {
   DEFAULT_CURRENCY_CODE,
   DEFAULT_DELAY_HOURS,
-  PRESET_DELAY_HOURS,
+  isAllowedCustomDelayHours,
+  isPresetDelayHours,
 } from "@/lib/forms/item-form-schema";
 import {
   readThemeId,
@@ -18,26 +19,49 @@ import {
 } from "@/lib/themes/storage";
 import type { ThemeId } from "@/lib/themes/types";
 
-function isPresetDelayHours(hours: number): hours is (typeof PRESET_DELAY_HOURS)[number] {
-  return (PRESET_DELAY_HOURS as readonly number[]).includes(hours);
-}
-
-export function readDefaultDelayHours(): number {
-  const raw = Storage.getItemSync(DEFAULT_DELAY_HOURS_KEY);
+function parseStoredDelayHours(raw: string | null): number | null {
   if (raw == null) {
-    return DEFAULT_DELAY_HOURS;
+    return null;
   }
 
   const hours = Number.parseInt(raw, 10);
-  if (!Number.isFinite(hours) || !isPresetDelayHours(hours)) {
-    return DEFAULT_DELAY_HOURS;
+  if (!Number.isFinite(hours) || hours < 1) {
+    return null;
   }
 
   return hours;
 }
 
+export function readDefaultDelayHours(): number {
+  const hours = parseStoredDelayHours(
+    Storage.getItemSync(DEFAULT_DELAY_HOURS_KEY)
+  );
+
+  if (hours == null) {
+    return DEFAULT_DELAY_HOURS;
+  }
+
+  if (isPresetDelayHours(hours) || isAllowedCustomDelayHours(hours)) {
+    return hours;
+  }
+
+  return DEFAULT_DELAY_HOURS;
+}
+
+export function getEffectiveDefaultDelayHours(
+  isPro: boolean,
+  stored?: number
+): number {
+  const hours = stored ?? readDefaultDelayHours();
+  if (isPro || isPresetDelayHours(hours)) {
+    return hours;
+  }
+
+  return DEFAULT_DELAY_HOURS;
+}
+
 export function writeDefaultDelayHours(hours: number): void {
-  if (!isPresetDelayHours(hours)) {
+  if (!isPresetDelayHours(hours) && !isAllowedCustomDelayHours(hours)) {
     throw new Error(`Invalid default delay hours: ${hours}`);
   }
 

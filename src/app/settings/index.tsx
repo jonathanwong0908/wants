@@ -2,18 +2,24 @@ import { FieldContainer, FieldContainerItem } from "@/components/common/field";
 import { SelectDropdown } from "@/components/common/select-dropdown";
 import { SettingsScreenHeader } from "@/components/settings/settings-screen-shell";
 import { Text } from "@/components/ui/text";
+import { CustomDelayPicker } from "@/components/wants/custom-delay-picker";
 import { usePurchases } from "@/contexts/purchases-context";
 import { useSettings } from "@/contexts/settings-context";
 import { useTheme } from "@/contexts/theme-context";
+import { useIsPro } from "@/hooks/use-is-pro";
 import { useNotificationPermission } from "@/hooks/use-notification-permission";
 import { getCurrencyOptionLabel } from "@/lib/currency";
-import { DELAY_OPTIONS } from "@/lib/forms/item-form-schema";
+import { CUSTOM_DELAY_OPTION_VALUE } from "@/lib/forms/item-form-schema";
+import { pushPaywallRoute } from "@/lib/push-paywall-route";
 import { pushSettingsRoute } from "@/lib/push-settings-routes";
+import { getEffectiveDefaultDelayHours } from "@/lib/settings";
 import { getSubscriptionHubLabel } from "@/lib/subscription-status";
 import { getThemeDisplayName } from "@/lib/themes/registry";
+import { getDelayOptionsForValue } from "@/lib/want-format";
 import { Separator } from "@rn-primitives/dropdown-menu";
 import { PortalHost, useModalPortalRoot } from "@rn-primitives/portal";
 import { Linking, ScrollView, View } from "react-native";
+import { useMemo, useState } from "react";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -47,13 +53,40 @@ export default function SettingsIndexScreen() {
   };
   const { status } = useNotificationPermission();
   const { isPro, proPlan } = usePurchases();
+  const isProUser = useIsPro();
+  const [customPickerVisible, setCustomPickerVisible] = useState(false);
 
-  const {
-    currencyCode,
-    defaultDelayHours,
-    setDefaultDelayHours,
-  } = useSettings();
+  const { currencyCode, defaultDelayHours, setDefaultDelayHours } =
+    useSettings();
   const { themeId } = useTheme();
+
+  const effectiveDefaultDelayHours = getEffectiveDefaultDelayHours(
+    isProUser,
+    defaultDelayHours
+  );
+  const defaultDelayOptions = useMemo(
+    () => getDelayOptionsForValue(effectiveDefaultDelayHours, true),
+    [effectiveDefaultDelayHours]
+  );
+
+  function handleDefaultDelayChange(value: string) {
+    if (value === CUSTOM_DELAY_OPTION_VALUE) {
+      if (!isProUser) {
+        pushPaywallRoute();
+        return;
+      }
+
+      setCustomPickerVisible(true);
+      return;
+    }
+
+    setDefaultDelayHours(Number(value));
+  }
+
+  function handleCustomDefaultDelayConfirm(hours: number) {
+    setDefaultDelayHours(hours);
+    setCustomPickerVisible(false);
+  }
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
@@ -69,9 +102,9 @@ export default function SettingsIndexScreen() {
               <View className="flex-row items-center justify-between gap-2">
                 <Text>Default delay</Text>
                 <SelectDropdown
-                  options={DELAY_OPTIONS}
-                  value={String(defaultDelayHours)}
-                  onChange={(value) => setDefaultDelayHours(Number(value))}
+                  options={defaultDelayOptions}
+                  value={String(effectiveDefaultDelayHours)}
+                  onChange={handleDefaultDelayChange}
                   portalHost={SETTINGS_PORTAL_HOST}
                   sideOffset={sideOffset}
                   insets={dropdownInsets}
@@ -137,6 +170,14 @@ export default function SettingsIndexScreen() {
           <View className="h-8" />
         </ScrollView>
         <PortalHost name={SETTINGS_PORTAL_HOST} />
+
+        <CustomDelayPicker
+          visible={customPickerVisible}
+          initialDelayHours={effectiveDefaultDelayHours}
+          onConfirm={handleCustomDefaultDelayConfirm}
+          onCancel={() => setCustomPickerVisible(false)}
+          showDecideOnPreview={false}
+        />
       </View>
     </SafeAreaView>
   );

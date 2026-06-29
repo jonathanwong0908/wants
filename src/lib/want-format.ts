@@ -1,4 +1,5 @@
 import {
+  CUSTOM_DELAY_OPTION_VALUE,
   DEV_ONE_MINUTE_DELAY_HOURS,
   getDelayOptionsForForm,
 } from "@/lib/forms/item-form-schema";
@@ -21,6 +22,21 @@ export function formatDelayHours(hours: number): string {
 
   if (hours % 24 === 0) {
     const days = hours / 24;
+    if (days === 30) {
+      return "1 month";
+    }
+    if (days === 28) {
+      return "4 weeks";
+    }
+    if (days === 21) {
+      return "3 weeks";
+    }
+    if (days === 14) {
+      return "2 weeks";
+    }
+    if (days === 7) {
+      return "1 week";
+    }
     return days === 1 ? "1 day" : `${days} days`;
   }
 
@@ -31,9 +47,26 @@ export function formatDelayHours(hours: number): string {
   return `${dayLabel} ${hourLabel}`;
 }
 
-export function getDelayOptionsForValue(delayHours: number) {
-  const formOptions = getDelayOptionsForForm();
-  const isPreset = formOptions.some(
+const CUSTOM_DELAY_OPTION = {
+  value: CUSTOM_DELAY_OPTION_VALUE,
+  label: "Custom…",
+} as const;
+
+export function getDelayOptionsForFormWithCustom(includeCustomOption: boolean) {
+  const options = getDelayOptionsForForm();
+  if (!includeCustomOption) {
+    return options;
+  }
+
+  return [...options, CUSTOM_DELAY_OPTION];
+}
+
+export function getDelayOptionsForValue(
+  delayHours: number,
+  includeCustomOption = true
+) {
+  const formOptions = getDelayOptionsForFormWithCustom(includeCustomOption);
+  const isPreset = getDelayOptionsForForm().some(
     (option) => Number(option.value) === delayHours
   );
   if (isPreset) {
@@ -41,7 +74,8 @@ export function getDelayOptionsForValue(delayHours: number) {
   }
 
   return [
-    ...formOptions,
+    ...getDelayOptionsForForm(),
     { value: String(delayHours), label: formatDelayHours(delayHours) },
+    ...(includeCustomOption ? [CUSTOM_DELAY_OPTION] : []),
   ];
 }

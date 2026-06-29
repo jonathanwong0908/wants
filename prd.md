@@ -49,7 +49,7 @@ The core entity. One row per thing the user wants to buy.
 | name       | What the user wants to buy                                      |
 | price      | Numeric amount                                                  |
 | currency   | ISO currency code (e.g. USD, JPY) — stored per item, not global |
-| delayHours | Waiting period in hours (24 / 72 / 168)                           |
+| delayHours | Waiting period in hours; presets 24 / 72 / 168; Pro may set custom (1–30 days) |
 | notifyAt   | Timestamp when the notification fires                           |
 | notifId    | expo-notifications identifier, for cancellation                 |
 | status     | `waiting` · `skipped` · `bought`                                |
@@ -65,7 +65,7 @@ Key-value store for user preferences.
 
 | Key                   | Description                                                                                                                                          | Default       |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| `default_delay_hours` | Pre-filled delay on Add screen                                                                                                                       | `72`          |
+| `default_delay_hours` | Pre-filled delay on Add screen; presets for free; Pro may store a custom default (24–720 hours)                                                      | `72`          |
 | `currency`            | User's currency, auto-detected from device locale on first run                                                                                       | device locale |
 | `onboarding_complete` | Whether onboarding has been completed                                                                                                                | `false`       |
 | `is_pro`              | Whether user has active RevenueCat entitlement                                                                                                       | `false`       |
@@ -134,11 +134,15 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 
 - **Top bar:** app name left, settings icon (lucide) right → opens Settings
 - **Savings hero:** large formatted total saved. Label: "saved so far" (or "saved so far in {settings currency}" when skipped items exist in other currencies). Subtext shows item count: "across X decisions". Tappable → Total saved screen; chevron beside the amount indicates navigation.
+- **Ready to decide section** (shown only when expired waiting items exist):
+  - Header: "Ready to decide"
+  - All waiting items where `notifyAt` has passed, ordered by `notifyAt` ascending
+  - Each item card: name, price, "Ready to decide" badge. Tappable → Decision screen
 - **Upcoming section:**
   - Header: "Upcoming" + "Show all →" link on the right → navigates to All Items screen
-  - Shows the next **3 waiting items** only, ordered by `notifyAt` ascending
-  - Each item card: name, price, countdown timer, "Ready to decide" badge if expired
-  - Empty state if no waiting items: "Nothing waiting. Add something you're eyeing."
+  - Shows **all** not-yet-expired waiting items, ordered by `notifyAt` ascending
+  - Each item card: name, price, countdown timer. Tappable → Decision screen
+  - Empty state if no upcoming items: "Nothing waiting. Add something you're eyeing."
 - **Floating action button** (bottom-right): "+" icon → opens Add item modal
 - **Notification permission banner** (shown if permission denied and waiting items exist): "Notifications are off — check back here manually." Dismissible.
 - **Free tier gate:** if waiting items ≥ 1 and not pro, FAB shows lock icon and opens paywall
@@ -156,7 +160,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 ### S6 — Add item *(modal)*
 
 - Fields: item name (required), price (required), delay picker, optional note
-- Delay picker options: 24h / 3 days / 1 week
+- Delay picker options: 24h / 3 days / 1 week, plus **Custom…** (Pro) — days picker (1–30 days); live preview of decide-on date
 - Default delay pre-filled from settings
 - On submit: schedule notification, save item, dismiss modal
 - **Free tier gate on Add screen:** if waiting items ≥ 1 and not pro, block adding and open paywall.
@@ -189,7 +193,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 
 ### S12 — Settings *(modal or pushed screen)*
 
-- **Defaults:** default delay picker, currency picker
+- **Defaults:** default delay picker (presets for free; presets + Custom for Pro), currency picker
 - **Notifications:** status indicator + link to system settings if permission denied
 - **Theme:** Light and Dark (default palette); premium color palettes for Pro — sub-page with selectable themes
 - **Account:** "Upgrade to Pro" (if not pro) / subscription status (if pro) / link to Subscription sub-screen / restore purchases
@@ -199,7 +203,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 ### S13 — Paywall *(modal)*
 
 - Headline: "Upgrade to Pro"
-- Body copy: free tier limit (one active want) and Pro benefits (unlimited items, premium themes)
+- Body copy: free tier limit (one active want) and Pro benefits (unlimited items, custom waiting periods, premium themes)
 - Three plan tabs: Monthly · Annual (default) · Lifetime
 - Prices loaded dynamically from RevenueCat (`product.priceString`) — never hardcoded in production; static copy (tab labels, CTAs) lives in `paywall-placeholder-offerings.ts`
 - Annual tab may show a computed savings subtitle when monthly and annual packages are both available
@@ -225,15 +229,16 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 | Feature              | Free                          | Pro                     |
 | -------------------- | ----------------------------- | ----------------------- |
 | Active waiting items | Max 1                         | Unlimited               |
-| Delay options        | 24h, 3 days, 1 week           | 24h, 3 days, 1 week     |
+| Delay options        | 24h, 3 days, 1 week           | Presets + custom (1–30 days picker) |
 | Past items history   | All time                      | All time                |
 | Color themes         | Light, Dark (default palette) | + Premium color palettes |
 
 
-Enforcement points (exactly 2, nowhere else):
+Enforcement points (nowhere else):
 
-1. FAB on Home — locked if waiting items ≥ 1
+1. FAB on Home — locked if waiting items ≥ 1 and not pro
 2. Theme settings — selecting a premium color palette when not pro opens the paywall
+3. Custom delay — selecting **Custom…** on Add item, Edit want, or Settings default delay when not pro opens the paywall
 
 `is_pro` is read from the settings table, synced from RevenueCat on app foreground. RevenueCat entitlement name: `pro`.
 

@@ -10,6 +10,7 @@ export type PaywallPlanConfig = {
 export const PAYWALL_BENEFITS = [
   "Unlimited waiting items",
   "Premium color themes",
+  "Custom waiting periods",
 ] as const;
 
 export const PAYWALL_PLAN_IDS: PaywallPlanId[] = [

@@ -10,6 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Text } from "@/components/ui/text";
+import { CUSTOM_DELAY_OPTION_VALUE } from "@/lib/forms/item-form-schema";
+import { formatDelayHours } from "@/lib/want-format";
 
 type Props = {
   label?: string;
@@ -35,7 +37,13 @@ export function SelectDropdown({
   sideOffset,
   insets,
 }: Props) {
-  const selectedLabel = options.find((option) => option.value === value)?.label;
+  const selectedLabel =
+    options.find((option) => option.value === value)?.label ??
+    (value &&
+    value !== CUSTOM_DELAY_OPTION_VALUE &&
+    Number.isFinite(Number(value))
+      ? formatDelayHours(Number(value))
+      : undefined);
 
   return (
     <DropdownMenu>

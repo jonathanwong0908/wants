@@ -1,6 +1,6 @@
 # Wants — Implementation Status
 
-Last updated: 2026-06-28
+Last updated: 2026-06-29
 
 Agent-readable tracker of what is implemented vs. deferred. See [prd.md](prd.md) for product intent.
 
@@ -21,13 +21,12 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 ### P1 — Product polish (no payments dependency)
 
 - [x] **About screen legal links** — Privacy / Terms rows on About; shared `LegalLinkSettingsRows` / `openLegalLink`
-- [x] **Remove custom-delay copy** — paywall benefits, placeholder offerings, docs; do not implement the feature
+- [x] **Custom waiting periods (Pro)** — days picker (1–30), Add/Edit/Settings default; paywall gate on Custom… (`src/components/wants/custom-delay-picker.tsx`)
 - [x] **iOS 64-notification prioritization** — when active waiting items exceed iOS local schedule cap, prioritize soonest `notifyAt` (`src/lib/notifications.ts`, reconciliation hooks)
 
 ### P2 — Optional for v1
 
 - [ ] **Delete from want detail** — delete only on edit screen today (`src/app/want/[id].tsx`)
-- [ ] **Home: cap Upcoming at 3 items** — PRD S5; app currently shows all waiting items (see PRD divergences under Home)
 - [ ] **Refresh this file** — keep screen-by-screen sections in sync as items ship
 
 ### P3 — Defer (not payments; not app code now)
@@ -35,7 +34,7 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 - Store listing assets (screenshots, description) — App Store Connect
 - Android `package` + parity — PRD: iOS first
 - PostHog analytics — PRD: optional v2
-- PRD divergences (Ready section split, past rows tappable) — intentional unless you change UX
+- PRD divergences (past rows tappable) — intentional unless you change UX
 - v2/v3 (widget, share card, iCloud, streaks, templates) — see PRD §10
 
 ---
@@ -63,6 +62,7 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 - Computes `notifyAt` as `now + delayHours`
 - Schedule local notification at `notifyAt` via `src/lib/notifications.ts`; persist `notifId`
 - Free-tier paywall gate: `useFocusEffect` + `router.replace` to paywall when gated; form hidden until waiting count resolves
+- Custom delay (Pro): **Custom…** in delay dropdown → days picker (1–30) modal; free → paywall
 
 ### Not done (follow-ups)
 
@@ -85,11 +85,6 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 - Tap row → Want detail modal (`/want/[id]`)
 - Notification permission banner when denied + waiting items exist (`notification-permission-banner.tsx`); dismiss persists in kv-store until a new waiting item is added
 - Free-tier FAB paywall gate: Plus icon always; opens paywall instead of add-want when waiting ≥ 1 and not pro
-
-### PRD divergences (intentional)
-
-- Home shows **all** waiting items, not PRD's cap of 3 on Home
-- Expired waiting items are in a separate **Ready to decide** section, not mixed into Upcoming with a badge
 
 ## All Wants (PRD S11) — partial
 
@@ -162,6 +157,7 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 
 - Modal nested stack: hub + notifications, account, data, about placeholder sub-screens
 - Hub UI: inline default delay + currency pickers (`FieldContainer` + `SelectDropdown`), navigation rows to sub-screens
+- Pro custom default delay via same Custom… picker; free downgrade falls back to preset default for prefill (`getEffectiveDefaultDelayHours`)
 - Persist default delay and currency via `expo-sqlite/kv-store` (`default_delay_hours`, `currency` keys)
 - `SettingsProvider` + `useSettings()` hook for reactive reads/writes
 - First-run currency seed from device locale on onboarding completion (`expo-localization`)
@@ -185,7 +181,7 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 ### Done
 
 - Modal route; `pushPaywallRoute()` helper
-- Benefits copy, plan tabs (monthly / annual / lifetime), dynamic prices from RevenueCat offerings
+- Benefits copy (unlimited items, custom waiting periods, premium themes), plan tabs (monthly / annual / lifetime), dynamic prices from RevenueCat offerings
 - CTA → `purchasePackage()`; dismiss on success; legal footer with Privacy / Terms links
 - Restore on Subscription settings screen only (not on paywall)
 
@@ -225,7 +221,7 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 
 ## Monetization (PRD §8)
 
-PRD lists two enforcement surfaces (FAB, theme). v1 ships both.
+PRD enforcement: FAB (second want), premium theme, Custom delay selection. v1 ships all three.
 
 ### RevenueCat — done (Test Store + StoreKit sandbox)
 

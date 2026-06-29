@@ -11,6 +11,34 @@ export const DEV_ONE_MINUTE_DELAY_HOURS = 0;
 export const DEFAULT_DELAY_HOURS = 72;
 export const DEFAULT_CURRENCY_CODE = "USD";
 
+export const MAX_CUSTOM_DAYS = 30;
+export const MIN_CUSTOM_DELAY_HOURS = 24;
+export const MAX_DELAY_HOURS = MAX_CUSTOM_DAYS * 24;
+/** Dropdown-only value; opens custom picker. Never persisted. */
+export const CUSTOM_DELAY_OPTION_VALUE = "custom";
+
+export function isPresetDelayHours(
+  hours: number
+): hours is (typeof PRESET_DELAY_HOURS)[number] {
+  return (PRESET_DELAY_HOURS as readonly number[]).includes(hours);
+}
+
+export function isAllowedCustomDelayHours(hours: number): boolean {
+  return (
+    Number.isInteger(hours) &&
+    hours >= MIN_CUSTOM_DELAY_HOURS &&
+    hours <= MAX_DELAY_HOURS
+  );
+}
+
+export function delayHoursFromDays(days: number): number {
+  return days * 24;
+}
+
+export function initialCustomPickerDays(hours: number): number {
+  return Math.min(MAX_CUSTOM_DAYS, Math.max(1, Math.round(hours / 24)));
+}
+
 export function getDelayDurationMs(delayHours: number): number {
   if (delayHours === DEV_ONE_MINUTE_DELAY_HOURS) {
     return 60 * 1000;

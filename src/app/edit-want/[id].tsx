@@ -8,6 +8,7 @@ import { useSettings } from "@/contexts/settings-context";
 import { deleteItem, updateItem } from "@/db/mutations/items";
 import { selectItemById } from "@/db/queries/items";
 import type { items } from "@/db/schema";
+import { useIsPro } from "@/hooks/use-is-pro";
 import { useItemForm } from "@/hooks/use-item-form";
 import { getDeleteWantAlertContent } from "@/lib/delete-want-alert";
 import {
@@ -15,7 +16,6 @@ import {
   type ItemFormValues,
 } from "@/lib/forms/item-form-schema";
 import { parseItemId } from "@/lib/parse-item-id";
-import { getDelayOptionsForValue } from "@/lib/want-format";
 import { PortalHost, useModalPortalRoot } from "@rn-primitives/portal";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -45,6 +45,7 @@ function EditWantForm({ item }: EditWantFormProps) {
   });
   const { currencyCode, handleSubmit, formState } = methods;
   const { isValid, isSubmitting, isDirty } = formState;
+  const isPro = useIsPro();
   const isWaiting = item.status === "waiting";
 
   const insets = useSafeAreaInsets();
@@ -138,7 +139,7 @@ function EditWantForm({ item }: EditWantFormProps) {
             dropdownInsets={dropdownInsets}
             currencyCode={currencyCode}
             showDelayField={isWaiting}
-            delayOptions={getDelayOptionsForValue(item.delayHours)}
+            isPro={isPro}
           />
         </Form>
       </ItemFormScrollView>
