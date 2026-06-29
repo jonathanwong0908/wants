@@ -97,4 +97,5 @@ export const industrialThemeDefinition: ThemeDefinition = {
     medium: META_FONT_MEDIUM,
     bold: META_FONT_BOLD,
   },
+  monoAllText: true,
 };

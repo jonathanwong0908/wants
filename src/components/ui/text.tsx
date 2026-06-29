@@ -81,7 +81,7 @@ function Text({
     asChild?: boolean;
   }) {
   const textClass = React.useContext(TextClassContext);
-  const { metaFonts, displayFonts } = useTheme();
+  const { metaFonts, displayFonts, monoAllText } = useTheme();
   const Component = asChild ? Slot : RNText;
   const variantClasses = textVariants({ variant });
   const displayFontStyle = resolveDisplayFontStyle(
@@ -94,6 +94,7 @@ function Text({
   const metaFontStyle = resolveMetaFontStyle(
     metaFonts,
     variant,
+    { monoAllText },
     variantClasses,
     textClass,
     className

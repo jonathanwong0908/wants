@@ -33,6 +33,7 @@ export type ThemeContextValue = {
   activeTheme: ThemeDefinition;
   themeStyle: ThemeDefinition["themeStyle"];
   metaFonts?: ThemeMetaFonts;
+  monoAllText?: boolean;
   displayFonts?: ThemeDisplayFonts;
 };
 
@@ -84,6 +85,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       activeTheme,
       themeStyle: activeTheme.themeStyle,
       metaFonts: activeTheme.metaFonts,
+      monoAllText: activeTheme.monoAllText,
       displayFonts: activeTheme.displayFonts,
     }),
     [themeId, setThemeId, resolvedColorScheme, activeTheme]

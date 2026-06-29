@@ -14,7 +14,7 @@ function Label({
   disabled,
   ...props
 }: React.ComponentProps<typeof LabelPrimitive.Text>) {
-  const { metaFonts } = useTheme();
+  const { metaFonts, monoAllText } = useTheme();
   const labelClassName = cn(
     'text-foreground text-sm font-medium',
     Platform.select({ web: 'leading-none' }),
@@ -23,6 +23,7 @@ function Label({
   const metaFontStyle = resolveMetaFontStyle(
     metaFonts,
     'default',
+    { monoAllText },
     labelClassName
   );
 

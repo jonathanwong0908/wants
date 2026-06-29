@@ -32,8 +32,10 @@ export type ThemeDefinition = {
   themeStyle?: StyleProp<ViewStyle>;
   /** Full hsl() palette when themeStyle overrides CSS vars; omitted for Light/Dark. */
   palette?: ThemePalette;
-  /** Optional monospace faces for small and metadata text. */
+  /** Optional monospace faces for small and metadata text, or all UI text when monoAllText is set. */
   metaFonts?: ThemeMetaFonts;
+  /** When true, metaFonts apply to all text sizes (not just small/metadata). */
+  monoAllText?: boolean;
   /** Optional sans-serif faces for large titles and headings. */
   displayFonts?: ThemeDisplayFonts;
 };

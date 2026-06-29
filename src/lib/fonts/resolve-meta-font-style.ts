@@ -23,6 +23,10 @@ export type MetaFontTextVariant =
   | null
   | undefined;
 
+export type ResolveMetaFontOptions = {
+  monoAllText?: boolean;
+};
+
 function isSmallText(
   variant: MetaFontTextVariant,
   ...classNames: (string | undefined)[]
@@ -45,32 +49,48 @@ function isSmallText(
   );
 }
 
+function resolveMetaFontFamily(
+  metaFonts: ThemeMetaFonts,
+  variant: MetaFontTextVariant,
+  combined: string
+): string {
+  if (variant === "meta") {
+    return metaFonts.medium;
+  }
+
+  if (variant === "metaStrong") {
+    return metaFonts.bold;
+  }
+
+  if (combined.includes("font-extrabold") || variant === "h1") {
+    return metaFonts.bold;
+  }
+
+  if (combined.includes("font-bold")) {
+    return metaFonts.bold;
+  }
+
+  return metaFonts.medium;
+}
+
 export function resolveMetaFontStyle(
   metaFonts: ThemeMetaFonts | undefined,
   variant: MetaFontTextVariant,
+  options: ResolveMetaFontOptions | undefined,
   ...classNames: (string | undefined)[]
 ): { fontFamily: string } | undefined {
   if (!metaFonts) {
     return undefined;
   }
 
-  if (variant === "meta") {
-    return { fontFamily: metaFonts.medium };
-  }
+  const monoAllText = options?.monoAllText ?? false;
+  const combined = cn(...classNames);
 
-  if (variant === "metaStrong") {
-    return { fontFamily: metaFonts.bold };
-  }
-
-  if (!isSmallText(variant, ...classNames)) {
+  if (!monoAllText && !isSmallText(variant, ...classNames)) {
     return undefined;
   }
 
-  const combined = cn(...classNames);
-
-  if (combined.includes("font-bold")) {
-    return { fontFamily: metaFonts.bold };
-  }
-
-  return { fontFamily: metaFonts.medium };
+  return {
+    fontFamily: resolveMetaFontFamily(metaFonts, variant, combined),
+  };
 }
