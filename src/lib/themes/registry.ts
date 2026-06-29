@@ -1,4 +1,5 @@
 import { industrialThemeDefinition } from "@/lib/themes/palettes/industrial";
+import { operationalThemeDefinition } from "@/lib/themes/palettes/operational";
 import { retroSepiaThemeDefinition } from "@/lib/themes/palettes/retro-sepia";
 import { signalThemeDefinition } from "@/lib/themes/palettes/signal";
 import type { ThemeDefinition, ThemeId } from "@/lib/themes/types";
@@ -19,6 +20,7 @@ export const THEME_REGISTRY: ThemeDefinition[] = [
   retroSepiaThemeDefinition,
   industrialThemeDefinition,
   signalThemeDefinition,
+  operationalThemeDefinition,
 ];
 
 const THEME_BY_ID = new Map<ThemeId, ThemeDefinition>(
