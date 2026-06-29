@@ -16,12 +16,7 @@ type DetailRowProps = {
 function DetailRow({ label, value }: DetailRowProps) {
   return (
     <View className="px-4 py-3">
-      <Text
-        variant="muted"
-        className="text-xs font-medium uppercase tracking-wide"
-      >
-        {label}
-      </Text>
+      <Text variant="meta">{label}</Text>
       <Text className="mt-1 text-base text-foreground">{value}</Text>
     </View>
   );
@@ -87,12 +82,7 @@ export function WantDetailContent({ item, nowMs }: WantDetailContentProps) {
       {item.note ? (
         <FieldContainer>
           <View className="px-4 py-3">
-            <Text
-              variant="muted"
-              className="text-xs font-medium uppercase tracking-wide"
-            >
-              Note
-            </Text>
+            <Text variant="meta">Note</Text>
             <Text className="mt-1 text-base text-foreground">{item.note}</Text>
           </View>
         </FieldContainer>

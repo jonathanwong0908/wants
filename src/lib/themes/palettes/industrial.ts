@@ -1,5 +1,9 @@
 import { vars } from "nativewind";
 
+import {
+  META_FONT_BOLD,
+  META_FONT_MEDIUM,
+} from "@/lib/fonts/load-app-fonts";
 import type { ThemeDefinition, ThemePalette } from "@/lib/themes/types";
 
 /** HSL components (no hsl() wrapper) — single source for CSS vars and JS palette. */
@@ -89,4 +93,8 @@ export const industrialThemeDefinition: ThemeDefinition = {
   colorScheme: "light",
   themeStyle: industrialThemeStyle,
   palette: industrialPalette,
+  metaFonts: {
+    medium: META_FONT_MEDIUM,
+    bold: META_FONT_BOLD,
+  },
 };

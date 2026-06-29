@@ -1,4 +1,6 @@
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/contexts/theme-context';
+import { resolveMetaFontStyle } from '@/lib/fonts/resolve-meta-font-style';
 import { Slot } from '@rn-primitives/slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
@@ -34,6 +36,8 @@ const textVariants = cva(
         large: 'text-lg font-semibold',
         small: 'text-sm font-medium leading-none',
         muted: 'text-muted-foreground text-sm',
+        meta: 'text-muted-foreground text-xs font-medium uppercase tracking-wide',
+        metaStrong: 'text-muted-foreground text-xs font-bold uppercase tracking-wide',
       },
     },
     defaultVariants: {
@@ -68,6 +72,7 @@ function Text({
   className,
   asChild = false,
   variant = 'default',
+  style,
   ...props
 }: React.ComponentProps<typeof RNText> &
   React.RefAttributes<typeof RNText> &
@@ -75,10 +80,21 @@ function Text({
     asChild?: boolean;
   }) {
   const textClass = React.useContext(TextClassContext);
+  const { metaFonts } = useTheme();
   const Component = asChild ? Slot : RNText;
+  const variantClasses = textVariants({ variant });
+  const metaFontStyle = resolveMetaFontStyle(
+    metaFonts,
+    variant,
+    variantClasses,
+    textClass,
+    className
+  );
+
   return (
     <Component
-      className={cn(textVariants({ variant }), textClass, className)}
+      className={cn(variantClasses, textClass, className)}
+      style={[metaFontStyle, style]}
       role={variant ? ROLE[variant] : undefined}
       aria-level={variant ? ARIA_LEVEL[variant] : undefined}
       {...props}

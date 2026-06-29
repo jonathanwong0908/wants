@@ -103,12 +103,7 @@ export function CustomDelayPicker({
 
           {showDecideOnPreview ? (
             <View className="mt-6 rounded-xl bg-muted/40 px-4 py-4">
-              <Text
-                variant="muted"
-                className="text-xs font-bold uppercase tracking-wide"
-              >
-                Decide on
-              </Text>
+              <Text variant="metaStrong">Decide on</Text>
               <Text className="mt-1 text-lg font-semibold text-foreground">
                 {formatNotifyAtDateTime(
                   computeNotifyAt(new Date(), computedHours)

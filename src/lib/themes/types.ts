@@ -4,6 +4,11 @@ import type { THEME } from "@/lib/theme";
 
 export type ThemeTier = "free" | "pro";
 
+export type ThemeMetaFonts = {
+  medium: string;
+  bold: string;
+};
+
 export type ResolvedColorScheme = "light" | "dark";
 
 /** Free themes use built-in ids; pro palettes extend this union as they are added. */
@@ -21,4 +26,6 @@ export type ThemeDefinition = {
   themeStyle?: StyleProp<ViewStyle>;
   /** Full hsl() palette when themeStyle overrides CSS vars; omitted for Light/Dark. */
   palette?: ThemePalette;
+  /** Optional monospace faces for small and metadata text. */
+  metaFonts?: ThemeMetaFonts;
 };

@@ -42,9 +42,7 @@ export function PastWantListRow({ item, onPress }: PastWantListRowProps) {
           ) : null}
         </View>
         <View className="shrink-0 items-end gap-1">
-          <Text variant="muted" className="text-xs font-medium uppercase">
-            {statusLabel}
-          </Text>
+          <Text variant="meta">{statusLabel}</Text>
           <Text className="text-base text-muted-foreground">
             {formatCurrency(item.price, item.currency)}
           </Text>

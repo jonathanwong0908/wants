@@ -13,6 +13,7 @@
     "dev": "npx expo start"
   },
   "dependencies": {
+    "@expo-google-fonts/jetbrains-mono": "^0.4.1",
     "@hookform/resolvers": "^5.4.0",
     "@legendapp/list": "^3.0.2",
     "@react-navigation/bottom-tabs": "^7.15.5",

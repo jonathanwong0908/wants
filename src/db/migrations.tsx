@@ -11,6 +11,7 @@ import { PurchasesProvider } from "@/contexts/purchases-context";
 import { SettingsProvider } from "@/contexts/settings-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { ONBOARDING_COMPLETE_KEY } from "@/constants/storage-keys";
+import { useAppFonts } from "@/lib/fonts/load-app-fonts";
 
 import migrations from "../../drizzle/migrations.js";
 import { db } from "./client";
@@ -79,6 +80,16 @@ export function AppReadyGate({ children }: AppReadyGateProps) {
   }
 
   if (!success) {
+    return null;
+  }
+
+  return <AppReadyWithFonts>{children}</AppReadyWithFonts>;
+}
+
+function AppReadyWithFonts({ children }: { children: ReactNode }) {
+  const fontsLoaded = useAppFonts();
+
+  if (!fontsLoaded) {
     return null;
   }
 

@@ -22,6 +22,7 @@ import type {
   ResolvedColorScheme,
   ThemeDefinition,
   ThemeId,
+  ThemeMetaFonts,
 } from "@/lib/themes/types";
 
 export type ThemeContextValue = {
@@ -30,6 +31,7 @@ export type ThemeContextValue = {
   resolvedColorScheme: ResolvedColorScheme;
   activeTheme: ThemeDefinition;
   themeStyle: ThemeDefinition["themeStyle"];
+  metaFonts?: ThemeMetaFonts;
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -79,6 +81,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       resolvedColorScheme,
       activeTheme,
       themeStyle: activeTheme.themeStyle,
+      metaFonts: activeTheme.metaFonts,
     }),
     [themeId, setThemeId, resolvedColorScheme, activeTheme]
   );

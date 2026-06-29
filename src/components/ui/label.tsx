@@ -1,9 +1,12 @@
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/contexts/theme-context';
+import { resolveMetaFontStyle } from '@/lib/fonts/resolve-meta-font-style';
 import * as LabelPrimitive from '@rn-primitives/label';
 import { Platform } from 'react-native';
 
 function Label({
   className,
+  style,
   onPress,
   onLongPress,
   onPressIn,
@@ -11,6 +14,18 @@ function Label({
   disabled,
   ...props
 }: React.ComponentProps<typeof LabelPrimitive.Text>) {
+  const { metaFonts } = useTheme();
+  const labelClassName = cn(
+    'text-foreground text-sm font-medium',
+    Platform.select({ web: 'leading-none' }),
+    className
+  );
+  const metaFontStyle = resolveMetaFontStyle(
+    metaFonts,
+    'default',
+    labelClassName
+  );
+
   return (
     <LabelPrimitive.Root
       className={cn(
@@ -26,11 +41,8 @@ function Label({
       onPressOut={onPressOut}
       disabled={disabled}>
       <LabelPrimitive.Text
-        className={cn(
-          'text-foreground text-sm font-medium',
-          Platform.select({ web: 'leading-none' }),
-          className
-        )}
+        className={labelClassName}
+        style={[metaFontStyle, style]}
         {...props}
       />
     </LabelPrimitive.Root>

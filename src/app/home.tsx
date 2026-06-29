@@ -148,12 +148,7 @@ export default function HomeScreen() {
           className="-mx-1 rounded-xl px-1"
           style={({ pressed }) => (pressed ? { opacity: 0.8 } : undefined)}
         >
-          <Text
-            variant="muted"
-            className="text-xs font-bold uppercase tracking-wide"
-          >
-            {savingsLabel}
-          </Text>
+          <Text variant="metaStrong">{savingsLabel}</Text>
           <View className="mt-1 flex-row items-center gap-1">
             <Text
               variant="h2"
