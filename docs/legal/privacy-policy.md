@@ -1,7 +1,7 @@
 # Privacy Policy
 
 **Effective date:** June 25, 2025  
-**Last updated:** June 25, 2025
+**Last updated:** June 29, 2026
 
 Kloobel ("we," "us," or "our") operates the Wants mobile application ("Wants" or the "App"). This Privacy Policy explains what information the App handles, how that information is used, and the choices you have.
 
@@ -13,7 +13,7 @@ Wants is designed so your want lists and decisions stay on your device. We do no
 
 - **Your want list data stays on your device** unless you choose to export it.
 - **We do not sell your personal information.**
-- **Subscriptions** are processed by Apple (and, when available, Google) through RevenueCat, our subscription management provider.
+- **In-app purchases** are processed by Apple (and, when available, Google) through RevenueCat, our in-app purchase provider.
 - **Push notifications** are scheduled locally on your device to remind you when a waiting period ends.
 
 ---
@@ -33,7 +33,7 @@ When you use Wants, the App stores the following information locally on your dev
 - **Items you log**, including name, price, currency, waiting period, optional notes, status (waiting, skipped, or bought), and related timestamps
 - **App settings**, such as default waiting period, currency preference, theme selection, and onboarding completion status
 - **Notification identifiers** used to schedule and cancel reminders for individual items
-- **Pro subscription status** cached locally for app functionality
+- **Pro purchase status** cached locally for app functionality
 
 This information is used only to provide App features, including tracking your waiting items, calculating your savings total, sending local reminders, and applying your preferences.
 
@@ -53,7 +53,7 @@ You can disable notifications at any time in your device settings. Wants can sti
 
 ---
 
-## Subscriptions and purchases
+## Purchases
 
 Wants offers an optional paid **Pro** tier with features such as unlimited active waiting items, custom waiting periods, and premium color themes.
 
@@ -113,7 +113,7 @@ We do not sell your personal information.
 
 We share information only in these situations:
 
-- **Service providers** that help us operate subscriptions (RevenueCat) and app stores (Apple, Google), as needed to process purchases and entitlements
+- **Service providers** that help us process in-app purchases (RevenueCat) and app stores (Apple, Google), as needed to process purchases and entitlements
 - **When you choose to share** exported CSV files or other content using your device's share sheet
 - **Legal requirements**, if we believe disclosure is required by law or to protect rights, safety, or security
 
@@ -134,10 +134,7 @@ Depending on where you live, you may have rights to access, correct, delete, or 
 
 Because Wants stores your want list locally, the fastest way to delete that data is through **Clear all data** in the App.
 
-For subscription-related requests (such as purchase history managed by Apple or RevenueCat), you may also use:
-
-- **iOS:** Settings → Apple ID → Subscriptions
-- **Android:** Google Play → Payments & subscriptions
+For purchase-related requests (such as purchase history managed by Apple or RevenueCat), you may use **Restore purchases** in the App under **Settings → Purchase**, or review purchase history in your Apple ID / Google Play account settings.
 
 To contact us about privacy, email **[CONTACT EMAIL]**.
 

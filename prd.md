@@ -196,7 +196,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 - **Defaults:** default delay picker (presets for free; presets + Custom for Pro), currency picker
 - **Notifications:** status indicator + link to system settings if permission denied
 - **Theme:** Light and Dark (default palette); premium color palettes for Pro — sub-page with selectable themes
-- **Account:** "Upgrade to Pro" (if not pro) / subscription status (if pro) / link to Subscription sub-screen / restore purchases
+- **Account:** "Upgrade to Pro" (if not pro) / purchase status (if pro) / link to Purchase sub-screen / restore purchases
 - **Data:** export to CSV (all items); import from CSV (replace or merge when data exists; settings unchanged); "Clear all data" (confirmation dialog, destructive)
 - **About:** version number, privacy policy link, terms link
 
@@ -208,7 +208,7 @@ No tab bar. The app is a stack of screens navigated by buttons and links.
 - Price description: "Pay once for {priceString}"
 - CTA: "Unlock Pro"
 - Dismiss via modal close button
-- Restore purchases: Subscription settings screen only (not on paywall)
+- Restore purchases: Purchase settings screen only (not on paywall)
 - Legal footer: lifetime purchase terms, Privacy Policy and Terms of Use links
 
 ---

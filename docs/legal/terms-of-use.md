@@ -1,7 +1,7 @@
 # Terms of Use
 
 **Effective date:** June 25, 2025  
-**Last updated:** June 25, 2025
+**Last updated:** June 29, 2026
 
 These Terms of Use ("Terms") govern your use of the Wants mobile application ("Wants" or the "App") provided by Kloobel ("we," "us," or "our").
 
@@ -79,7 +79,7 @@ Payment will be charged to your Apple ID or Google Play account at confirmation 
 
 ### Restore purchases
 
-You may restore prior purchases using the restore option in the App's subscription settings, subject to Apple or Google and RevenueCat validation rules.
+You may restore prior purchases using the restore option in the App under **Settings → Purchase**, subject to Apple or Google and RevenueCat validation rules.
 
 ### Refunds
 
@@ -112,7 +112,7 @@ We are not responsible for missed reminders caused by disabled notifications, de
 Wants uses third-party services to provide certain features, including:
 
 - **Apple App Store / Google Play** for payments
-- **RevenueCat** for subscription management and purchase validation
+- **RevenueCat** for in-app purchase management and validation
 
 Your use of those services is governed by their own terms and privacy policies. We are not responsible for third-party services outside our reasonable control.
 

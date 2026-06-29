@@ -16,7 +16,7 @@ export default function SettingsSubscriptionScreen() {
   const statusTitle = getSubscriptionStatusTitle(isPro);
 
   return (
-    <SettingsScreenShell title="Subscription">
+    <SettingsScreenShell title="Purchase">
       <View className="mt-4 gap-4">
         <View className="gap-1">
           <Text className="text-base font-medium text-foreground">
@@ -50,7 +50,7 @@ export default function SettingsSubscriptionScreen() {
               showChevron={false}
             >
               <Text className="text-base text-destructive">
-                Reset subscription (dev)
+                Reset purchase (dev)
               </Text>
             </FieldContainerItem>
           </FieldContainer>

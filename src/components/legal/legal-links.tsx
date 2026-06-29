@@ -43,7 +43,7 @@ export function PaywallLegalFooter() {
   return (
     <Text variant="muted" className="text-xs leading-4 text-center">
       Lifetime unlock is a one-time purchase. Restore purchases from
-      subscription settings if you reinstall.{" "}
+      Settings → Purchase if you reinstall.{" "}
       <LegalLinkText
         url={PRIVACY_POLICY_URL}
         label="Privacy Policy"

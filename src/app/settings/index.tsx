@@ -147,7 +147,7 @@ export default function SettingsIndexScreen() {
               onPress={() => pushSettingsRoute("/settings/subscription")}
             >
               <View className="flex-row items-center justify-between gap-2">
-                <Text>Subscription</Text>
+                <Text>Purchase</Text>
                 <Text className="text-base text-foreground">
                   {getSubscriptionHubLabel(isPro)}
                 </Text>
