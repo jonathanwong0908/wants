@@ -3,21 +3,54 @@ import { SettingsScreenHeader } from "@/components/settings/settings-screen-shel
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { usePurchases } from "@/contexts/purchases-context";
+import { useTheme } from "@/contexts/theme-context";
 import { buildProOffering } from "@/lib/paywall-offerings";
 import {
   PAYWALL_BODY,
   PAYWALL_CTA_LABEL,
   PAYWALL_HEADLINE,
 } from "@/lib/paywall-placeholder-offerings";
-import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { getThemeDefinition, isRegisteredThemeId } from "@/lib/themes/registry";
+import type { ThemeId } from "@/lib/themes/types";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+function resolvePreviewThemeId(raw: string | undefined): ThemeId | null {
+  if (raw == null || !isRegisteredThemeId(raw)) {
+    return null;
+  }
+
+  if (getThemeDefinition(raw)?.tier !== "pro") {
+    return null;
+  }
+
+  return raw;
+}
+
 export default function PaywallScreen() {
   const router = useRouter();
+  const { previewTheme: previewThemeParam } = useLocalSearchParams<{
+    previewTheme?: string;
+  }>();
+  const { setThemeId, setPreviewThemeId } = useTheme();
   const { offerings, loading, purchase } = usePurchases();
   const [purchasing, setPurchasing] = useState(false);
+
+  const previewThemeId = useMemo(
+    () => resolvePreviewThemeId(previewThemeParam),
+    [previewThemeParam]
+  );
+
+  useEffect(() => {
+    if (previewThemeId == null) {
+      return;
+    }
+
+    setPreviewThemeId(previewThemeId);
+    return () => setPreviewThemeId(null);
+  }, [previewThemeId, setPreviewThemeId]);
 
   const offering = useMemo(() => buildProOffering(offerings), [offerings]);
   const ctaDisabled = purchasing || loading || !offering.pkg;
@@ -31,6 +64,9 @@ export default function PaywallScreen() {
     try {
       const success = await purchase(offering.pkg);
       if (success) {
+        if (previewThemeId != null) {
+          setThemeId(previewThemeId);
+        }
         router.back();
       }
     } catch {
@@ -58,7 +94,7 @@ export default function PaywallScreen() {
               </Text>
             ) : offering.priceString ? (
               <>
-                <Text className="text-5xl font-bold leading-none text-foreground tracking-tighter">
+                <Text className="text-5xl font-bold leading-tight text-foreground tracking-tighter">
                   {offering.priceString}
                 </Text>
                 {offering.priceDescription ? (

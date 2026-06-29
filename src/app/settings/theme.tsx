@@ -48,7 +48,7 @@ export default function SettingsThemeScreen() {
   function handleSelectTheme(theme: ThemeDefinition) {
     const locked = theme.tier === "pro" && !isPro;
     if (locked) {
-      pushPaywallRoute();
+      pushPaywallRoute({ previewThemeId: theme.id });
       return;
     }
 

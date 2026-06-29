@@ -29,6 +29,8 @@ import type {
 export type ThemeContextValue = {
   themeId: ThemeId;
   setThemeId: (id: ThemeId) => void;
+  previewThemeId: ThemeId | null;
+  setPreviewThemeId: (id: ThemeId | null) => void;
   resolvedColorScheme: ResolvedColorScheme;
   activeTheme: ThemeDefinition;
   themeStyle: ThemeDefinition["themeStyle"];
@@ -54,6 +56,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [themeId, setThemeIdState] = useState<ThemeId>(() =>
     loadThemeIdForOnboardingState(onboardingComplete)
   );
+  const [previewThemeId, setPreviewThemeIdState] = useState<ThemeId | null>(
+    null
+  );
 
   useEffect(() => {
     if (!onboardingComplete) return;
@@ -61,9 +66,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setThemeIdState(readThemeId());
   }, [onboardingComplete]);
 
-  const resolvedColorScheme = readResolvedColorSchemeForThemeId(themeId);
+  const effectiveThemeId = previewThemeId ?? themeId;
+  const resolvedColorScheme =
+    readResolvedColorSchemeForThemeId(effectiveThemeId);
   const activeTheme =
-    getThemeDefinition(themeId) ?? getThemeDefinition("light")!;
+    getThemeDefinition(effectiveThemeId) ?? getThemeDefinition("light")!;
 
   useLayoutEffect(() => {
     setColorScheme(resolvedColorScheme);
@@ -77,10 +84,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  const setPreviewThemeId = useCallback((id: ThemeId | null) => {
+    setPreviewThemeIdState(id);
+  }, []);
+
   const value = useMemo<ThemeContextValue>(
     () => ({
       themeId,
       setThemeId,
+      previewThemeId,
+      setPreviewThemeId,
       resolvedColorScheme,
       activeTheme,
       themeStyle: activeTheme.themeStyle,
@@ -88,7 +101,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       monoAllText: activeTheme.monoAllText,
       displayFonts: activeTheme.displayFonts,
     }),
-    [themeId, setThemeId, resolvedColorScheme, activeTheme]
+    [
+      themeId,
+      setThemeId,
+      previewThemeId,
+      setPreviewThemeId,
+      resolvedColorScheme,
+      activeTheme,
+    ]
   );
 
   return (
