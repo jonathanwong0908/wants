@@ -15,8 +15,10 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 ### P0 — Before TestFlight / App Store
 
 - [x] **Privacy Policy + Terms URLs** — `PRIVACY_POLICY_URL` / `TERMS_OF_USE_URL` in `src/constants/legal-links.ts`; About rows + paywall footer via `src/components/legal/legal-links.tsx`
+- [ ] **Hosted legal pages** — fill `[CONTACT EMAIL]`, jurisdiction placeholders in `docs/legal/` and publish at kloobel.com URLs
 - [x] **`ios.buildNumber` in `app.json`** — required for EAS / App Store uploads alongside `version`
-- [ ] **EAS production env** — `EXPO_PUBLIC_APP_ENV=production`, `EXPO_PUBLIC_REVENUECAT_IOS_KEY=appl_…` (preview env verified Jun 2026)
+- [x] **EAS production env** — `EXPO_PUBLIC_APP_ENV=production`, `EXPO_PUBLIC_REVENUECAT_IOS_KEY=appl_…`
+- [x] **TestFlight QA** — production-profile build tested on device (purchase flow, core loop)
 
 ### P1 — Product polish (no payments dependency)
 
@@ -29,9 +31,25 @@ Tick off as you complete them. Safe to implement without Apple sandbox or StoreK
 - [ ] **Delete from want detail** — delete only on edit screen today (`src/app/want/[id].tsx`)
 - [ ] **Refresh this file** — keep screen-by-screen sections in sync as items ship
 
+### P0 — App Store Connect metadata (in progress)
+
+See **[App Store Connect metadata](#app-store-connect-metadata)** below for copy suggestions. Tick as you complete in ASC.
+
+- [ ] **Screenshots** — 6.7" iPhone set (required); optional 6.5" / iPad if targeting tablet
+- [ ] **App name + subtitle** — name: Wants; subtitle ≤ 30 chars
+- [ ] **Description + promotional text** — see suggested copy below
+- [ ] **Keywords** — 100-char limit, comma-separated, no spaces after commas
+- [ ] **Support URL** — required (e.g. `https://kloobel.com/apps/wants/support` or mailto/support page)
+- [ ] **Privacy Policy URL** — must match in-app link
+- [ ] **Category** — primary + optional secondary (see suggestions)
+- [ ] **Age rating questionnaire** — complete in ASC
+- [ ] **App Privacy (nutrition labels)** — align with `docs/legal/privacy-policy.md`
+- [ ] **IAP metadata** — `wants_pro_unlock` display name, description, review screenshot
+- [ ] **Review notes** — sandbox tester steps for Apple (see below)
+- [ ] **What's New** — version 1.0 release notes
+
 ### P3 — Defer (not payments; not app code now)
 
-- Store listing assets (screenshots, description) — App Store Connect
 - Android `package` + parity — PRD: iOS first
 - PostHog analytics — PRD: optional v2
 - PRD divergences (past rows tappable) — intentional unless you change UX
@@ -237,10 +255,134 @@ PRD enforcement: FAB (second want), premium theme, Custom delay selection. v1 sh
 
 ### Not done (payments — pre-release)
 
-- TestFlight / App Store production build + submit
-- EAS **production** environment variables
-- Manage subscription → removed (lifetime-only model; no recurring subscriptions)
-- Optional: Apple Server Notifications → RevenueCat; remaining Phase 7 sandbox checks (restore, cancel, persist)
+- App Store submit (TestFlight done; ASC metadata + legal pages in progress)
+- IAP review screenshot on ASC for `wants_pro_unlock`
+- Optional: Apple Server Notifications → RevenueCat; Phase 7 sandbox edge cases (restore after reinstall, persist)
 
 See [PAYMENTS_SETUP.md](PAYMENTS_SETUP.md) open items.
+
+---
+
+## App Store Connect metadata
+
+Suggested copy for Wants v1.0. Adjust tone to taste; stay accurate to free vs Pro (one active want free; lifetime unlock for unlimited + custom delays + premium themes).
+
+### Listing copy
+
+| Field | Limit | Suggestion |
+| ----- | ----- | ---------- |
+| **Name** | 30 | Wants |
+| **Subtitle** | 30 | Pause before overspending |
+| **Promotional text** | 170 | Caught overspending on impulse buys? Log the want, wait, then decide. We remind you when the wait is up. |
+| **Description** | 4000 | See block below |
+| **Keywords** | 100 | overspending,impulse,spending,savings,budget,shopping,mindful,money,delay,wait |
+| **Support URL** | — | `https://kloobel.com/apps/wants/support` (or a page with contact email) |
+| **Marketing URL** | optional | `https://kloobel.com/apps/wants` |
+| **Copyright** | — | `2026 Kloobel` (or your legal entity) |
+
+**Description (paste into ASC):**
+
+```
+Overspending often starts with a quick impulse buy. Wants gives you a pause.
+
+Log what you're thinking of buying, pick a waiting period, and put it out of mind. When the wait is up, we send you a notification — "Still want this?" — so you don't have to remember to check back.
+
+• Push reminders when your wait ends (not another app you have to open on a schedule)
+• Track what you decided not to buy and watch your savings add up
+• Simple list: upcoming waits, ready-to-decide items, and past decisions
+• Your data stays on your device — no account required
+
+FREE
+• One active waiting item at a time
+• Preset delays: 24 hours, 3 days, or 1 week
+
+WANTS PRO (one-time lifetime unlock)
+• Unlimited active waiting items
+• Custom waiting periods (1–30 days)
+• Premium color themes
+
+Pro is a single lifetime purchase — not a subscription. Restore purchases anytime in Settings.
+
+Privacy-first: want lists and decisions are stored locally on your phone.
+```
+
+**What's New (1.0.0):**
+
+```
+Initial release. Pause impulse buys before they turn into overspending — log wants, get reminded, track what you saved.
+```
+
+### Category
+
+| | Suggestion | Rationale |
+| --- | --- | --- |
+| **Primary** | Lifestyle | Mindful spending / habit, not a full finance suite |
+| **Secondary** | Finance | Savings angle; optional if Lifestyle feels right alone |
+
+Alternatives: **Productivity** (if you want to emphasize the reminder workflow over money).
+
+### Age rating
+
+Expect **4+** if questionnaire answers reflect: no unrestricted web, no social, no gambling, purchases behind IAP/parental gates. Answer honestly for in-app purchase and user-generated content (item names/notes stored locally).
+
+### App Privacy (nutrition labels)
+
+Align labels with [docs/legal/privacy-policy.md](docs/legal/privacy-policy.md):
+
+| Data type | Linked to user? | Used for tracking? | Notes |
+| --------- | --------------- | ------------------- | ----- |
+| **Purchase history** | No (or Not linked — RC/Apple handle IAP) | No | Via Apple IAP / RevenueCat for entitlement only |
+| **Product interaction** | No | No | Optional if ASC asks about on-device analytics — you have none |
+| **User content** | No | No | Item names, notes, prices — stored on device only, not collected by you |
+| **Identifiers** | Check RC docs | No | RevenueCat may use device/anonymous IDs for purchases — declare per RC + Apple guidance |
+
+No data collected for tracking; no third-party advertising. Push notifications are local scheduling, not remote push from your servers.
+
+### In-app purchase (`wants_pro_unlock`)
+
+| Field | Suggestion |
+| ----- | ---------- |
+| **Reference name** | Wants Pro — Lifetime Unlock |
+| **Display name** | Wants Pro |
+| **Description** | Unlimited waiting items, custom waiting periods (1–30 days), and premium color themes. One-time purchase. |
+| **Review screenshot** | Paywall screen showing lifetime price and benefits |
+| **Review notes** | Non-consumable; restore via Settings → Purchase → Restore purchases |
+
+### Screenshots (story order + copy)
+
+Designed frames: real app UI in a device mockup + short headline/subcopy. Use **overspending** on frames 1 and 4 only — skip where it would sound stuffed.
+
+| # | Screen | Headline | Subcopy |
+| - | ------ | -------- | ------- |
+| 1 | Home — savings hero + upcoming want | Pause overspending | Wait before you buy. |
+| 2 | Add want — name, price, delay | Log it fast | Name, price, delay. |
+| 3 | Decision — ready to decide + actions | We remind you | No need to check back. |
+| 4 | Home or Total saved — skipped / savings | Less overspending | Every skip counts. |
+| 5 | Settings → Theme — premium palettes | Premium themes | With Wants Pro. |
+| 6 | Paywall — lifetime price visible | Wants Pro | Pay once. Unlock all. |
+
+**Headline-only fallback** (tight layouts): Frame 1 **Pause overspending** · 2 **Log it fast** · 3 **We remind you** · 4 **Less overspending** · 5 **Premium themes** · 6 **Pay once**
+
+Use 6.7" (1290×2796) or Apple's current required size for iPhone 15 Pro Max class devices.
+
+### Review notes (for App Store Review)
+
+Paste into **App Review Information → Notes**:
+
+```
+Wants is a local-only impulse-buy delay app. No login.
+
+To test Pro (optional):
+1. Open app → complete onboarding (allow notifications if prompted).
+2. Add one waiting item (free tier allows one active want).
+3. Tap + again → paywall appears (free limit).
+4. Purchase "Wants Pro" (sandbox) OR use Settings → Purchase → Restore if already purchased.
+5. After Pro: add multiple items; Settings → Theme → select a premium theme; Add/Edit → Custom delay.
+
+Restore: Settings → Purchase → Restore purchases.
+
+All want data is stored on-device (SQLite). Clear via Settings → Data → Clear all data.
+```
+
+Add a **sandbox Apple ID** in Review Information if Apple requests it for IAP testing.
 

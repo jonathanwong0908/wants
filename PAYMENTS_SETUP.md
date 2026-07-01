@@ -234,11 +234,11 @@ Purchases appear in RC dashboard only after **Phase 3**.
 
 Pairs with Phase 0b. Links real Apple product IDs to RC.
 
-- [ ] App Store Connect non-consumable: **`wants_pro_unlock`** (~$9.99 USD)
-- [ ] RevenueCat: iOS app links **`wants_pro_unlock`** → **`pro`** entitlement
-- [ ] Offering **`default`**: single lifetime package (`$rc_lifetime`)
+- [x] App Store Connect non-consumable: **`wants_pro_unlock`** (~$9.99 USD)
+- [x] RevenueCat: iOS app links **`wants_pro_unlock`** → **`pro`** entitlement
+- [x] Offering **`default`**: single lifetime package (`$rc_lifetime`)
 - [x] `EXPO_PUBLIC_REVENUECAT_IOS_KEY` (`appl_…`) in EAS **preview** env (verified sandbox purchase)
-- [ ] `EXPO_PUBLIC_REVENUECAT_IOS_KEY` in EAS **production** env (before App Store / TestFlight production profile)
+- [x] `EXPO_PUBLIC_REVENUECAT_IOS_KEY` in EAS **production** env
 
 ---
 
@@ -306,7 +306,7 @@ No other paywalls.
 | Placeholder    | Expo Go    | none         | UI, gates, local `is_pro`                            |
 | **Test Store** | Expo Go    | `test_`      | RC offerings, simulated purchase, dashboard customer |
 | Apple sandbox  | EAS **preview** or dev client | `appl_` (EAS preview env) | Real StoreKit, sandbox Apple ID — **verified Jun 2026** |
-| TestFlight     | EAS **production**            | `appl_` (EAS production env) | Release-like; same sandbox Apple ID flow              |
+| TestFlight     | EAS **production**            | `appl_` (EAS production env) | Release-like; same sandbox Apple ID flow — **verified Jun 2026** |
 | Production     | App Store release             | `appl_` only              | Never `test_`                                         |
 
 
@@ -339,7 +339,7 @@ Set in [expo.dev](https://expo.dev) → project → **Environment variables**. B
 | --- | --- | --- |
 | **development** | `development` | `test_` (+ optional `appl_` for local dev client) |
 | **preview** | `preview` | `appl_` only — **verified** |
-| **production** | `production` | `appl_` only — set before TestFlight / App Store |
+| **production** | `production` | `appl_` only — **verified** (TestFlight Jun 2026) |
 
 Local `.env` is for Expo Go / Metro only; EAS builds bake vars at compile time.
 
@@ -354,12 +354,12 @@ Local `.env` is for Expo Go / Metro only; EAS builds bake vars at compile time.
 
 ## Open items (pre-release)
 
-- [ ] EAS **production** env: `EXPO_PUBLIC_REVENUECAT_IOS_KEY` + `EXPO_PUBLIC_APP_ENV=production`
-- [ ] TestFlight internal test (optional): `eas build --profile production` → `eas submit`
-- [ ] Phase 5: premium theme gate quick re-verify after sandbox purchase
-- [ ] Phase 7 sandbox: restore, cancel, persist checks
-- [ ] Re-verify after `wants_pro_unlock` migration: offerings load, purchase, restore, gates
-- [ ] IAP review screenshots on ASC for `wants_pro_unlock` before App Store submit
+- [ ] App Store Connect metadata — see [IMPLEMENTATION_STATUS.md § App Store Connect metadata](IMPLEMENTATION_STATUS.md#app-store-connect-metadata)
+- [ ] Hosted legal pages — contact email + jurisdiction placeholders in `docs/legal/`
+- [ ] IAP review screenshot on ASC for `wants_pro_unlock`
+- [ ] App Store submit
+- [ ] Phase 5: premium theme gate quick re-verify after sandbox purchase (optional if TestFlight covered)
+- [ ] Phase 7 sandbox: restore after reinstall, persist checks (optional)
 
 ---
 
